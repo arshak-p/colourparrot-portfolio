@@ -1,0 +1,51 @@
+.pixel-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pixel-card {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 25px;
+  isolation: isolate;
+  transition: all 400ms cubic-bezier(0.5, 1, 0.89, 1);
+  user-select: none;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pixel-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px);
+}
+
+.pixel-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(10, 228, 105, 0.1), transparent 85%);
+  opacity: 0;
+  transition: opacity 800ms cubic-bezier(0.5, 1, 0.89, 1);
+}
+
+.pixel-card:hover::before,
+.pixel-card:focus-within::before {
+  opacity: 1;
+}
+
+.pixel-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pixel-content * {
+  pointer-events: auto;
+}
