@@ -1,51 +1,29 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
+import styles from './ParrotWidget.module.css'
 
 export default function ParrotWidget() {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
     <motion.div 
-      className="parrot-widget"
+      className={styles.widget}
       initial={{ opacity: 0, scale: 0.8, y: 50 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
-      style={{
-        position: 'fixed',
-        bottom: '30px',
-        right: '30px',
-        zIndex: 1000,
-        cursor: 'pointer'
-      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => window.open('https://wa.me/919400890105?text=Hello! your parrot sent me here.', '_blank')}
     >
       <motion.div
-        className="parrot-bubble"
+        className={styles.bubble}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? -10 : 10 }}
-        style={{
-          position: 'absolute',
-          bottom: '100%',
-          right: '50%',
-          transform: 'translateX(50%)',
-          background: 'var(--light)',
-          color: 'var(--dark)',
-          padding: '8px 15px',
-          borderRadius: '20px',
-          fontSize: '0.8rem',
-          fontWeight: '500',
-          whiteSpace: 'nowrap',
-          marginBottom: '10px',
-          pointerEvents: 'none',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-        }}
       >
         LET'S TALK!
       </motion.div>
 
-      <div className="parrot-container" style={{ width: '80px', height: '80px' }}>
+      <div className={styles.container}>
         <svg viewBox="0 0 250 300" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="ip-bellyGradient">
@@ -80,16 +58,20 @@ export default function ParrotWidget() {
               d="M100 90 C 50 110, 50 180, 95 190 Q 100 185, 105 192 Q 110 182, 115 185 C 120 160, 115 120, 110 110 Z" 
               fill="url(#ip-wingGradient)" 
               animate={{ rotate: isHovered ? -20 : 0 }}
-              style={{ originX: '100px', originY: '90px' }}
+              className={styles.wingLeft}
             />
             <motion.path 
               d="M150 90 C 200 110, 200 180, 155 190 Q 150 185, 145 192 Q 140 182, 135 185 C 130 160, 135 120, 140 110 Z" 
               fill="url(#ip-wingGradient)" 
               animate={{ rotate: isHovered ? 20 : 0 }}
-              style={{ originX: '150px', originY: '90px' }}
+              className={styles.wingRight}
             />
 
-            <motion.g animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} style={{ originX: '125px', originY: '155px' }}>
+            <motion.g 
+              animate={{ rotate: [0, 5, -5, 0] }} 
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} 
+              className={styles.head}
+            >
               <ellipse cx="125" cy="120" rx="35" ry="35" fill="url(#ip-headGradient)" />
               <path d="M160 118 C172 122, 172 135, 160 138 C155 135, 152 130, 154 124 Z" fill="#f39c12" />
               <g>

@@ -1,10 +1,10 @@
-import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState, memo } from 'react'
 import { gsap } from 'gsap'
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import './StaggeredMenu.css'
 
-export default function StaggeredMenu({
+const StaggeredMenu = memo(function StaggeredMenu({
   position = 'right',
   colors   = ['#0ae469', '#021f14'],
   items    = [],
@@ -310,4 +310,6 @@ export default function StaggeredMenu({
       </header>
     </div>
   )
-}
+})
+
+export default StaggeredMenu

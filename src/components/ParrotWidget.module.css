@@ -1,0 +1,41 @@
+.widget {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.bubble {
+  position: absolute;
+  bottom: 100%;
+  right: 50%;
+  transform: translateX(50%);
+  background: var(--light);
+  color: var(--dark);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-bottom: 10px;
+  pointer-events: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.container {
+  width: 80px;
+  height: 80px;
+}
+
+.wingLeft {
+  transform-origin: 100px 90px;
+}
+
+.wingRight {
+  transform-origin: 150px 90px;
+}
+
+.head {
+  transform-origin: 125px 155px;
+}

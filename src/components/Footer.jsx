@@ -1,6 +1,8 @@
+import { memo } from 'react'
 import { socialItems } from '../data'
+import styles from './Footer.module.css'
 
-export default function Footer() {
+const Footer = memo(function Footer() {
   const links = [
     { label: 'Home',     href: '#hero'     },
     { label: 'About',    href: '#about'    },
@@ -10,16 +12,19 @@ export default function Footer() {
   ]
 
   return (
-    <footer style={{ background: '#010d12', padding: '1.75rem 3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', borderTop: '1px solid rgba(10,228,105,0.07)', position: 'relative', zIndex: 1 }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <p style={{ fontSize: '0.65rem', color: 'rgba(242,242,242,0.18)', letterSpacing: '0.05em' }}>
-          © 2025 Colour Parrot Branding & Advertising · Kozhikode, Kerala
+    <footer className={styles.footer}>
+      <div className={styles.left}>
+        <p className={styles.copyright}>
+          © 2025 Colour Parrot Branding &amp; Advertising · Kozhikode, Kerala
         </p>
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+        <div className={styles.socialRow}>
           {socialItems.map((s, i) => (
-            <a key={i} href={s.link} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(242,242,242,0.3)', transition: 'color 0.3s' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--green)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(242,242,242,0.3)'}
+            <a
+              key={i}
+              href={s.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.socialLink}
               aria-label={s.label}
             >
               {s.icon === 'instagram' && (
@@ -38,16 +43,16 @@ export default function Footer() {
           ))}
         </div>
       </div>
-      <nav style={{ display: 'flex', gap: '1.5rem' }}>
+
+      <nav className={styles.nav}>
         {links.map(({ label, href }) => (
-          <a key={label} href={href} style={{ fontSize: '0.65rem', color: 'rgba(242,242,242,0.22)', textDecoration: 'none', letterSpacing: '0.04em', transition: 'color 0.2s' }}
-            onMouseEnter={e => e.target.style.color = 'var(--green)'}
-            onMouseLeave={e => e.target.style.color = 'rgba(242,242,242,0.22)'}
-          >
+          <a key={label} href={href} className={styles.navLink}>
             {label}
           </a>
         ))}
       </nav>
     </footer>
   )
-}
+})
+
+export default Footer

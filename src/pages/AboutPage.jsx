@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
 import ParrotWidget from '../components/ParrotWidget'
+import BorderGlow from '../components/BorderGlow'
+
 
 const itemVariants = {
   hidden: { y: 30, opacity: 0 },
@@ -44,9 +46,19 @@ export default function AboutPage() {
             </p>
           </motion.div>
           
-          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '0', height: '500px', overflow: 'hidden' }}>
-            <img src="https://picsum.photos/1200/800?random=about" alt="Studio" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
-          </motion.div>
+          <BorderGlow 
+            className="acard" 
+            glowColor="160 84 62" 
+            colors={['#1D9E75', '#0ae469']} 
+            backgroundColor="#061014" 
+            borderRadius={32}
+            style={{ height: '500px' }}
+          >
+            <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+              <img src="https://picsum.photos/1200/800?random=about" alt="Studio" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
+            </div>
+          </BorderGlow>
+
         </div>
       </section>
 
@@ -64,12 +76,21 @@ export default function AboutPage() {
               { t: 'Creation', d: 'Atomic-level design and content production.' },
               { t: 'Launch',   d: 'Global delivery across all channels.' }
             ].map((step, i) => (
-              <motion.div key={i} variants={itemVariants} className="glass-card">
-                <div style={{ fontSize: '2.5rem', fontWeight: 500, color: 'var(--green)', marginBottom: '1.5rem', opacity: 0.8 }}>0{i+1}</div>
-                <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>{step.t}</h3>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem' }}>{step.d}</p>
-              </motion.div>
+              <BorderGlow 
+                key={i} 
+                glowColor="40 80 80" 
+                colors={['#1D9E75', '#28c1e5']} 
+                backgroundColor="#061014" 
+                borderRadius={28}
+              >
+                <div style={{ padding: '2.5rem' }}>
+                  <div style={{ fontSize: '2.5rem', fontWeight: 500, color: 'var(--green)', marginBottom: '1.5rem', opacity: 0.8 }}>0{i+1}</div>
+                  <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>{step.t}</h3>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem' }}>{step.d}</p>
+                </div>
+              </BorderGlow>
             ))}
+
           </div>
         </div>
       </section>

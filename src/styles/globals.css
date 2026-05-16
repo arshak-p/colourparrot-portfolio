@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 /* ── Clash Grotesk Font Faces ── */
 @font-face {
@@ -22,7 +22,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* Colors */
   --green:  #0ae469;
+  --green-rgb: 10, 228, 105;
   --dark:   #02171e;
   --darker: #010d12;
   --cyan:   #28c1e5;
@@ -30,10 +32,29 @@
   --purple: #7a43ff;
   --yellow: #f9cc3d;
   --light:  #f2f2f2;
+  
+  /* Glass Effects */
   --glass:  rgba(255, 255, 255, 0.03);
+  --glass-hover: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --font: 'ClashGrotesk', 'DM Sans', sans-serif;
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+
+  /* Fonts */
+  --font-primary: 'ClashGrotesk', 'DM Sans', sans-serif;
+  --font-secondary: 'Poppins', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Spacing & Sizing */
   --section-pad: 8rem 8%;
+  --container-max: 1400px;
+  --radius-xl: 40px;
+  --radius-lg: 24px;
+  --radius-md: 12px;
+  --radius-full: 100px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --trans-base: all 0.4s var(--ease-out);
 }
 
 html { 
@@ -46,7 +67,7 @@ html {
 ::-webkit-scrollbar-track { background: var(--darker); }
 ::-webkit-scrollbar-thumb {
   background: var(--green);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--darker);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
@@ -54,7 +75,7 @@ html {
 body {
   background: var(--dark);
   color: var(--light);
-  font-family: var(--font);
+  font-family: var(--font-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   cursor: none;
@@ -63,28 +84,43 @@ body {
 
 /* ── Typography ── */
 h1, h2, h3, h4, h5, h6 { 
-  font-family: 'ClashGrotesk', sans-serif; 
+  font-family: var(--font-primary); 
   font-weight: 500; 
   letter-spacing: -0.04em; 
   line-height: 1.05; 
 }
 
 /* ── Layout ── */
-.container { max-width: 1400px; margin: 0 auto; width: 100%; }
+.container { max-width: var(--container-max); margin: 0 auto; width: 100%; }
 .pad { padding: var(--section-pad); }
 
 .sec-label {
-  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
-  font-weight: 700; display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;
+  font-size: 0.65rem; 
+  letter-spacing: 0.25em; 
+  text-transform: uppercase;
+  font-weight: 700; 
+  display: flex; 
+  align-items: center; 
+  gap: 0.8rem; 
+  margin-bottom: 1.2rem;
   color: var(--green);
-  font-family: 'ClashGrotesk', sans-serif;
+  font-family: var(--font-primary);
 }
-.sec-label::before { content: ''; width: 30px; height: 1px; background: currentColor; opacity: 0.5; }
+.sec-label::before { 
+  content: ''; 
+  width: 30px; 
+  height: 1px; 
+  background: currentColor; 
+  opacity: 0.5; 
+}
 
 .sec-title {
-  font-size: clamp(2.8rem, 7vw, 5.2rem); font-weight: 500;
-  letter-spacing: -0.05em; line-height: 1; margin-bottom: 2.5rem;
-  font-family: 'ClashGrotesk', sans-serif;
+  font-size: clamp(2.8rem, 7vw, 5.2rem); 
+  font-weight: 500;
+  letter-spacing: -0.05em; 
+  line-height: 1; 
+  margin-bottom: 2.5rem;
+  font-family: var(--font-primary);
 }
 
 /* ── Effects ── */
@@ -93,13 +129,13 @@ h1, h2, h3, h4, h5, h6 {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   padding: 2.5rem;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: var(--trans-base);
 }
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--glass-hover);
+  border-color: var(--glass-border-hover);
   transform: translateY(-5px);
 }
 
@@ -117,16 +153,21 @@ h1, h2, h3, h4, h5, h6 {
   background-clip: text;
   animation: gradShift 3s linear infinite;
 }
+
 @keyframes gradShift {
   0% { background-position: 0%; }
   100% { background-position: 300%; }
 }
 
 .space-grid {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.02;
+  position: fixed; 
+  inset: 0; 
+  pointer-events: none; 
+  z-index: 0; 
+  opacity: 0.02;
   background-image:
-    linear-gradient(rgba(10,228,105,0.4) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10,228,105,0.4) 1px, transparent 1px);
+    linear-gradient(rgba(var(--green-rgb), 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--green-rgb), 0.4) 1px, transparent 1px);
   background-size: 100px 100px;
 }
 

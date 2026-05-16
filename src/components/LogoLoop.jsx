@@ -1,16 +1,18 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
+import styles from './LogoLoop.module.css'
 
 export default function LogoLoop({ logos = [], reverse = false, speed = 40 }) {
   const containerRef = useRef(null)
   const trackRef = useRef(null)
+  const trackColorRef = useRef(null)
+  const tlRef = useRef(null)
 
   useEffect(() => {
     const track = trackRef.current
-    if (!track) return
+    const trackColor = trackColorRef.current
+    if (!track || !trackColor) return
 
-    // Clone the logos twice for a total of 3 sets to ensure coverage
-    // We'll use the scrollWidth of ONE set for the loop
     const children = Array.from(track.children)
     const singleSetCount = logos.length
     const singleSetWidth = children.slice(0, singleSetCount).reduce((acc, child) => {
@@ -18,70 +20,76 @@ export default function LogoLoop({ logos = [], reverse = false, speed = 40 }) {
       return acc + child.offsetWidth + parseFloat(style.marginLeft) + parseFloat(style.marginRight)
     }, 0) + (parseFloat(window.getComputedStyle(track).gap) * (singleSetCount))
 
-    const tl = gsap.to(track, {
+    // Animate both tracks in sync
+    const animation = {
       x: reverse ? `+=${singleSetWidth}` : `-=${singleSetWidth}`,
       duration: speed,
       ease: 'none',
       repeat: -1,
       onReverseComplete: () => {
-        gsap.set(track, { x: 0 })
+        gsap.set([track, trackColor], { x: 0 })
       }
-    })
+    }
 
-    return () => tl.kill()
+    tlRef.current = gsap.to([track, trackColor], animation)
+
+    return () => tlRef.current?.kill()
   }, [logos, reverse, speed])
+
+  const handleMouseEnter = () => tlRef.current?.pause()
+  const handleMouseLeave = () => tlRef.current?.play()
+
+  // Track container position for the lens math
+  useEffect(() => {
+    const updateBounds = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        containerRef.current.style.setProperty('--container-left', `${rect.left}px`)
+        containerRef.current.style.setProperty('--container-top', `${rect.top}px`)
+      }
+    }
+    updateBounds()
+    window.addEventListener('scroll', updateBounds)
+    window.addEventListener('resize', updateBounds)
+    return () => {
+      window.removeEventListener('scroll', updateBounds)
+      window.removeEventListener('resize', updateBounds)
+    }
+  }, [])
 
   const tripled = [...logos, ...logos, ...logos]
 
   return (
-    <div ref={containerRef} style={{ overflow: 'hidden', padding: '3rem 0', width: '100%', position: 'relative' }}>
+    <div ref={containerRef} className={styles.container}>
+      {/* Background Grayscale Track */}
       <div 
         ref={trackRef} 
-        style={{ 
-          display: 'flex', 
-          gap: '8rem', 
-          width: 'max-content', 
-          alignItems: 'center', 
-          willChange: 'transform' 
-        }}
+        className={styles.track}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {tripled.map((logo, i) => (
-          <div 
-            key={i} 
-            style={{ 
-              position: 'relative', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center',
-              filter: 'drop-shadow(0 0 10px rgba(10,228,105,0))',
-              transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)'
-            }}
-            className="logo-item"
-            onMouseEnter={e => {
-              e.currentTarget.style.filter = 'drop-shadow(0 0 20px rgba(40,193,229,0.45))'
-              e.currentTarget.style.transform = 'scale(1.15) translateY(-5px)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.filter = 'drop-shadow(0 0 10px rgba(10,228,105,0))'
-              e.currentTarget.style.transform = 'scale(1) translateY(0)'
-            }}
-          >
-            <img 
-              src={logo} 
-              alt="Client Logo" 
-              style={{ 
-                height: 'clamp(80px, 12vh, 140px)', // Significantly bigger
-                width: 'auto', 
-                opacity: 0.65, 
-                filter: 'grayscale(1) invert(1) brightness(1.2)',
-              }} 
-            />
+          <div key={i} className={styles.logoItem}>
+            <img src={logo} alt="Client Logo" className={styles.logoImgGray} />
           </div>
         ))}
       </div>
+
+      {/* Foreground Color Lens Track */}
+      <div className={styles.lens}>
+        <div 
+          ref={trackColorRef} 
+          className={styles.track}
+        >
+          {tripled.map((logo, i) => (
+            <div key={i} className={styles.logoItem}>
+              <img src={logo} alt="Client Logo" className={styles.logoImgColor} />
+            </div>
+          ))}
+        </div>
+      </div>
       
-      {/* Galaxy Glow Overlay - Optional masking for depth */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(90deg, var(--dark) 0%, transparent 15%, transparent 85%, var(--dark) 100%)', zIndex: 2 }} />
+      <div className={styles.overlay} />
     </div>
   )
 }

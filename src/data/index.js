@@ -43,13 +43,14 @@ export const marqueeItems2 = [
 ]
 
 export const services = [
-  { name: 'Brand Identity',       desc: 'Logo systems, typography, colour palettes, brand guidelines — built to last across every touchpoint.',               pill: 'Strategy + Design',   accent: 'var(--green)',  image: '/branding_design_cosmic_1778433637538.png' },
-  { name: 'Video Production',     desc: 'Ad films, brand reels, motion graphics and storytelling content — from script to final frame.',                       pill: 'Motion + Story',      accent: 'var(--cyan)',   image: '/video_production_future_1778433657751.png' },
-  { name: 'Digital Marketing',    desc: 'Social campaigns, digital ads, performance creatives and full-funnel strategies that convert.',                        pill: 'Reach + Convert',     accent: 'var(--purple)', image: '/digital_marketing_orbit_1778433698442.png' },
-  { name: 'Web & UI Design',      desc: 'Websites, UI/UX concepts and app interfaces as beautiful as they are functional.',                                   pill: 'Digital Experience',  accent: 'var(--yellow)', image: '/web_dev_cosmic_code_1778433678220.png' },
-  { name: 'Content Creation',     desc: 'Copywriting, social media content, and digital storytelling that resonates with your audience.',                      pill: 'Narrative + Impact',  accent: 'var(--red)',    image: 'https://picsum.photos/600/400?random=55' },
-  { name: 'Creative Advertising', desc: 'Concept-driven campaigns and advertising narratives built on brand strategy and human insight.',                       pill: 'Ideas + Execution',   accent: 'var(--green)',  image: 'https://picsum.photos/600/400?random=66' },
+  { slug: 'brand-identity',       name: 'Brand Identity',       desc: 'Logo systems, typography, colour palettes, brand guidelines — built to last across every touchpoint.',               pill: 'Strategy + Design',   accent: 'var(--green)',  image: '/branding_design_cosmic_1778433637538.png' },
+  { slug: 'video-production',     name: 'Video Production',     desc: 'Ad films, brand reels, motion graphics and storytelling content — from script to final frame.',                       pill: 'Motion + Story',      accent: 'var(--cyan)',   image: '/video_production_future_1778433657751.png' },
+  { slug: 'digital-marketing',    name: 'Digital Marketing',    desc: 'Social campaigns, digital ads, performance creatives and full-funnel strategies that convert.',                        pill: 'Reach + Convert',     accent: 'var(--purple)', image: '/digital_marketing_orbit_1778433698442.png' },
+  { slug: 'web-design',           name: 'Web & UI Design',      desc: 'Websites, UI/UX concepts and app interfaces as beautiful as they are functional.',                                   pill: 'Digital Experience',  accent: 'var(--yellow)', image: '/web_dev_cosmic_code_1778433678220.png' },
+  { slug: 'content-creation',     name: 'Content Creation',     desc: 'Copywriting, social media content, and digital storytelling that resonates with your audience.',                      pill: 'Narrative + Impact',  accent: 'var(--red)',    image: 'https://picsum.photos/600/400?random=55' },
+  { slug: 'creative-advertising', name: 'Creative Advertising', desc: 'Concept-driven campaigns and advertising narratives built on brand strategy and human insight.',                       pill: 'Ideas + Execution',   accent: 'var(--green)',  image: 'https://picsum.photos/600/400?random=66' },
 ]
+
 
 export const workItems = [
   { text: 'Brand Identity',       image: 'https://picsum.photos/600/400?random=11', color: '#0ae469' },

@@ -1,13 +1,17 @@
 import { useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '../hooks/useGSAP'
 
 import StarBorderBtn from '../components/StarBorderBtn'
-import LogoLoop from '../components/LogoLoop'
+import ClientLogos from "../components/ClientLogos";
+import BorderGlow from '../components/BorderGlow'
 import MarqueeStrip from '../components/MarqueeStrip'
+
 import ParallaxStrip from '../components/ParallaxStrip'
-import CircularText from '../components/CircularText'
+
 
 import { 
   services, 
@@ -19,12 +23,7 @@ import {
 } from '../data'
 
 import logo from '../assets/logo.png'
-import logo1 from '../assets/CLIENT logos/logo1.png'
-import logo2 from '../assets/CLIENT logos/logo2.png'
-import logo3 from '../assets/CLIENT logos/logo3.png'
-import logo4 from '../assets/CLIENT logos/logo4.png'
-import logo5 from '../assets/CLIENT logos/logo5.png'
-import logo6 from '../assets/CLIENT logos/logo6.png'
+
 
 // ── Consolidated HomePage ──
 
@@ -37,8 +36,9 @@ export default function HomePage() {
       <MarqueeStrip items={marqueeItems2} accent="cyan" reverse />
       <ServicesSection />
       <ProjectsSection />
-      <ClientsSection />
+      <ClientLogos />
       <IndustriesSection />
+
       <ParallaxStrip />
       <ContactSection />
     </div>
@@ -60,11 +60,20 @@ function HeroSection() {
   const scrollTo = (id) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' })
 
   return (
-    <section id="hero" style={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 8%', position: 'relative', overflow: 'hidden' }}>
+    <section id="hero" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 8%', position: 'relative', overflow: 'hidden' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          #hero { padding: 0 6% !important; }
+          #hero .container { paddingTop: 8vh !important; }
+          #hero h1 { font-size: clamp(2.5rem, 12vw, 4rem) !important; line-height: 1.1 !important; }
+          #hero .hero-sub { font-size: 0.9rem !important; margin-bottom: 2rem !important; }
+          #hero .hero-btns { gap: 0.8rem !important; }
+        }
+      `}</style>
       
       <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: '12vh' }}>
         
-        <h1 style={{ fontSize: 'clamp(2rem, 8.5vw, 6.8rem)', fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 0.95, marginBottom: '1rem', textTransform: 'none' }}>
+        <h1 style={{ fontSize: 'clamp(3rem, 8.5vw, 6.8rem)', fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 0.95, marginBottom: '1.5rem', textTransform: 'none' }}>
           {[
             [{ text: 'Where', cls: 'g' }, { text: 'Brands', cls: '' }],
             [{ text: 'Go',   cls: 'c' }, { text: 'Beyond',  cls: 'p' }],
@@ -116,6 +125,7 @@ function HeroSection() {
       </div>
     </section>
   )
+
 }
 
 function AboutSection() {
@@ -145,12 +155,31 @@ function AboutSection() {
         </div>
         <div ref={cardsRef} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
           {cards.map((c, i) => (
-            <div key={i} className="acard glass-card" style={{ gridColumn: c.span === 2 ? '1/-1' : undefined, padding: '2rem', border: `1px solid ${c.bd}` }}>
-              <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: 500, letterSpacing: '-0.05em', lineHeight: 1, marginBottom: '0.5rem', color: c.col }}>{c.n}</div>
-              <div style={{ fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, opacity: 0.6 }}>{c.l}</div>
-            </div>
+            <BorderGlow
+              key={i}
+              className="acard"
+              style={{ gridColumn: c.span === 2 ? '1/-1' : undefined }}
+              glowColor={
+                c.col === 'var(--green)' ? '160 84 62' :
+                c.col === 'var(--cyan)' ? '190 80 60' :
+                '260 70 60'
+              }
+              colors={
+                c.col === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
+                c.col === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
+                ['#7a43ff', '#c084fc']
+              }
+              backgroundColor="#061014"
+              borderRadius={28}
+            >
+              <div style={{ padding: '2rem' }}>
+                <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: 500, letterSpacing: '-0.05em', lineHeight: 1, marginBottom: '0.5rem', color: c.col }}>{c.n}</div>
+                <div style={{ fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, opacity: 0.6 }}>{c.l}</div>
+              </div>
+            </BorderGlow>
           ))}
         </div>
+
       </div>
     </section>
   )
@@ -204,19 +233,41 @@ function ServicesSection() {
       <div style={{ flex: 1, width: '100%', borderTop: '1px solid rgba(242,242,242,0.08)', display: 'flex', flexDirection: 'column' }}>
         <div ref={menuRef} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {services.map((item, idx) => (
-            <div key={idx} style={{ flex: 1, position: 'relative', overflow: 'hidden', borderBottom: '1px solid rgba(242,242,242,0.06)', display: 'flex' }}>
-              <a href="#services" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', textDecoration: 'none', textTransform: 'uppercase', fontWeight: 500, fontSize: 'clamp(2.2rem, 8vh, 5.2rem)', fontFamily: 'ClashGrotesk, var(--font)', letterSpacing: '-0.04em', gap: '1.5rem', position: 'relative', zIndex: 1, cursor: 'pointer', color: item.accent }}>
+            <div key={idx} style={{ flex: 1, minHeight: '120px', position: 'relative', overflow: 'hidden', borderBottom: '1px solid rgba(242,242,242,0.06)', display: 'flex' }}>
+
+              <Link to={`/services/${item.slug}`} style={{ 
+                flex: 1, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                width: '100%', 
+                textDecoration: 'none', 
+                textTransform: 'uppercase', 
+                fontWeight: 500, 
+                fontSize: 'clamp(1.5rem, 6vh, 5.2rem)', 
+                fontFamily: 'ClashGrotesk, var(--font)', 
+                letterSpacing: '-0.04em', 
+                gap: '1.2rem', 
+                position: 'relative', 
+                zIndex: 1, 
+                cursor: 'pointer', 
+                color: item.accent,
+                padding: '1.5rem 0'
+              }}>
                 <span style={{ fontSize: '0.35em', fontWeight: 600, opacity: 0.5, letterSpacing: '0.05em' }}>0{idx+1}</span>
                 {item.name}
-              </a>
+              </Link>
+
+
               <div className="svc-marquee" style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', transform: 'translateY(101%)', zIndex: 2, backgroundColor: item.accent }}>
                 <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
                   <div className="svc-minner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: 'max-content', willChange: 'transform' }}>
                     {Array.from({ length: 8 }).map((_, i) => (
                       <div key={i} className="svc-mpart" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <span style={{ whiteSpace: 'nowrap', textTransform: 'uppercase', fontWeight: 500, fontSize: 'clamp(1.8rem, 5.5vh, 3.8rem)', padding: '0 4vw', fontFamily: 'ClashGrotesk, var(--font)', letterSpacing: '-0.04em', color: '#010d12' }}>{item.name}</span>
-                        <div style={{ width: '14vh', height: '6vh', margin: '0 2.5vw', borderRadius: 100, backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.9 }} />
+                        <span style={{ whiteSpace: 'nowrap', textTransform: 'uppercase', fontWeight: 500, fontSize: 'clamp(1.2rem, 4vh, 3.8rem)', padding: '0 4vw', fontFamily: 'ClashGrotesk, var(--font)', letterSpacing: '-0.04em', color: '#010d12' }}>{item.name}</span>
+                        <div style={{ width: '12vh', height: '5vh', margin: '0 2.5vw', borderRadius: 100, backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.9 }} />
                       </div>
+
                     ))}
                   </div>
                 </div>
@@ -271,24 +322,7 @@ function ProjectsSection() {
   )
 }
 
-function ClientsSection() {
-  const row1 = [logo1, logo2, logo3, logo1, logo2, logo3]
-  const row2 = [logo4, logo5, logo6, logo4, logo5, logo6]
-  return (
-    <section id="clients" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-          <p className="sec-label" style={{ color: 'var(--yellow)', justifyContent: 'center' }}>Our universe</p>
-          <h2 className="sec-title" style={{ textAlign: 'center' }}>Trusted by <span className="y">Brands</span></h2>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <LogoLoop logos={row1} speed={30} />
-          <LogoLoop logos={row2} speed={35} reverse />
-        </div>
-      </div>
-    </section>
-  )
-}
+
 
 function IndustriesSection() {
   const listRef = useRef(null)

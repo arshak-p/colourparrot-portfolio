@@ -114,6 +114,23 @@
 }
 .sm-socials-link:hover { color: var(--green); opacity: 1; }
 
-@media (max-width: 900px) {
-  .sm-panel, .sm-prelayers { width: 100%; right: 0; left: 0; }
+@media (max-width: 1024px) {
+  .sm-header { padding: 1.5em 2.5em; }
+  .sm-logo-img { height: 44px; }
+  .sm-logo-text { font-size: 1.4rem; }
 }
+
+@media (max-width: 768px) {
+  .sm-panel, .sm-prelayers { width: 100%; right: 0; left: 0; }
+  .sm-header { padding: 1.2em 1.8em; }
+  .sm-logo-img { height: 38px; }
+  .sm-logo-text { font-size: 1.2rem; }
+  .sm-toggle { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .sm-header { padding: 1em 1.2em; }
+  .sm-logo-text { display: none; }
+  .sm-logo-img { height: 36px; }
+}
+

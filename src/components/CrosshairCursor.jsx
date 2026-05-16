@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, memo } from 'react'
 import { gsap } from 'gsap'
+import styles from './CrosshairCursor.module.css'
 
 const lerp = (a, b, n) => (1 - n) * a + n * b
 
@@ -14,7 +15,7 @@ const getMousePos = (e, container) => {
   return { x: e.clientX, y: e.clientY }
 }
 
-export default function CrosshairCursor({ color = '#0ae469', containerRef = null }) {
+const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', containerRef = null }) {
   const cursorRef = useRef(null)
   const lineHorizontalRef = useRef(null)
   const lineVerticalRef = useRef(null)
@@ -29,6 +30,10 @@ export default function CrosshairCursor({ color = '#0ae469', containerRef = null
   useEffect(() => {
     const handleMouseMove = ev => {
       mouse.current = getMousePos(ev, containerRef?.current)
+      
+      // Set global mouse variables for other components to use
+      document.documentElement.style.setProperty('--mouse-x', `${ev.clientX}px`)
+      document.documentElement.style.setProperty('--mouse-y', `${ev.clientY}px`)
 
       if (containerRef?.current) {
         const bounds = containerRef.current.getBoundingClientRect()
@@ -172,18 +177,12 @@ export default function CrosshairCursor({ color = '#0ae469', containerRef = null
   return (
     <div
       ref={cursorRef}
-      className="crosshair-cursor"
+      className={styles.cursor}
       style={{
-        position: containerRef ? 'absolute' : 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        zIndex: 10000
+        position: containerRef ? 'absolute' : 'fixed'
       }}
     >
-      <svg style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', visibility: 'hidden' }}>
+      <svg className={styles.svgHidden}>
         <defs>
           <filter id="filter-noise-x">
             <feTurbulence type="fractalNoise" baseFrequency="0.000001" numOctaves="1" ref={filterXRef} />
@@ -203,54 +202,23 @@ export default function CrosshairCursor({ color = '#0ae469', containerRef = null
       {/* Horizontal Line - Delayed */}
       <div
         ref={lineHorizontalRef}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '0.5px',
-          background: '#000', 
-          pointerEvents: 'none',
-          top: 0,
-          left: 0,
-          opacity: 0.08
-        }}
+        className={styles.lineHorizontal}
       ></div>
 
       {/* Vertical Line - Delayed */}
       <div
         ref={lineVerticalRef}
-        style={{
-          position: 'absolute',
-          height: '100%',
-          width: '0.5px',
-          background: '#000', 
-          pointerEvents: 'none',
-          top: 0,
-          left: 0,
-          opacity: 0.08
-        }}
+        className={styles.lineVertical}
       ></div>
 
       <div
         ref={circleRef}
+        className={styles.circle}
         style={{
-          position: 'absolute',
-          width: '44px',
-          height: '44px',
-          border: `1px solid rgba(0, 0, 0, 0.15)`, // Subtle grey-ish edge
-          borderRadius: '50%',
-          pointerEvents: 'none',
-          top: 0,
-          left: 0,
-          transform: 'translate(-50%, -50%)',
-          opacity: 0,
-          zIndex: 10001,
-          background: 'rgba(0, 0, 0, 0.02)', // Minimal smoke
-          // Applying the lens distortion filter
-          backdropFilter: 'url(#lens-distortion) contrast(1.1)',
-          WebkitBackdropFilter: 'url(#lens-distortion) contrast(1.1)',
+          border: `1px solid rgba(10, 228, 105, 0.2)`, 
           boxShadow: `
-            inset 0 0 10px rgba(0,0,0,0.05),
-            0 5px 15px rgba(0,0,0,0.2)
+            inset 0 0 15px rgba(255,255,255,0.05),
+            0 0 20px rgba(10,228,105,0.1)
           `
         }}
       ></div>
@@ -258,21 +226,14 @@ export default function CrosshairCursor({ color = '#0ae469', containerRef = null
       {/* Inner Dot - IMMEDIATE */}
       <div
         ref={dotRef}
+        className={styles.dot}
         style={{
-          position: 'absolute',
-          width: '5px', // Smaller, more precise dot
-          height: '5px',
-          background: color, // Back to brand green
-          borderRadius: '50%',
-          pointerEvents: 'none',
-          top: 0,
-          left: 0,
-          transform: 'translate(-50%, -50%)',
-          opacity: 0,
-          zIndex: 10002
+          background: color
         }}
       ></div>
 
     </div>
   )
-}
+})
+
+export default CrosshairCursor

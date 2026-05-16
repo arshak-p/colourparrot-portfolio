@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import SpaceGrid      from './components/SpaceGrid'
 import Starfield      from './components/Starfield'
 import CrosshairCursor from './components/CrosshairCursor'
@@ -8,14 +8,16 @@ import Footer         from './components/Footer'
 import SmoothScroll   from './components/SmoothScroll'
 import Preloader      from './components/Preloader'
 
-import HomePage from './pages/HomePage'
-import AboutPage from './pages/AboutPage'
-import ServicePage from './pages/ServicePage'
-import ProjectsPage from './pages/ProjectsPage'
-import ContactPage from './pages/ContactPage'
-import BlogPage from './pages/BlogPage'
-import NotFoundPage from './pages/NotFoundPage'
-import HeroExperiment from './components/HeroExperiment'
+const HomePage       = lazy(() => import('./pages/HomePage'))
+const AboutPage      = lazy(() => import('./pages/AboutPage'))
+const ServicePage    = lazy(() => import('./pages/ServicePage'))
+const ProjectsPage   = lazy(() => import('./pages/ProjectsPage'))
+const ContactPage    = lazy(() => import('./pages/ContactPage'))
+const BlogPage       = lazy(() => import('./pages/BlogPage'))
+const NotFoundPage   = lazy(() => import('./pages/NotFoundPage'))
+const HeroExperiment   = lazy(() => import('./components/HeroExperiment'))
+const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'))
+
 
 import { menuItems, socialItems } from './data'
 import './styles/globals.css'
@@ -53,17 +55,21 @@ export default function App() {
       />
 
       <main>
-        <Routes>
-          <Route path="/"         element={<HomePage />} />
-          <Route path="/about"    element={<AboutPage />} />
-          <Route path="/service"  element={<ServicePage />} />
-          <Route path="/services" element={<ServicePage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/contact"  element={<ContactPage />} />
-          <Route path="/blog"     element={<BlogPage />} />
-          <Route path="/experiment" element={<HeroExperiment />} />
-          <Route path="*"         element={<NotFoundPage />} />
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/"         element={<HomePage />} />
+            <Route path="/about"    element={<AboutPage />} />
+            <Route path="/service"  element={<ServicePage />} />
+            <Route path="/services"           element={<ServicePage />} />
+            <Route path="/services/:serviceId" element={<ServiceDetailPage />} />
+            <Route path="/projects"           element={<ProjectsPage />} />
+
+            <Route path="/contact"  element={<ContactPage />} />
+            <Route path="/blog"     element={<BlogPage />} />
+            <Route path="/experiment" element={<HeroExperiment />} />
+            <Route path="*"         element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </main>
 
       <Footer />

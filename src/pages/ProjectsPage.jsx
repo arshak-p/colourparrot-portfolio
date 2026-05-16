@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import BorderGlow from '../components/BorderGlow'
+
 
 const projects = [
   { title: 'BRANDING IDENTITY', category: 'Strategy + Design', accent: 'var(--green)' },
@@ -50,40 +52,47 @@ export default function ProjectsPage() {
           gap: '2rem' 
         }}>
           {projects.map((p, i) => (
-            <motion.div 
+            <BorderGlow
               key={p.title}
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              style={{ 
-                background: 'rgba(255,255,255,0.02)', 
-                border: '1px solid rgba(255,255,255,0.05)',
-                borderRadius: '20px',
-                padding: '2.5rem',
-                position: 'relative',
-                overflow: 'hidden',
-                cursor: 'pointer'
-              }}
+              className="acard"
+              glowColor={
+                p.accent === 'var(--green)' ? '160 84 62' :
+                p.accent === 'var(--cyan)' ? '190 80 60' :
+                p.accent === 'var(--purple)' ? '260 70 60' :
+                p.accent === 'var(--yellow)' ? '45 80 60' : '0 80 60'
+              }
+              colors={
+                p.accent === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
+                p.accent === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
+                p.accent === 'var(--purple)' ? ['#7a43ff', '#c084fc'] :
+                p.accent === 'var(--yellow)' ? ['#f9cc3d', '#ffed4a'] : ['#f45b42', '#ff8a75']
+              }
+              backgroundColor="#061014"
+              borderRadius={28}
+              style={{ cursor: 'pointer' }}
             >
-              <div style={{ fontSize: '0.7rem', opacity: 0.5, letterSpacing: '0.2em', marginBottom: '0.5rem' }}>{p.category}</div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: '500', lineHeight: '1.2' }}>{p.title}</h3>
-              
-              <div style={{ 
-                position: 'absolute', top: '1rem', right: '1.5rem', 
-                fontSize: '2rem', opacity: 0.05, fontWeight: '500' 
-              }}>
-                0{i + 1}
-              </div>
+              <div style={{ padding: '2.5rem', position: 'relative' }}>
+                <div style={{ fontSize: '0.7rem', opacity: 0.5, letterSpacing: '0.2em', marginBottom: '0.5rem' }}>{p.category}</div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: '500', lineHeight: '1.2' }}>{p.title}</h3>
+                
+                <div style={{ 
+                  position: 'absolute', top: '1rem', right: '1.5rem', 
+                  fontSize: '2rem', opacity: 0.05, fontWeight: '500' 
+                }}>
+                  0{i + 1}
+                </div>
 
-              <motion.div 
-                className="project-accent"
-                style={{ 
-                  position: 'absolute', bottom: 0, left: 0, width: '100%', height: '4px',
-                  background: p.accent, opacity: 0.3
-                }}
-                whileHover={{ height: '8px', opacity: 1 }}
-              />
-            </motion.div>
+                <div 
+                  className="project-accent"
+                  style={{ 
+                    position: 'absolute', bottom: 0, left: 0, width: '100%', height: '4px',
+                    background: p.accent, opacity: 0.3, transition: 'all 0.3s ease'
+                  }}
+                />
+              </div>
+            </BorderGlow>
           ))}
+
         </div>
       </div>
     </motion.div>

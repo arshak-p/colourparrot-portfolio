@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, memo } from 'react'
+import styles from './Starfield.module.css'
 
-export default function Starfield() {
+const Starfield = memo(function Starfield() {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -95,8 +96,10 @@ export default function Starfield() {
   return (
     <canvas
       ref={canvasRef}
-      style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}
+      className={styles.canvas}
       aria-hidden="true"
     />
   )
-}
+})
+
+export default Starfield

@@ -1,0 +1,56 @@
+.footer {
+  background: #010d12;
+  padding: 1.75rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  border-top: 1px solid rgba(10, 228, 105, 0.07);
+  position: relative;
+  z-index: 1;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.copyright {
+  font-size: 0.65rem;
+  color: rgba(242, 242, 242, 0.18);
+  letter-spacing: 0.05em;
+}
+
+.socialRow {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.socialLink {
+  color: rgba(242, 242, 242, 0.3);
+  transition: color 0.3s;
+}
+
+.socialLink:hover {
+  color: var(--green);
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.navLink {
+  font-size: 0.65rem;
+  color: rgba(242, 242, 242, 0.22);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+
+.navLink:hover {
+  color: var(--green);
+}

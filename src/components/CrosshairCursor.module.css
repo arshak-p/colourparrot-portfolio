@@ -1,0 +1,69 @@
+.cursor {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+.svgHidden {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+
+.lineHorizontal {
+  position: absolute;
+  width: 100%;
+  height: 0.5px;
+  background: #000;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  opacity: 0.08;
+}
+
+.lineVertical {
+  position: absolute;
+  height: 100%;
+  width: 0.5px;
+  background: #000;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  opacity: 0.08;
+}
+
+.circle {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 10001;
+  background: transparent;
+  /* Applying the lens distortion filter */
+  backdrop-filter: url(#lens-distortion) contrast(1.05);
+  -webkit-backdrop-filter: url(#lens-distortion) contrast(1.05);
+}
+
+.dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 10002;
+}
