@@ -181,3 +181,107 @@ h1, h2, h3, h4, h5, h6 {
   .pad { padding: 5rem 1.5rem; }
   .sec-label { font-size: 0.6rem; }
 }
+
+/* ── Dynamic Hover Classes (Fix 4) ── */
+.proj-img.hovered {
+  transform: scale(1.12) !important;
+}
+
+.ind-tag {
+  color: rgba(242,242,242,0.4);
+}
+.ind-tag.hovered {
+  color: var(--green) !important;
+  border-color: var(--green) !important;
+  background: rgba(10,228,105,0.08) !important;
+  transform: translateY(-4px) !important;
+}
+
+.social-link {
+  color: rgba(255,255,255,0.4);
+  transition: color 0.3s;
+}
+.social-link.hovered {
+  color: var(--green) !important;
+}
+
+.contact-link {
+  color: var(--light);
+  transition: color 0.3s;
+}
+.contact-link.hovered {
+  color: var(--green) !important;
+}
+
+/* ── Service Card Static Styles (Fix 5) ── */
+.service-card-inner:hover .svc-num { 
+  opacity: 0.08 !important; 
+  transform: translateY(-10px) !important; 
+  color: var(--svc-accent) !important; 
+}
+.service-card-inner:hover .svc-desc-faded { 
+  color: rgba(255,255,255,0.8) !important; 
+}
+.service-card-inner:hover .svc-pill-footer { 
+  background: var(--glass) !important; 
+  border-color: var(--svc-accent) !important; 
+  transform: scale(1.05) !important; 
+}
+
+.svc-title-animated::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%;
+  color: var(--svc-accent);
+  opacity: 0;
+  filter: blur(8px);
+  transition: all 0.4s ease;
+  z-index: -1;
+}
+.service-card-inner:hover .svc-title-animated::after {
+  opacity: 0.7 !important;
+  transform: scale(1.05) !important;
+}
+.service-card-inner:hover .svc-title-animated {
+  color: var(--svc-accent) !important;
+}
+
+.process-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.testi-card:hover {
+  transform: translateY(-4px);
+}
+
+.acard:hover {
+  transform: translateY(-4px);
+}
+
+@media (max-width: 768px) {
+  .mobile-slider {
+    display: flex !important;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2rem;
+    margin-left: -5vw;
+    margin-right: -5vw;
+    padding-left: 5vw;
+    padding-right: 5vw;
+    gap: 1rem !important;
+    scrollbar-width: none;
+  }
+  .mobile-slider::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-slider > * {
+    flex: 0 0 85%;
+    scroll-snap-align: center;
+    max-width: 85%;
+  }
+}

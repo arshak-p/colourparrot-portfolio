@@ -38,7 +38,8 @@ export default function HomePage() {
       <ProjectsSection />
       <ClientLogos />
       <IndustriesSection />
-
+      <ProcessSection />
+      <TestimonialsSection />
       <ParallaxStrip />
       <ContactSection />
     </div>
@@ -158,7 +159,6 @@ function AboutSection() {
             <BorderGlow
               key={i}
               className="acard"
-              style={{ gridColumn: c.span === 2 ? '1/-1' : undefined }}
               glowColor={
                 c.col === 'var(--green)' ? '160 84 62' :
                 c.col === 'var(--cyan)' ? '190 80 60' :
@@ -169,8 +169,14 @@ function AboutSection() {
                 c.col === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
                 ['#7a43ff', '#c084fc']
               }
-              backgroundColor="#061014"
+              backgroundColor={c.bg}
               borderRadius={28}
+              style={{
+                gridColumn: c.span === 2 ? '1/-1' : undefined,
+                border: `1px solid ${c.bd}`,
+                transition: 'transform 0.3s ease',
+                cursor: 'default',
+              }}
             >
               <div style={{ padding: '2rem' }}>
                 <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: 500, letterSpacing: '-0.05em', lineHeight: 1, marginBottom: '0.5rem', color: c.col }}>{c.n}</div>
@@ -308,7 +314,7 @@ function ProjectsSection() {
           {projects.map((p, i) => (
             <div key={i} className="proj-card" style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
               <div style={{ width: '100%', aspectRatio: '16/10', overflow: 'hidden', borderRadius: 24 }}>
-                <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.12)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'} />
+                <img src={p.image} alt={p.name} className="proj-img" style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)' }} onMouseEnter={e => e.currentTarget.classList.add('hovered')} onMouseLeave={e => e.currentTarget.classList.remove('hovered')} loading="lazy" />
               </div>
               <div style={{ padding: '2.5rem 1rem' }}>
                 <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--purple)', fontWeight: 500, marginBottom: '1rem' }}>{p.category}</p>
@@ -339,8 +345,374 @@ function IndustriesSection() {
         <h2 className="sec-title">Industries We've <span className="r">Explored</span></h2>
         <div ref={listRef} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '2.5rem' }}>
           {industries.map((tag) => (
-            <span key={tag} className="ind-tag glass-card" style={{ fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', fontWeight: 500, letterSpacing: '-0.02em', padding: '0.8rem 2rem', borderRadius: 100, color: 'rgba(242,242,242,0.4)', transition: 'all 0.4s', cursor: 'default' }} onMouseEnter={e => { e.currentTarget.style.color='var(--green)'; e.currentTarget.style.borderColor='var(--green)'; e.currentTarget.style.background='rgba(10,228,105,0.08)'; e.currentTarget.style.transform='translateY(-4px)' }} onMouseLeave={e => { e.currentTarget.style.color='rgba(242,242,242,0.4)'; e.currentTarget.style.borderColor='var(--glass-border)'; e.currentTarget.style.background='var(--glass)'; e.currentTarget.style.transform='' }}>{tag}</span>
+            <span key={tag} className="ind-tag glass-card" style={{ fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', fontWeight: 500, letterSpacing: '-0.02em', padding: '0.8rem 2rem', borderRadius: 100, transition: 'all 0.4s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.classList.add('hovered')} onMouseLeave={e => e.currentTarget.classList.remove('hovered')}>{tag}</span>
           ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function useAutoScroll(ref, delay = 3000) {
+  useEffect(() => {
+    const container = ref.current
+    if (!container) return
+    
+    let intervalId
+    const startScroll = () => {
+      clearInterval(intervalId)
+      intervalId = setInterval(() => {
+        if (window.innerWidth <= 768) {
+          const maxScroll = container.scrollWidth - container.clientWidth
+          if (container.scrollLeft >= maxScroll - 10) {
+            container.scrollTo({ left: 0, behavior: 'smooth' })
+          } else {
+            const cardWidth = container.clientWidth * 0.85 + 16
+            container.scrollBy({ left: cardWidth, behavior: 'smooth' })
+          }
+        }
+      }, delay)
+    }
+
+    startScroll()
+    
+    const pause = () => clearInterval(intervalId)
+    const resume = () => startScroll()
+    
+    container.addEventListener('touchstart', pause, { passive: true })
+    container.addEventListener('touchend', resume, { passive: true })
+    container.addEventListener('mouseenter', pause)
+    container.addEventListener('mouseleave', resume)
+    
+    return () => {
+      clearInterval(intervalId)
+      container.removeEventListener('touchstart', pause)
+      container.removeEventListener('touchend', resume)
+      container.removeEventListener('mouseenter', pause)
+      container.removeEventListener('mouseleave', resume)
+    }
+  }, [ref, delay])
+}
+
+function ProcessSection() {
+  const ref = useRef(null)
+  useAutoScroll(ref, 2500)
+  const steps = [
+    {
+      number: '01',
+      title: 'Discovery',
+      desc: 'We dive deep into your brand, audience, and goals. Research, strategy, and positioning — everything starts here.',
+      color: 'var(--green)',
+      bg: 'rgba(10,228,105,0.06)',
+      border: 'rgba(10,228,105,0.15)',
+    },
+    {
+      number: '02',
+      title: 'Strategy',
+      desc: 'We craft a creative blueprint — messaging, visual direction, and campaign architecture built around your objectives.',
+      color: 'var(--cyan)',
+      bg: 'rgba(40,193,229,0.06)',
+      border: 'rgba(40,193,229,0.15)',
+    },
+    {
+      number: '03',
+      title: 'Creation',
+      desc: 'Design, motion, production — our team brings the strategy to life with precision and creative excellence.',
+      color: 'var(--purple)',
+      bg: 'rgba(122,67,255,0.06)',
+      border: 'rgba(122,67,255,0.15)',
+    },
+    {
+      number: '04',
+      title: 'Launch',
+      desc: 'We deliver, deploy, and amplify. Your brand goes live and we track performance to keep pushing boundaries.',
+      color: 'var(--yellow)',
+      bg: 'rgba(249,204,61,0.06)',
+      border: 'rgba(249,204,61,0.15)',
+    },
+  ]
+
+  useGSAP(() => {
+    gsap.fromTo(
+      '.process-card',
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        stagger: 0.12,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: ref.current,
+          start: 'top 78%',
+        },
+      }
+    )
+  }, [])
+
+  return (
+    <section id="process" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div className="container">
+        <p className="sec-label" style={{ color: 'var(--cyan)' }}>How We Work</p>
+        <h2 className="sec-title" style={{ marginBottom: '4rem' }}>
+          Our <span className="c">Process</span>
+        </h2>
+        <div
+          ref={ref}
+          className="mobile-slider"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '1.5rem',
+          }}
+        >
+          {steps.map((s, i) => (
+            <BorderGlow
+              key={i}
+              className="process-card"
+              glowColor={
+                s.color === 'var(--green)' ? '160 84 62' :
+                s.color === 'var(--cyan)' ? '190 80 60' :
+                s.color === 'var(--purple)' ? '260 70 60' :
+                '45 90 60'
+              }
+              colors={
+                s.color === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
+                s.color === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
+                s.color === 'var(--purple)' ? ['#7a43ff', '#c084fc'] :
+                ['#f9cc3d', '#facc15']
+              }
+              backgroundColor={s.bg}
+              borderRadius={24}
+              fillOpacity={0}
+              style={{
+                border: `1px solid ${s.border}`,
+                transition: 'transform 0.3s ease, border-color 0.3s ease',
+                cursor: 'default',
+              }}
+            >
+              <div style={{ padding: '2.5rem 2rem', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                <div
+                  style={{
+                    fontSize: '0.6rem',
+                    letterSpacing: '0.2em',
+                    color: s.color,
+                    fontWeight: 600,
+                    marginBottom: '1.5rem',
+                    opacity: 0.7,
+                  }}
+                >
+                  {s.number}
+                </div>
+                <h3
+                  style={{
+                    fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
+                    fontWeight: 500,
+                    letterSpacing: '-0.03em',
+                    color: s.color,
+                    marginBottom: '1rem',
+                  }}
+                >
+                  {s.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: '0.9rem',
+                    lineHeight: 1.75,
+                    color: 'rgba(242,242,242,0.5)',
+                    fontWeight: 400,
+                  }}
+                >
+                  {s.desc}
+                </p>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '2rem',
+                    right: '2rem',
+                    fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                    fontWeight: 700,
+                    letterSpacing: '-0.06em',
+                    color: s.color,
+                    opacity: 0.06,
+                    lineHeight: 1,
+                  }}
+                >
+                  {s.number}
+                </div>
+              </div>
+            </BorderGlow>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TestimonialsSection() {
+  const ref = useRef(null)
+  useAutoScroll(ref, 2500)
+  const testimonials = [
+    {
+      quote: 'Colour Parrot completely transformed our brand identity. The team brought creativity and strategy together in a way we had never experienced before.',
+      name: 'Rahul Menon',
+      role: 'CEO, TechNova Solutions',
+      color: 'var(--green)',
+      border: 'rgba(10,228,105,0.15)',
+      bg: 'rgba(10,228,105,0.04)',
+      initial: 'R',
+    },
+    {
+      quote: 'From concept to execution, everything was flawless. Our social media engagement tripled within two months of working with them.',
+      name: 'Priya Sharma',
+      role: 'Marketing Head, Blossom Retail',
+      color: 'var(--cyan)',
+      border: 'rgba(40,193,229,0.15)',
+      bg: 'rgba(40,193,229,0.04)',
+      initial: 'P',
+    },
+    {
+      quote: 'The motion graphics they created for our product launch exceeded every expectation. Truly a world-class creative team based right here in Kerala.',
+      name: 'Arun Krishna',
+      role: 'Founder, Nuvana Health',
+      color: 'var(--purple)',
+      border: 'rgba(122,67,255,0.15)',
+      bg: 'rgba(122,67,255,0.04)',
+      initial: 'A',
+    },
+  ]
+
+  useGSAP(() => {
+    gsap.fromTo(
+      '.testi-card',
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        stagger: 0.15,
+        duration: 0.9,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: ref.current,
+          start: 'top 78%',
+        },
+      }
+    )
+  }, [])
+
+  return (
+    <section id="testimonials" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div className="container">
+        <p className="sec-label" style={{ color: 'var(--yellow)' }}>Client Stories</p>
+        <h2 className="sec-title" style={{ marginBottom: '4rem' }}>
+          What They <span className="y">Say</span>
+        </h2>
+        <div
+          ref={ref}
+          className="mobile-slider"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '2rem',
+          }}
+        >
+          {testimonials.map((t, i) => (
+            <BorderGlow
+              key={i}
+              className="testi-card"
+              glowColor={
+                t.color === 'var(--green)' ? '160 84 62' :
+                t.color === 'var(--cyan)' ? '190 80 60' :
+                '260 70 60'
+              }
+              colors={
+                t.color === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
+                t.color === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
+                ['#7a43ff', '#c084fc']
+              }
+              backgroundColor={t.bg}
+              borderRadius={28}
+              fillOpacity={0}
+              style={{
+                border: `1px solid ${t.border}`,
+                transition: 'transform 0.3s ease',
+                cursor: 'default',
+              }}
+            >
+              <div style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: '100%' }}>
+              {/* Quote mark */}
+              <div
+                style={{
+                  fontSize: '4rem',
+                  lineHeight: 0.8,
+                  color: t.color,
+                  opacity: 0.4,
+                  fontFamily: 'Georgia, serif',
+                }}
+              >
+                "
+              </div>
+
+              {/* Quote text */}
+              <p
+                style={{
+                  fontSize: '1rem',
+                  lineHeight: 1.8,
+                  color: 'rgba(242,242,242,0.65)',
+                  fontWeight: 400,
+                  flex: 1,
+                }}
+              >
+                {t.quote}
+              </p>
+
+              {/* Author */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    background: t.border,
+                    border: `1px solid ${t.border}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    color: t.color,
+                    flexShrink: 0,
+                  }}
+                >
+                  {t.initial}
+                </div>
+                <div>
+                  <p
+                    style={{
+                      fontSize: '0.9rem',
+                      fontWeight: 600,
+                      color: 'rgba(242,242,242,0.9)',
+                      marginBottom: '0.2rem',
+                    }}
+                  >
+                    {t.name}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: '0.7rem',
+                      letterSpacing: '0.08em',
+                      color: t.color,
+                      opacity: 0.7,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {t.role}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </BorderGlow>
+        ))}
         </div>
       </div>
     </section>
@@ -373,10 +745,10 @@ function ContactSection() {
                 label: 'Social', 
                 value: (
                   <div style={{ display: 'flex', gap: '1rem', marginTop: '0.6rem' }}>
-                    <a href="https://www.instagram.com/colour.parrot/" target="_blank" rel="noreferrer" style={{ color: 'rgba(255,255,255,0.4)', transition: 'color 0.3s' }} onMouseEnter={e=>e.currentTarget.style.color='var(--green)'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
-                    <a href="https://www.behance.net/colourparrotbranding" target="_blank" rel="noreferrer" style={{ color: 'rgba(255,255,255,0.4)', transition: 'color 0.3s' }} onMouseEnter={e=>e.currentTarget.style.color='var(--green)'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12h-4"></path><path d="M9 16h-4"></path><path d="M5 8h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M5 12h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M13 12h7"></path><path d="M20 12c0-3-2-5-5-5s-5 2-5 5 2 5 5 5 5-2 5-5z"></path></svg></a>
-                    <a href="https://www.facebook.com/share/1F9u1EHMhb/?mibextid=wwXIfr" target="_blank" rel="noreferrer" style={{ color: 'rgba(255,255,255,0.4)', transition: 'color 0.3s' }} onMouseEnter={e=>e.currentTarget.style.color='var(--green)'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-                    <a href="https://www.linkedin.com/company/colour-parrot/" target="_blank" rel="noreferrer" style={{ color: 'rgba(255,255,255,0.4)', transition: 'color 0.3s' }} onMouseEnter={e=>e.currentTarget.style.color='var(--green)'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+                    <a href="https://www.instagram.com/colour.parrot/" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                    <a href="https://www.behance.net/colourparrotbranding" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12h-4"></path><path d="M9 16h-4"></path><path d="M5 8h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M5 12h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M13 12h7"></path><path d="M20 12c0-3-2-5-5-5s-5 2-5 5 2 5 5 5 5-2 5-5z"></path></svg></a>
+                    <a href="https://www.facebook.com/share/1F9u1EHMhb/?mibextid=wwXIfr" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+                    <a href="https://www.linkedin.com/company/colour-parrot/" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
                   </div>
                 ),
                 link: '#' 
@@ -385,7 +757,7 @@ function ContactSection() {
               <div key={label}>
                 <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(242,242,242,0.3)', fontWeight: 500, marginBottom: '0.6rem' }}>{label}</p>
                 {typeof value === 'string' ? (
-                  <a href={link} style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--light)', textDecoration: 'none', display: 'block', transition: 'color 0.3s' }} onMouseEnter={e=>e.currentTarget.style.color='var(--green)'} onMouseLeave={e=>e.currentTarget.style.color='var(--light)'}>{value}</a>
+                  <a href={link} className="contact-link" style={{ fontSize: '1rem', fontWeight: 600, textDecoration: 'none', display: 'block' }} onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}>{value}</a>
                 ) : (
                   value
                 )}

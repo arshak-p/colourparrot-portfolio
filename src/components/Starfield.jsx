@@ -82,11 +82,22 @@ const Starfield = memo(function Starfield() {
     }
 
     resize()
-    draw()
     window.addEventListener('resize', resize)
     window.addEventListener('scroll', handleScroll, { passive: true })
 
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        animId = requestAnimationFrame(draw)
+      } else {
+        cancelAnimationFrame(animId)
+      }
+    })
+    if (canvasRef.current) {
+      observer.observe(canvasRef.current)
+    }
+
     return () => {
+      observer.disconnect()
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', resize)
       window.removeEventListener('scroll', handleScroll)

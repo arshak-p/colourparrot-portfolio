@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
 const TOTAL_FRAMES = 224;
 const getFramePath = (n) =>
   `/frames/ezgif-frame-${String(n).padStart(3, "0")}.jpg`;

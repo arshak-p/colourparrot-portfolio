@@ -118,6 +118,7 @@ export default function ServiceDetailPage() {
                 }
                 backgroundColor="#061014"
                 borderRadius={32}
+                fillOpacity={0.5}
               >
                 <div style={{ padding: '3rem' }}>
                   <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem', color: service.accent }}>{item.t}</h3>

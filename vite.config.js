@@ -11,9 +11,16 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-gsap': ['gsap'],
           'vendor-framer': ['framer-motion'],
+          'vendor-lenis': ['@studio-freight/lenis'],
         }
       }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1000
+  },
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
+  optimizeDeps: {
+    include: ['gsap', 'gsap/ScrollTrigger', '@studio-freight/lenis']
   }
 })

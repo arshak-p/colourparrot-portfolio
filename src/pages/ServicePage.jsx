@@ -50,13 +50,14 @@ export default function ServicePage() {
               >
                 <Link to={`/services/${svc.slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
                   <PixelCard variant={variant}>
-                    <div className="service-card-inner" style={{ padding: '2.5rem', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
+                    <div className="service-card-inner" style={{ '--svc-accent': svc.accent, padding: '2.5rem', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
                       
                       {/* Animated Number Background */}
                       <div className="svc-num" style={{ 
                         position: 'absolute', top: '1rem', right: '2rem', fontSize: '8rem', 
                         fontWeight: 500, opacity: 0.03, pointerEvents: 'none', transition: 'all 0.6s ease'
                       }}>
+
                         0{i + 1}
                       </div>
 
@@ -94,32 +95,7 @@ export default function ServicePage() {
                 </Link>
 
 
-                <style>{`
-                  .service-card-inner:hover .svc-num { opacity: 0.08; transform: translateY(-10px); color: ${svc.accent}; }
-                  .service-card-inner:hover .svc-desc-faded { color: rgba(255,255,255,0.8); }
-                  .service-card-inner:hover .svc-pill-footer { background: ${svc.accent}15; border-color: ${svc.accent}40; transform: scale(1.05); }
-                  
-                  /* Title Glitch/Glow Effect */
-                  .svc-title-animated::after {
-                    content: attr(data-text);
-                    position: absolute;
-                    left: 0; top: 0;
-                    width: 100%;
-                    color: ${svc.accent};
-                    opacity: 0;
-                    filter: blur(8px);
-                    transition: all 0.4s ease;
-                    z-index: -1;
-                  }
-                  .service-card-inner:hover .svc-title-animated::after {
-                    opacity: 0.7;
-                    transform: scale(1.05);
-                  }
-                  .service-card-inner:hover .svc-title-animated {
-                    color: ${svc.accent};
-                    text-shadow: 0 0 20px ${svc.accent}40;
-                  }
-                `}</style>
+
               </motion.div>
             )
           })}

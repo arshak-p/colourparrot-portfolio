@@ -62,7 +62,7 @@ const BorderGlow = ({
   coneSpread = 25,
   animated = false,
   colors = ['#c084fc', '#f472b6', '#38bdf8'],
-  fillOpacity = 0.5,
+  fillOpacity = 0,
   style = {}
 }) => {
   const cardRef = useRef(null);
@@ -116,13 +116,18 @@ const BorderGlow = ({
     setCursorAngle(angleStart);
 
     animateValue({ duration: 500, onUpdate: v => setEdgeProximity(v / 100) });
-    animateValue({ ease: easeInCubic, duration: 1500, end: 50, onUpdate: v => {
-      setCursorAngle((angleEnd - angleStart) * (v / 100) + angleStart);
-    }});
-    animateValue({ ease: easeOutCubic, delay: 1500, duration: 2250, start: 50, end: 100, onUpdate: v => {
-      setCursorAngle((angleEnd - angleStart) * (v / 100) + angleStart);
-    }});
-    animateValue({ ease: easeInCubic, delay: 2500, duration: 1500, start: 100, end: 0,
+    animateValue({
+      ease: easeInCubic, duration: 1500, end: 50, onUpdate: v => {
+        setCursorAngle((angleEnd - angleStart) * (v / 100) + angleStart);
+      }
+    });
+    animateValue({
+      ease: easeOutCubic, delay: 1500, duration: 2250, start: 50, end: 100, onUpdate: v => {
+        setCursorAngle((angleEnd - angleStart) * (v / 100) + angleStart);
+      }
+    });
+    animateValue({
+      ease: easeInCubic, delay: 2500, duration: 1500, start: 100, end: 0,
       onUpdate: v => setEdgeProximity(v / 100),
       onEnd: () => setSweepActive(false),
     });
@@ -169,14 +174,14 @@ const BorderGlow = ({
           borderRadius: 'inherit',
           zIndex: -1,
           border: '1px solid transparent',
-          background: [
-            `linear-gradient(${backgroundColor} 0 100%) padding-box`,
-            'linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box',
-            ...borderBg,
-          ].join(', '),
+          background: borderBg.join(', '),
           opacity: borderOpacity,
-          maskImage: `conic-gradient(from ${angleDeg} at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%)`,
-          WebkitMaskImage: `conic-gradient(from ${angleDeg} at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%)`,
+          maskImage: `conic-gradient(from ${angleDeg} at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%), linear-gradient(black, black), linear-gradient(black, black)`,
+          maskClip: 'border-box, padding-box, border-box',
+          maskComposite: 'intersect, exclude',
+          WebkitMaskImage: `conic-gradient(from ${angleDeg} at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%), linear-gradient(black, black), linear-gradient(black, black)`,
+          WebkitMaskClip: 'border-box, padding-box, border-box',
+          WebkitMaskComposite: 'source-in, xor',
           transition: isVisible ? 'opacity 0.25s ease-out' : 'opacity 0.75s ease-in-out',
         }}
       />

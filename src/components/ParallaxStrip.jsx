@@ -3,9 +3,6 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '../hooks/useGSAP'
 import styles from './ParallaxStrip.module.css'
-
-gsap.registerPlugin(ScrollTrigger)
-
 export default function ParallaxStrip() {
   const bgRef = useRef(null)
 
