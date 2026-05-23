@@ -180,6 +180,12 @@ export default function PanicPage() {
 
     const muzzleFlash = { left: 0, right: 0 }; // intensity value [0.0, 1.0]
 
+    // Load cartoon asteroid sprites
+    const imgGreen = new Image();
+    imgGreen.src = '/asteroid_green.png';
+    const imgCyan = new Image();
+    imgCyan.src = '/asteroid_cyan.png';
+
     // Game elements arrays
     const stones = [];
     const comets = [];
@@ -476,34 +482,45 @@ export default function PanicPage() {
         s.y += s.vy;
         s.rotation += s.rotSpeed;
 
-        // Draw wireframe outline rotating space stone
         ctx.save();
         ctx.translate(s.x, s.y);
         ctx.rotate(s.rotation);
-        ctx.beginPath();
-        ctx.moveTo(s.shape[0].x, s.shape[0].y);
-        for (let j = 1; j < s.shape.length; j++) {
-          ctx.lineTo(s.shape[j].x, s.shape[j].y);
-        }
-        ctx.closePath();
-        
-        ctx.fillStyle = 'rgba(2, 23, 30, 0.65)';
-        ctx.fill();
-        ctx.strokeStyle = s.color;
-        ctx.lineWidth = 2.0;
-        ctx.shadowColor = s.color;
-        ctx.shadowBlur = 10;
-        ctx.stroke();
 
-        // Draw crater details
-        if (s.craters) {
-          s.craters.forEach(crater => {
-            ctx.beginPath();
-            ctx.arc(crater.x, crater.y, crater.r, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-            ctx.lineWidth = 1.2;
-            ctx.stroke();
-          });
+        // Select cartoon sprite based on color
+        const sprite = s.color === '#0ae469' ? imgGreen : imgCyan;
+
+        if (sprite.complete && sprite.naturalWidth !== 0) {
+          // Draw cartoon space stone sprite
+          ctx.shadowColor = s.color;
+          ctx.shadowBlur = 15;
+          ctx.drawImage(sprite, -s.radius, -s.radius, s.radius * 2, s.radius * 2);
+        } else {
+          // Fallback to stylized vector drawing if loading
+          ctx.beginPath();
+          ctx.moveTo(s.shape[0].x, s.shape[0].y);
+          for (let j = 1; j < s.shape.length; j++) {
+            ctx.lineTo(s.shape[j].x, s.shape[j].y);
+          }
+          ctx.closePath();
+          
+          ctx.fillStyle = 'rgba(2, 23, 30, 0.65)';
+          ctx.fill();
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = 2.0;
+          ctx.shadowColor = s.color;
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+
+          // Draw crater details
+          if (s.craters) {
+            s.craters.forEach(crater => {
+              ctx.beginPath();
+              ctx.arc(crater.x, crater.y, crater.r, 0, Math.PI * 2);
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+              ctx.lineWidth = 1.2;
+              ctx.stroke();
+            });
+          }
         }
 
         ctx.restore();
