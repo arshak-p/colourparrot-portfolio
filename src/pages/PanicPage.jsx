@@ -186,6 +186,60 @@ export default function PanicPage() {
     const imgCyan = new Image();
     imgCyan.src = '/asteroid_cyan.png';
 
+    let spriteGreenKeyed = null;
+    let spriteCyanKeyed = null;
+
+    // Helper to chroma-key out bright green (#00ff00) background
+    const keyGreenScreen = (img, callback) => {
+      const process = () => {
+        try {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = img.naturalWidth;
+          tempCanvas.height = img.naturalHeight;
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.drawImage(img, 0, 0);
+          
+          const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+          const data = imgData.data;
+          
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            // Chroma key filter for green screen background
+            if (g > 140 && r < 130 && b < 130) {
+              data[i + 3] = 0; // set alpha to 0 (transparent)
+            }
+          }
+          
+          tempCtx.putImageData(imgData, 0, 0);
+          const keyedImg = new Image();
+          keyedImg.src = tempCanvas.toDataURL('image/png');
+          keyedImg.onload = () => {
+            callback(keyedImg);
+          };
+        } catch (e) {
+          console.error("Chroma-key failed:", e);
+          callback(img); // fallback to original
+        }
+      };
+
+      if (img.complete && img.naturalWidth !== 0) {
+        process();
+      } else {
+        img.onload = process;
+      }
+    };
+
+    keyGreenScreen(imgGreen, (keyed) => {
+      spriteGreenKeyed = keyed;
+    });
+
+    keyGreenScreen(imgCyan, (keyed) => {
+      spriteCyanKeyed = keyed;
+    });
+
     // Game elements arrays
     const stones = [];
     const comets = [];
@@ -487,9 +541,9 @@ export default function PanicPage() {
         ctx.rotate(s.rotation);
 
         // Select cartoon sprite based on color
-        const sprite = s.color === '#0ae469' ? imgGreen : imgCyan;
+        const sprite = s.color === '#0ae469' ? spriteGreenKeyed : spriteCyanKeyed;
 
-        if (sprite.complete && sprite.naturalWidth !== 0) {
+        if (sprite && sprite.complete && sprite.naturalWidth !== 0) {
           // Draw cartoon space stone sprite
           ctx.shadowColor = s.color;
           ctx.shadowBlur = 15;
