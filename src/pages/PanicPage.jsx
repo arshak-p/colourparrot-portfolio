@@ -172,7 +172,7 @@ export default function PanicPage() {
     // Gun turret coordinates
     const leftGun = { x: 120, y: height };
     const rightGun = { x: width - 120, y: height };
-    const muzzleFlash = { left: 0, right: 0 }; // frames of flash animation
+    const muzzleFlash = { left: 0, right: 0 }; // intensity value [0.0, 1.0]
 
     // Game elements arrays
     const stones = [];
@@ -195,6 +195,22 @@ export default function PanicPage() {
       return points;
     };
 
+    // Helper: generate crater details for stones
+    const generateStoneCraters = (radius) => {
+      const craters = [];
+      const numCraters = 2 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < numCraters; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = radius * (0.2 + Math.random() * 0.4);
+        craters.push({
+          x: Math.cos(angle) * dist,
+          y: Math.sin(angle) * dist,
+          r: radius * (0.12 + Math.random() * 0.1)
+        });
+      }
+      return craters;
+    };
+
     // Spawn Space Stone (Asteroid)
     const spawnStone = () => {
       const radius = 25 + Math.random() * 35;
@@ -209,6 +225,7 @@ export default function PanicPage() {
         vy: speedY,
         radius,
         shape: generateStoneShape(radius),
+        craters: generateStoneCraters(radius),
         rotation: Math.random() * Math.PI * 2,
         rotSpeed: (Math.random() - 0.5) * 0.03,
         color: Math.random() > 0.5 ? '#0ae469' : '#28c1e5' // green or cyan outline
@@ -220,17 +237,16 @@ export default function PanicPage() {
       const radius = 6;
       const fromLeft = Math.random() > 0.5;
       const x = fromLeft ? -50 : width + 50;
-      const y = Math.random() * (height * 0.5);
-      const speedX = fromLeft ? (8 + Math.random() * 6) : -(8 + Math.random() * 6);
-      const speedY = 2 + Math.random() * 4;
+      const y = Math.random() * (height * 0.4);
+      const speedX = fromLeft ? (9 + Math.random() * 5) : -(9 + Math.random() * 5);
+      const speedY = 1.5 + Math.random() * 3.5;
       comets.push({
         x,
         y,
         vx: speedX,
         vy: speedY,
         radius,
-        trail: [],
-        color: '#28c1e5'
+        color: Math.random() > 0.5 ? '#28c1e5' : '#0ae469'
       });
     };
 
@@ -242,18 +258,18 @@ export default function PanicPage() {
       playSynthSound('laser');
 
       // Trigger muzzle flashes
-      muzzleFlash.left = 8;
-      muzzleFlash.right = 8;
+      muzzleFlash.left = 1.0;
+      muzzleFlash.right = 1.0;
 
-      // Left nozzle nozzle tips location
+      // Left nozzle nozzle tips location (positioned at the rim of the 60px node)
       const leftAngle = Math.atan2(targetY - leftGun.y, targetX - leftGun.x);
-      const leftTipX = leftGun.x + Math.cos(leftAngle) * 90;
-      const leftTipY = leftGun.y + Math.sin(leftAngle) * 90;
+      const leftTipX = leftGun.x + Math.cos(leftAngle) * 60;
+      const leftTipY = leftGun.y + Math.sin(leftAngle) * 60;
 
       // Right nozzle nozzle tips location
       const rightAngle = Math.atan2(targetY - rightGun.y, targetX - rightGun.x);
-      const rightTipX = rightGun.x + Math.cos(rightAngle) * 90;
-      const rightTipY = rightGun.y + Math.sin(rightAngle) * 90;
+      const rightTipX = rightGun.x + Math.cos(rightAngle) * 60;
+      const rightTipY = rightGun.y + Math.sin(rightAngle) * 60;
 
       // Add lasers
       lasers.push({
@@ -351,9 +367,15 @@ export default function PanicPage() {
     const tick = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Decrement muzzle flash frames
-      if (muzzleFlash.left > 0) muzzleFlash.left--;
-      if (muzzleFlash.right > 0) muzzleFlash.right--;
+      // Decrement muzzle flash intensity values
+      if (muzzleFlash.left > 0) {
+        muzzleFlash.left -= 0.08;
+        if (muzzleFlash.left < 0) muzzleFlash.left = 0;
+      }
+      if (muzzleFlash.right > 0) {
+        muzzleFlash.right -= 0.08;
+        if (muzzleFlash.right < 0) muzzleFlash.right = 0;
+      }
 
       // 1. Spawn logic
       stoneSpawnTimer++;
@@ -377,33 +399,50 @@ export default function PanicPage() {
         c.x += c.vx;
         c.y += c.vy;
 
-        // Trail logic
-        c.trail.push({ x: c.x, y: c.y });
-        if (c.trail.length > 12) c.trail.shift();
-
-        // Draw trail
-        if (c.trail.length > 1) {
-          ctx.beginPath();
-          ctx.moveTo(c.trail[0].x, c.trail[0].y);
-          for (let j = 1; j < c.trail.length; j++) {
-            ctx.lineTo(c.trail[j].x, c.trail[j].y);
-          }
-          ctx.strokeStyle = 'rgba(40, 193, 229, 0.4)';
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
+        // Emit tail dust/spark particles
+        if (Math.random() < 0.35) {
+          particles.push({
+            x: c.x + (Math.random() - 0.5) * 4,
+            y: c.y + (Math.random() - 0.5) * 4,
+            vx: -c.vx * 0.15 + (Math.random() - 0.5) * 1.0,
+            vy: -c.vy * 0.15 + (Math.random() - 0.5) * 1.0,
+            size: 1 + Math.random() * 1.5,
+            life: 0.8,
+            decay: 0.04 + Math.random() * 0.04,
+            color: c.color
+          });
         }
+
+        // Draw gradient vector comet tail
+        const tailFactor = 4.0;
+        const x1 = c.x;
+        const y1 = c.y;
+        const x2 = c.x - c.vx * tailFactor;
+        const y2 = c.y - c.vy * tailFactor;
+
+        const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+        grad.addColorStop(0, c.color);
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
 
         // Draw comet glow head
         ctx.beginPath();
         ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#28c1e5';
-        ctx.shadowColor = '#28c1e5';
-        ctx.shadowBlur = 15;
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = c.color;
+        ctx.shadowBlur = 18;
         ctx.fill();
         ctx.shadowBlur = 0; // reset glow
 
         // Delete if out of viewport
-        if (c.y > height + 20 || c.x < -50 || c.x > width + 50) {
+        if (c.y > height + 20 || c.x < -100 || c.x > width + 100) {
           comets.splice(i, 1);
         }
       }
@@ -426,11 +465,25 @@ export default function PanicPage() {
         }
         ctx.closePath();
         
+        ctx.fillStyle = 'rgba(2, 23, 30, 0.65)';
+        ctx.fill();
         ctx.strokeStyle = s.color;
         ctx.lineWidth = 2.0;
         ctx.shadowColor = s.color;
         ctx.shadowBlur = 10;
         ctx.stroke();
+
+        // Draw crater details
+        if (s.craters) {
+          s.craters.forEach(crater => {
+            ctx.beginPath();
+            ctx.arc(crater.x, crater.y, crater.r, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          });
+        }
+
         ctx.restore();
         ctx.shadowBlur = 0; // reset shadow
 
@@ -482,58 +535,78 @@ export default function PanicPage() {
         ctx.shadowBlur = 0;
       }
 
-      // 6. Draw gun nozzles in the corners
-      const drawNozzle = (gun, color, isFlashActive) => {
+      // 6. Draw glowing energy nozzles (nodes) in the corners
+      const drawNozzle = (gun, color, flashVal) => {
         const angle = Math.atan2(mouse.y - gun.y, mouse.x - gun.x);
         
         ctx.save();
         ctx.translate(gun.x, gun.y);
-        ctx.rotate(angle);
 
-        // Base circle
+        // A. Draw expanding shockwave ring on fire
+        if (flashVal > 0) {
+          ctx.beginPath();
+          ctx.arc(0, 0, 60 + (1.0 - flashVal) * 90, 0, Math.PI * 2);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 3 * flashVal;
+          ctx.globalAlpha = flashVal;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 15;
+          ctx.stroke();
+          ctx.globalAlpha = 1.0;
+          ctx.shadowBlur = 0;
+        }
+
+        // B. Draw base glowing nozzle node (large outer ring)
         ctx.beginPath();
-        ctx.arc(0, 0, 48, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(1, 13, 18, 0.75)';
+        ctx.arc(0, 0, 60, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(1, 13, 18, 0.85)';
         ctx.strokeStyle = color;
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 4.0;
         ctx.shadowColor = color;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 15 + flashVal * 25; // intensify glow during fire!
         ctx.fill();
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Rotating simple gun barrel nozzle
+        // C. Draw inner rotating aiming ring
+        ctx.save();
+        ctx.rotate(angle);
+        
+        // Aiming dashed ring to represent rotational tracking
         ctx.beginPath();
-        ctx.rect(-15, -12, 90, 24);
-        ctx.fillStyle = 'rgba(2, 23, 30, 0.9)';
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2.5;
+        ctx.arc(0, 0, 42, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([8, 8]);
+        ctx.stroke();
+        ctx.setLineDash([]); // reset dashes
+
+        // Aiming nozzle barrel - clean modern indicator (sleek thin capsule)
+        ctx.beginPath();
+        ctx.rect(35, -7, 25, 14);
+        ctx.fillStyle = color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.0;
         ctx.fill();
         ctx.stroke();
 
-        // Tip outline
-        ctx.beginPath();
-        ctx.rect(75, -14, 8, 28);
-        ctx.fillStyle = color;
-        ctx.fill();
+        ctx.restore();
 
-        // Muzzle fire flash ring
-        if (isFlashActive) {
-          ctx.beginPath();
-          ctx.arc(88, 0, 15 + Math.random() * 8, -Math.PI / 3, Math.PI / 3);
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 4;
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 20;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-        }
+        // D. Center energy core (pulsing sphere)
+        ctx.beginPath();
+        ctx.arc(0, 0, 18 + flashVal * 8, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, 18 + flashVal * 8);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fill();
 
         ctx.restore();
       };
 
-      drawNozzle(leftGun, '#0ae469', muzzleFlash.left > 0);
-      drawNozzle(rightGun, '#28c1e5', muzzleFlash.right > 0);
+      drawNozzle(leftGun, '#0ae469', muzzleFlash.left);
+      drawNozzle(rightGun, '#28c1e5', muzzleFlash.right);
 
       animationId = requestAnimationFrame(tick);
     };
