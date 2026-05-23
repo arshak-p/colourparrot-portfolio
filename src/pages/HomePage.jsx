@@ -12,7 +12,7 @@ import StarBorderBtn from '../components/StarBorderBtn'
 import Magnet from '../components/Magnet'
 import ClientLogos from "../components/ClientLogos";
 import BorderGlow from '../components/BorderGlow'
-import MarqueeStrip from '../components/MarqueeStrip'
+import ScrollVelocity from '../components/ScrollVelocity'
 import ParallaxStrip from '../components/ParallaxStrip'
 import FlowingMenu from '../components/FlowingMenu'
 
@@ -33,12 +33,15 @@ import RotatingText from '../components/RotatingText'
 // ── Consolidated HomePage ──
 
 export default function HomePage() {
+  const marqueeText1 = marqueeItems1.join('  ·  ') + '  ·'
+  const marqueeText2 = marqueeItems2.join('  ·  ') + '  ·'
+
   return (
     <div className="homepage-wrapper">
       <HeroSection />
-      <MarqueeStrip items={marqueeItems1} accent="green" />
+      <ScrollVelocity texts={[marqueeText1]} velocity={60} className="scroll-text-green" />
       <AboutSection />
-      <MarqueeStrip items={marqueeItems2} accent="cyan" reverse />
+      <ScrollVelocity texts={[marqueeText2]} velocity={-60} className="scroll-text-cyan" />
       <ServicesSection />
       <ProjectsSection />
       <PosterSection />

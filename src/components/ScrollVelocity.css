@@ -1,0 +1,53 @@
+.scroll-velocity-wrapper {
+  overflow: hidden;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 1;
+  background: rgba(1, 13, 18, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  width: 100%;
+}
+
+.parallax {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.scroller {
+  display: flex;
+  white-space: nowrap;
+  font-family: var(--font-primary);
+  font-size: clamp(1.8rem, 4.5vw, 3.8rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.scroller span {
+  flex-shrink: 0;
+  display: inline-block;
+  cursor: default;
+  transition: color 0.3s ease;
+}
+
+.scroll-text-green {
+  color: #ffffff;
+}
+
+.scroll-text-green:hover {
+  color: var(--green);
+}
+
+.scroll-text-cyan {
+  color: #ffffff;
+}
+
+.scroll-text-cyan:hover {
+  color: var(--cyan);
+}
