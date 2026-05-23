@@ -803,22 +803,22 @@ function ProcessSection() {
         {/* Background ShapeBlur element on the right of the heading */}
         <div style={{ 
           position: 'absolute', 
-          right: '5%', 
-          top: '-20px', 
+          right: '-10%', 
+          top: '-150px', 
           pointerEvents: 'none', 
           zIndex: 0, 
           opacity: 0.8,
-          width: '280px', 
-          height: '280px', 
+          width: '550px', 
+          height: '550px', 
           overflow: 'hidden' 
         }}>
           <ShapeBlur 
             variation={0}
             pixelRatioProp={window.devicePixelRatio || 1}
-            shapeSize={0.6}
+            shapeSize={0.23}
             roundness={0.5}
-            borderSize={0.015}
-            circleSize={0.2}
+            borderSize={0.04}
+            circleSize={0.1}
             circleEdge={1}
             glowColor="#0ae469"
             baseOpacity={0.1}
