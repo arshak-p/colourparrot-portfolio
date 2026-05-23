@@ -50,9 +50,6 @@
   opacity: 0;
   z-index: 10001;
   background: transparent;
-  /* Applying the lens distortion filter */
-  backdrop-filter: url(#lens-distortion) contrast(1.05);
-  -webkit-backdrop-filter: url(#lens-distortion) contrast(1.05);
 }
 
 .dot {

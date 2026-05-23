@@ -34,7 +34,7 @@ export default function AboutPage() {
 
       {/* Story */}
       <section className="pad" style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '5rem', alignItems: 'center' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '5rem', alignItems: 'center' }}>
           <motion.div variants={itemVariants}>
             <div className="sec-label c">Our Genesis</div>
             <h2 className="sec-title">Intelligence & <span className="g">Beauty</span></h2>
@@ -52,7 +52,7 @@ export default function AboutPage() {
             colors={['#1D9E75', '#0ae469']} 
             backgroundColor="#061014" 
             borderRadius={32}
-            style={{ height: '500px' }}
+            style={{ height: 'clamp(300px, 50vh, 500px)' }}
           >
             <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
               <img src="https://picsum.photos/1200/800?random=about" alt="Studio" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />

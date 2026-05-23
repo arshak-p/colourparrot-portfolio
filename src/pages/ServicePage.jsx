@@ -4,6 +4,7 @@ import { services } from '../data'
 
 import StarBorderBtn from '../components/StarBorderBtn'
 import PixelCard from '../components/PixelCard'
+import Magnet from '../components/Magnet'
 
 
 const itemVariants = {
@@ -107,7 +108,9 @@ export default function ServicePage() {
         <div className="container" style={{ textAlign: 'center' }}>
           <h2 className="sec-title">Ready to <span className="g">Launch?</span></h2>
           <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '3rem' }}>Let's discuss how we can take your brand beyond gravity.</p>
-          <StarBorderBtn href="/contact" size="lg">Start a Project →</StarBorderBtn>
+          <Magnet padding={80} disabled={false}>
+            <StarBorderBtn href="/contact" size="lg">Start a Project →</StarBorderBtn>
+          </Magnet>
         </div>
       </section>
     </motion.div>

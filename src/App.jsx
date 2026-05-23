@@ -5,8 +5,9 @@ import Starfield      from './components/Starfield'
 import CrosshairCursor from './components/CrosshairCursor'
 import StaggeredMenu  from './components/StaggeredMenu'
 import Footer         from './components/Footer'
-import SmoothScroll   from './components/SmoothScroll'
+import SmoothScroll, { lenis } from './components/SmoothScroll'
 import Preloader      from './components/Preloader'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const HomePage       = lazy(() => import('./pages/HomePage'))
 const AboutPage      = lazy(() => import('./pages/AboutPage'))
@@ -18,7 +19,6 @@ const NotFoundPage   = lazy(() => import('./pages/NotFoundPage'))
 const HeroExperiment   = lazy(() => import('./components/HeroExperiment'))
 const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'))
 
-
 import { menuItems, socialItems } from './data'
 import './styles/globals.css'
 
@@ -26,14 +26,20 @@ export default function App() {
   const { pathname } = useLocation()
   const [loading, setLoading] = useState(true)
 
-  // Scroll to top on route change
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [pathname])
+  const handlePreloaderComplete = () => {
+    setLoading(false)
+    // Delay slightly to let body style update and DOM settle before calculations
+    setTimeout(() => {
+      if (lenis) {
+        lenis.resize()
+      }
+      ScrollTrigger.refresh()
+    }, 150)
+  }
 
   return (
     <>
-      {loading && <Preloader onComplete={() => setLoading(false)} />}
+      {loading && <Preloader onComplete={handlePreloaderComplete} />}
 
       <SmoothScroll />
       <SpaceGrid />
@@ -59,7 +65,6 @@ export default function App() {
           <Routes>
             <Route path="/"         element={<HomePage />} />
             <Route path="/about"    element={<AboutPage />} />
-            <Route path="/service"  element={<ServicePage />} />
             <Route path="/services"           element={<ServicePage />} />
             <Route path="/services/:serviceId" element={<ServiceDetailPage />} />
             <Route path="/projects"           element={<ProjectsPage />} />

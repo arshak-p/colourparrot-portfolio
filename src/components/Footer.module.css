@@ -54,3 +54,23 @@
 .navLink:hover {
   color: var(--green);
 }
+
+@media (max-width: 768px) {
+  .footer {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem 1.5rem;
+  }
+  .left {
+    align-items: center;
+  }
+  .socialRow {
+    justify-content: center;
+  }
+  .nav {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+

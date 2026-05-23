@@ -66,9 +66,12 @@ const Starfield = memo(function Starfield() {
         const x2 = (c.x + c.s * 15) * W
         const y2 = (c.y - c.s * 15) * H
 
+        const isInverted = document.body.classList.contains('inverted-theme')
+        const cometColor = isInverted ? '255, 255, 255' : '10, 228, 105'
+
         const grad = ctx.createLinearGradient(x1, y1, x2, y2)
-        grad.addColorStop(0, `rgba(10,228,105,${c.opacity})`)
-        grad.addColorStop(1, 'rgba(10,228,105,0)')
+        grad.addColorStop(0, `rgba(${cometColor},${c.opacity})`)
+        grad.addColorStop(1, `rgba(${cometColor},0)`)
 
         ctx.beginPath()
         ctx.moveTo(x1, y1)

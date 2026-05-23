@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { services } from '../data'
 import StarBorderBtn from '../components/StarBorderBtn'
 import BorderGlow from '../components/BorderGlow'
+import Magnet from '../components/Magnet'
 
 
 const containerVariants = {
@@ -53,7 +54,7 @@ export default function ServiceDetailPage() {
           borderRadius: '50%', filter: 'blur(80px)', zIndex: -1
         }} />
 
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'center' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '4rem', alignItems: 'center' }}>
           <div>
             <motion.div variants={itemVariants} className="sec-label" style={{ color: service.accent }}>
               Service Detail
@@ -80,10 +81,10 @@ export default function ServiceDetailPage() {
              }}>
                <img src={service.image} alt={service.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
              </div>
-             <div style={{ 
-               position: 'absolute', bottom: '-30px', left: '-30px', padding: '2rem', 
-               background: 'rgba(2,23,30,0.8)', backdropFilter: 'blur(20px)', borderRadius: '24px',
-               border: `1px solid ${service.accent}30`, maxWidth: '250px'
+             <div className="service-approach-badge" style={{ 
+                padding: '2rem', 
+                background: 'rgba(2,23,30,0.8)', backdropFilter: 'blur(20px)', borderRadius: '24px',
+                border: `1px solid ${service.accent}30`, maxWidth: '250px'
              }}>
                <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.5, marginBottom: '0.5rem' }}>Our Approach</p>
                <p style={{ fontSize: '0.9rem', fontWeight: 500, lineHeight: 1.4 }}>{service.pill}</p>
@@ -138,7 +139,9 @@ export default function ServiceDetailPage() {
           <motion.p variants={itemVariants} style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '3rem' }}>Explore how we can transform your {service.name.toLowerCase()} journey.</motion.p>
           <motion.div variants={itemVariants}>
             <Link to="/services" style={{ color: 'white', textDecoration: 'none', marginRight: '2rem', opacity: 0.5 }}>View All Services</Link>
-            <StarBorderBtn href="/contact">Get Started</StarBorderBtn>
+            <Magnet padding={80} disabled={false}>
+              <StarBorderBtn href="/contact">Get Started</StarBorderBtn>
+            </Magnet>
           </motion.div>
         </div>
       </section>

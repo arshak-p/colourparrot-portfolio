@@ -1,16 +1,20 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '../hooks/useGSAP'
+import { lenis } from '../components/SmoothScroll'
+
+gsap.registerPlugin(ScrollTrigger)
 
 import StarBorderBtn from '../components/StarBorderBtn'
+import Magnet from '../components/Magnet'
 import ClientLogos from "../components/ClientLogos";
 import BorderGlow from '../components/BorderGlow'
 import MarqueeStrip from '../components/MarqueeStrip'
-
 import ParallaxStrip from '../components/ParallaxStrip'
+import FlowingMenu from '../components/FlowingMenu'
 
 
 import { 
@@ -22,7 +26,7 @@ import {
   marqueeItems2 
 } from '../data'
 
-import logo from '../assets/logo.png'
+import ShapeBlur from '../components/ShapeBlur'
 
 
 // ── Consolidated HomePage ──
@@ -36,6 +40,7 @@ export default function HomePage() {
       <MarqueeStrip items={marqueeItems2} accent="cyan" reverse />
       <ServicesSection />
       <ProjectsSection />
+      <PosterSection />
       <ClientLogos />
       <IndustriesSection />
       <ProcessSection />
@@ -58,47 +63,51 @@ function HeroSection() {
       .to('.hero-btns',     { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
       .to('.hero-badges',   { opacity: 1, duration: 0.8 }, '-=0.3')
   }, [])
-  const scrollTo = (id) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' })
+  const scrollTo = (id) => {
+    if (lenis) {
+      lenis.scrollTo(id)
+    } else {
+      document.querySelector(id)?.scrollIntoView({ behavior: 'auto' })
+    }
+  }
 
   return (
-    <section id="hero" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 8%', position: 'relative', overflow: 'hidden' }}>
+    <section id="hero" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
       <style>{`
         @media (max-width: 768px) {
-          #hero { padding: 0 6% !important; }
-          #hero .container { paddingTop: 8vh !important; }
-          #hero h1 { font-size: clamp(2.5rem, 12vw, 4rem) !important; line-height: 1.1 !important; }
-          #hero .hero-sub { font-size: 0.9rem !important; margin-bottom: 2rem !important; }
-          #hero .hero-btns { gap: 0.8rem !important; }
+          #hero h1 { font-size: clamp(2.5rem, 12vw, 4rem) !important; line-height: 1.05 !important; }
+          #hero .hero-sub { font-size: 0.92rem !important; margin-bottom: 2.5rem !important; }
+          #hero .hero-btns { gap: 1rem !important; }
         }
       `}</style>
       
-      <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: '12vh' }}>
+      <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 'clamp(2rem, 8vh, 5rem)', paddingBottom: 'clamp(2rem, 5vh, 4rem)' }}>
         
-        <h1 style={{ fontSize: 'clamp(3rem, 8.5vw, 6.8rem)', fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 0.95, marginBottom: '1.5rem', textTransform: 'none' }}>
+        <h1 style={{ fontSize: 'clamp(3rem, 8.5vw, 6.8rem)', fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 0.95, marginBottom: '2rem', textTransform: 'none' }}>
           {[
             [{ text: 'Where', cls: 'g' }, { text: 'Brands', cls: '' }],
             [{ text: 'Go',   cls: 'c' }, { text: 'Beyond',  cls: 'p' }],
             [{ text: 'Gravity', cls: 'y' }],
           ].map((line, li) => (
-            <span key={li} style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.1em' }}>
+            <span key={li} style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
               {line.map((w, wi) => (
-                <span key={wi} className={`hero-word ${w.cls}`} style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: wi < line.length - 1 ? '0.2em' : 0 }}>{w.text}</span>
+                <span key={wi} className={`hero-word ${w.cls}`} style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: wi < line.length - 1 ? '0.22em' : 0 }}>{w.text}</span>
               ))}
             </span>
           ))}
         </h1>
 
-        {/* Tag below heading with reduced margin */}
-        <p className="hero-tag" style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--green)', fontWeight: 500, opacity: 0, transform: 'translateY(12px)', display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
-          <span style={{ width: 25, height: 1, background: 'var(--green)', display: 'inline-block', opacity: 0.4 }} />
+        {/* Tag below heading */}
+        <p className="hero-tag" style={{ fontSize: '0.65rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--green)', fontWeight: 600, opacity: 0, transform: 'translateY(12px)', display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.75rem' }}>
+          <span style={{ width: 26, height: 1, background: 'var(--green)', display: 'inline-block', opacity: 0.4, flexShrink: 0 }} />
           Kozhikode · Kerala · Est. 2020
         </p>
         
-        <p className="hero-sub" style={{ maxWidth: 460, fontSize: '1rem', lineHeight: 1.8, color: 'rgba(242,242,242,0.4)', fontWeight: 400, opacity: 0, transform: 'translateY(12px)', marginBottom: '2.5rem' }}>
+        <p className="hero-sub" style={{ maxWidth: 520, fontSize: '1.05rem', lineHeight: 1.8, color: 'rgba(242,242,242,0.45)', fontWeight: 400, opacity: 0, transform: 'translateY(12px)', marginBottom: '3rem' }}>
           Colour Parrot is a full-spectrum creative agency — branding, motion, production, digital — launching brands into orbit from Calicut.
         </p>
         
-        <div className="hero-btns" style={{ display: 'flex', gap: '1.2rem', flexWrap: 'wrap', opacity: 0, transform: 'translateY(12px)', alignItems: 'center' }}>
+        <div className="hero-btns" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: 0, transform: 'translateY(12px)', alignItems: 'center' }}>
           <StarBorderBtn onClick={() => scrollTo('#projects')}>Explore Work</StarBorderBtn>
           <StarBorderBtn onClick={() => scrollTo('#services')}>Our Services</StarBorderBtn>
         </div>
@@ -126,7 +135,6 @@ function HeroSection() {
       </div>
     </section>
   )
-
 }
 
 function AboutSection() {
@@ -139,22 +147,41 @@ function AboutSection() {
   useGSAP(() => {
     gsap.fromTo('.acard', { y: 35, opacity: 0 }, {
       y: 0, opacity: 1, stagger: 0.1, duration: 0.75, ease: 'power3.out',
-      scrollTrigger: { trigger: cardsRef.current, start: 'top 78%' },
+      scrollTrigger: { 
+        trigger: cardsRef.current, 
+        start: 'top 78%',
+        toggleActions: 'play none none reverse'
+      },
     })
   }, [])
 
   return (
-    <section id="about" className="pad" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-      <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'clamp(2rem, 5vw, 6rem)', alignItems: 'center' }}>
+    <section id="about" className="pad" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, opacity: 0.8, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ width: 'min(90vw, 550px)', height: 'min(90vw, 550px)', overflow: 'hidden', position: 'relative' }}>
+          <ShapeBlur 
+            variation={0}
+            pixelRatioProp={window.devicePixelRatio || 1}
+            shapeSize={0.65}
+            roundness={0.5}
+            borderSize={0.04}
+            circleSize={0.25}
+            circleEdge={1}
+            glowColor="#0ae469"
+            baseOpacity={0.12}
+          />
+        </div>
+      </div>
+      <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(3rem, 6vw, 7rem)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div>
           <p className="sec-label">About us</p>
           <h2 className="sec-title">A Creative Force<br />From <span className="c">Deep Space</span></h2>
-          <p style={{ fontSize: '1.1rem', lineHeight: 1.8, color: 'rgba(242,242,242,0.6)', fontWeight: 400, marginBottom: '3rem' }}>
+          <p style={{ fontSize: '1.05rem', lineHeight: 1.75, color: 'rgba(242,242,242,0.55)', fontWeight: 400, marginBottom: '1.5rem', maxWidth: 500 }}>
             Based in Kozhikode, Colour Parrot is a full-service branding and advertising agency that transforms ideas into iconic brand experiences. We live at the intersection of strategy and art — every pixel, frame, and word is intentional.
           </p>
-          <StarBorderBtn onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}>Work With Us</StarBorderBtn>
+          <StarBorderBtn onClick={() => lenis ? lenis.scrollTo('#contact') : document.querySelector('#contact')?.scrollIntoView({ behavior: 'auto' })}>Work With Us</StarBorderBtn>
         </div>
-        <div ref={cardsRef} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
+        <div ref={cardsRef} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           {cards.map((c, i) => (
             <BorderGlow
               key={i}
@@ -178,9 +205,9 @@ function AboutSection() {
                 cursor: 'default',
               }}
             >
-              <div style={{ padding: '2rem' }}>
-                <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: 500, letterSpacing: '-0.05em', lineHeight: 1, marginBottom: '0.5rem', color: c.col }}>{c.n}</div>
-                <div style={{ fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, opacity: 0.6 }}>{c.l}</div>
+              <div style={{ padding: '2.25rem' }}>
+                <div style={{ fontSize: 'clamp(2.2rem, 4vw, 3rem)', fontWeight: 500, letterSpacing: '-0.05em', lineHeight: 1, marginBottom: '0.6rem', color: c.col }}>{c.n}</div>
+                <div style={{ fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, opacity: 0.55 }}>{c.l}</div>
               </div>
             </BorderGlow>
           ))}
@@ -192,136 +219,460 @@ function AboutSection() {
 }
 
 function ServicesSection() {
-  const menuRef = useRef(null)
-  useEffect(() => {
-    const menu = menuRef.current
-    if (!menu) return
-    const cleanups = []
-    services.forEach((item, idx) => {
-      const wrap  = menu.children[idx]
-      const link  = wrap.querySelector('a')
-      const marq  = wrap.querySelector('.svc-marquee')
-      const inner = wrap.querySelector('.svc-minner')
-      const part = inner.querySelector('.svc-mpart')
-      if (part) {
-        const timer = setTimeout(() => {
-          const cw = part.offsetWidth || 350
-          gsap.to(inner, { x: -cw, duration: 15, ease: 'none', repeat: -1 })
-        }, 200)
-        cleanups.push(() => clearTimeout(timer))
+  // Map services data to FlowingMenu item format
+  const menuItems = services.map((s, idx) => ({
+    link: `/services/${s.slug}`,
+    text: s.name,
+    image: s.image,
+    accent: s.accent,
+    index: idx + 1,
+  }))
+
+  return (
+    <section
+      id="services"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        zIndex: 1,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Section header */}
+      <div className="container" style={{ paddingTop: 'clamp(5rem, 9vh, 8rem)', paddingBottom: '2.5rem' }}>
+        <p className="sec-label">Our Expertise</p>
+        <h2 className="sec-title" style={{ marginBottom: 0 }}>
+          Services in <span className="g">Orbit</span>
+        </h2>
+      </div>
+
+      {/* FlowingMenu fills remaining height */}
+      <div style={{ flex: 1, borderTop: '1px solid rgba(242,242,242,0.07)' }}>
+        <FlowingMenu items={menuItems} speed={18} />
+      </div>
+    </section>
+  )
+}
+
+
+
+function ProjectsSection() {
+  const sectionRef = useRef(null)
+  const headerRef = useRef(null)
+  const row1Ref = useRef(null)
+  const row2Ref = useRef(null)
+
+  const row1Projects = [
+    { name: 'Creative 1', category: 'Creative Design', image: '/creatives/1.webp', ratio: 0.8 },
+    { name: 'Creative 2', category: 'Creative Design', image: '/creatives/2.webp', ratio: 1.0 },
+    { name: 'Creative 3', category: 'Creative Design', image: '/creatives/3.webp', ratio: 1.0 },
+    { name: 'Creative 4', category: 'Creative Design', image: '/creatives/4.webp', ratio: 0.8 },
+    { name: 'Creative 5', category: 'Creative Design', image: '/creatives/5.webp', ratio: 1.0 },
+    { name: 'Creative 6', category: 'Creative Design', image: '/creatives/6.webp', ratio: 1.0 },
+    { name: 'Creative 7', category: 'Creative Design', image: '/creatives/7.webp', ratio: 0.8 },
+    { name: 'Creative 8', category: 'Creative Design', image: '/creatives/8.webp', ratio: 1.0 },
+    { name: 'Creative 9', category: 'Creative Design', image: '/creatives/9.webp', ratio: 1.0 },
+    { name: 'Creative 10', category: 'Creative Design', image: '/creatives/10.webp', ratio: 1.0 },
+    { name: 'Creative 11', category: 'Creative Design', image: '/creatives/11.webp', ratio: 0.8 },
+    { name: 'Creative 12', category: 'Creative Design', image: '/creatives/12.webp', ratio: 1.0 },
+  ]
+
+  const row2Projects = [
+    { name: 'Creative 13', category: 'Creative Design', image: '/creatives/13.webp', ratio: 0.8 },
+    { name: 'Creative 14', category: 'Creative Design', image: '/creatives/14.webp', ratio: 0.8 },
+    { name: 'Creative 15', category: 'Creative Design', image: '/creatives/15.webp', ratio: 1.0 },
+    { name: 'Creative 16', category: 'Creative Design', image: '/creatives/16.webp', ratio: 0.8 },
+    { name: 'Creative 17', category: 'Creative Design', image: '/creatives/17.webp', ratio: 0.8 },
+    { name: 'Creative 18', category: 'Creative Design', image: '/creatives/18.webp', ratio: 0.8 },
+    { name: 'Creative 19', category: 'Creative Design', image: '/creatives/19.webp', ratio: 1.0 },
+    { name: 'Creative 20', category: 'Creative Design', image: '/creatives/20.webp', ratio: 0.8 },
+    { name: 'Creative 21', category: 'Creative Design', image: '/creatives/21.webp', ratio: 1.0 },
+    { name: 'Creative 22', category: 'Creative Design', image: '/creatives/22.webp', ratio: 1.0 },
+    { name: 'Creative 23', category: 'Creative Design', image: '/creatives/23.webp', ratio: 1.0 },
+    { name: 'Creative 24', category: 'Creative Design', image: '/creatives/24.webp', ratio: 0.8 },
+  ]
+
+  useGSAP(() => {
+    // 1. Pinned Sliding Animation Timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: '+=1600',
+        pin: true,
+        pinSpacing: true,
+        anticipatePin: 1,
+        scrub: 0.5
       }
-      const AD = { duration: 0.55, ease: 'expo.out' }
-      const dist = (x,y,x2,y2) => (x-x2)**2 + (y-y2)**2
-      const edge = (mx,my,w,h) => dist(mx,my,w/2,0) < dist(mx,my,w/2,h) ? 'top' : 'bottom'
-      const onEnter = (ev) => {
-        const r = wrap.getBoundingClientRect()
-        const e = edge(ev.clientX-r.left, ev.clientY-r.top, r.width, r.height)
-        gsap.timeline({ defaults: AD }).set(marq, { y: e==='top' ? '-101%' : '101%' }).set(inner, { y: e==='top' ? '101%' : '-101%' }).to([marq, inner], { y: '0%' })
-      }
-      const onLeave = (ev) => {
-        const r = wrap.getBoundingClientRect()
-        const e = edge(ev.clientX-r.left, ev.clientY-r.top, r.width, r.height)
-        gsap.timeline({ defaults: AD }).to(marq, { y: e==='top' ? '-101%' : '101%' }).to(inner, { y: e==='top' ? '101%' : '-101%' }, 0)
-      }
-      link.addEventListener('mouseenter', onEnter)
-      link.addEventListener('mouseleave', onLeave)
-      cleanups.push(() => { link.removeEventListener('mouseenter', onEnter); link.removeEventListener('mouseleave', onLeave) })
     })
-    return () => cleanups.forEach(fn => fn())
+
+    const getRowOverflow = (rowEl) => {
+      if (!rowEl) return 0
+      return rowEl.scrollWidth - window.innerWidth
+    }
+
+    // Smooth transition of services opacity on entry
+    tl.to('#services', { opacity: 0, pointerEvents: 'none', duration: 1.5, ease: 'power2.out' }, 0)
+
+
+
+    // Row 1 — LEFT entry, sweeps right (enters completely from offscreen left)
+    tl.fromTo(row1Ref.current,
+      { x: () => -(row1Ref.current.scrollWidth + 100) },
+      { x: 0, ease: 'none', duration: 7 },
+      0
+    )
+
+    // Row 2 — RIGHT entry, sweeps left (enters completely from offscreen right)
+    tl.fromTo(row2Ref.current,
+      { x: () => window.innerWidth + 100 },
+      { x: () => -getRowOverflow(row2Ref.current), ease: 'none', duration: 7 },
+      0
+    )
+
+    // Dead zone — pause so user sees the final state before unpinning
+    tl.to({}, { duration: 1.5 }, 7)
+
+    // Smooth exit — services fade back
+    tl.to('#services', { opacity: 1, pointerEvents: 'auto', duration: 1.5, ease: 'power2.inOut' }, 7)
+
+    // 2. Unified Background Color and Comet Color (Inverted Theme) Toggle ScrollTrigger
+    // Spans from the start of #projects (bottom of #services) to the end of #clients (top of #industries)
+    ScrollTrigger.create({
+      trigger: '#services',
+      endTrigger: '#industries',
+      start: 'bottom top',
+      end: 'top top',
+      toggleClass: { targets: 'body, html', className: 'inverted-theme' }
+    })
+
+    // Trigger layout refresh after initial render to avoid offsets
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 500)
+
+    return () => clearTimeout(refreshTimer)
   }, [])
 
   return (
-    <section id="services" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
-      <div className="container" style={{ padding: '8vh 5% 4vh' }}>
-        <p className="sec-label">Our Expertise</p>
-        <h2 className="sec-title" style={{ marginBottom: 0 }}>Services in <span className="g">Orbit</span></h2>
+    <section id="projects" ref={sectionRef} className="projects-pin-container" style={{ 
+      position: 'relative', 
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      height: '100vh',
+      padding: 0,
+      boxSizing: 'border-box'
+    }}>
+      {/* Title */}
+      <div ref={headerRef} className="container" style={{ 
+        position: 'absolute', 
+        top: '6vh', 
+        left: 0,
+        right: 0,
+        zIndex: 10, 
+        opacity: 1,
+        pointerEvents: 'auto'
+      }}>
+        <div className="proj-header-flex">
+          <div>
+            <p className="sec-label" style={{ color: 'var(--green)' }}>Recent Work</p>
+            <h2 className="sec-title" style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+              Featured <span className="g">Projects</span>
+            </h2>
+          </div>
+          <StarBorderBtn href="/projects" color="var(--green)">View All Work</StarBorderBtn>
+        </div>
       </div>
-      <div style={{ flex: 1, width: '100%', borderTop: '1px solid rgba(242,242,242,0.08)', display: 'flex', flexDirection: 'column' }}>
-        <div ref={menuRef} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {services.map((item, idx) => (
-            <div key={idx} style={{ flex: 1, minHeight: '120px', position: 'relative', overflow: 'hidden', borderBottom: '1px solid rgba(242,242,242,0.06)', display: 'flex' }}>
 
-              <Link to={`/services/${item.slug}`} style={{ 
-                flex: 1, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                width: '100%', 
-                textDecoration: 'none', 
-                textTransform: 'uppercase', 
-                fontWeight: 500, 
-                fontSize: 'clamp(1.5rem, 6vh, 5.2rem)', 
-                fontFamily: 'ClashGrotesk, var(--font)', 
-                letterSpacing: '-0.04em', 
-                gap: '1.2rem', 
-                position: 'relative', 
-                zIndex: 1, 
-                cursor: 'pointer', 
-                color: item.accent,
-                padding: '1.5rem 0'
-              }}>
-                <span style={{ fontSize: '0.35em', fontWeight: 600, opacity: 0.5, letterSpacing: '0.05em' }}>0{idx+1}</span>
-                {item.name}
-              </Link>
-
-
-              <div className="svc-marquee" style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', transform: 'translateY(101%)', zIndex: 2, backgroundColor: item.accent }}>
-                <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-                  <div className="svc-minner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: 'max-content', willChange: 'transform' }}>
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <div key={i} className="svc-mpart" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                        <span style={{ whiteSpace: 'nowrap', textTransform: 'uppercase', fontWeight: 500, fontSize: 'clamp(1.2rem, 4vh, 3.8rem)', padding: '0 4vw', fontFamily: 'ClashGrotesk, var(--font)', letterSpacing: '-0.04em', color: '#010d12' }}>{item.name}</span>
-                        <div style={{ width: '12vh', height: '5vh', margin: '0 2.5vw', borderRadius: 100, backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.9 }} />
-                      </div>
-
-                    ))}
-                  </div>
-                </div>
+      {/* Rows wrapper — gap: 4vh */}
+      <div className="proj-rows-wrapper" style={{ 
+        height: '100vh',
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center',
+        gap: '4vh',
+        width: '100%',
+        margin: 0,
+        overflow: 'hidden'
+      }}>
+        {/* Row 1 */}
+        <div style={{ overflow: 'visible', width: '100%', height: 'auto' }}>
+          <div ref={row1Ref} className="proj-row-scroll" style={{ opacity: 1, height: '100%', gap: '3vw' }}>
+            {row1Projects.map((p, idx) => (
+              <div 
+                key={idx} 
+                className="proj-img-wrapper float-item" 
+                style={{ 
+                  animationDelay: `${idx * 0.35}s`, 
+                  animationDuration: `${7 + (idx % 3) * 1.5}s`,
+                  aspectRatio: p.ratio,
+                  height: '46vh'
+                }}
+              >
+                <img 
+                  src={p.image} 
+                  alt={p.name} 
+                  className="proj-img-only" 
+                  loading="eager"
+                  style={{ aspectRatio: p.ratio, width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Row 2 */}
+        <div style={{ overflow: 'visible', width: '100%', height: 'auto' }}>
+          <div ref={row2Ref} className="proj-row-scroll" style={{ opacity: 1, height: '100%', gap: '3vw' }}>
+            {row2Projects.map((p, idx) => (
+              <div 
+                key={idx} 
+                className="proj-img-wrapper float-item" 
+                style={{ 
+                  animationDelay: `${(idx + 1) * 0.4}s`, 
+                  animationDuration: `${8 + (idx % 4) * 1.2}s`,
+                  aspectRatio: p.ratio,
+                  height: '46vh'
+                }}
+              >
+                <img 
+                  src={p.image} 
+                  alt={p.name} 
+                  className="proj-img-only" 
+                  loading="eager"
+                  style={{ aspectRatio: p.ratio, width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-function ProjectsSection() {
-  const scrollRef = useRef(null)
-  const projects = [
-    { name: 'Astro Identity', category: 'Branding', image: 'https://picsum.photos/800/600?random=101' },
-    { name: 'Nebula Motion',  category: 'Motion',   image: 'https://picsum.photos/800/600?random=102' },
-    { name: 'Cosmos Digital', category: 'Digital',  image: 'https://picsum.photos/800/600?random=103' },
+function PosterCard({ item }) {
+  const videoRef = useRef(null)
+  const [hovered, setHovered] = useState(false)
+
+  const handleMouseEnter = () => {
+    setHovered(true)
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {})
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setHovered(false)
+    if (videoRef.current) {
+      videoRef.current.pause()
+      videoRef.current.currentTime = 0
+    }
+  }
+
+  return (
+    <Link 
+      to={item.link} 
+      className="glass-card" 
+      style={{ 
+        padding: '1.2rem', 
+        backgroundColor: 'rgba(255, 255, 255, 0.02)',
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        overflow: 'hidden', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        borderRadius: '20px',
+        textDecoration: 'none',
+        transition: 'transform 0.4s var(--ease-out), border-color 0.4s var(--ease-out)'
+      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div style={{ 
+        borderRadius: '12px', 
+        overflow: 'hidden', 
+        width: '100%', 
+        aspectRatio: '1.4',
+        backgroundColor: '#010d12',
+        position: 'relative'
+      }}>
+        {/* Static Image */}
+        <img 
+          src={item.image} 
+          alt={item.title} 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover',
+            position: 'absolute',
+            inset: 0,
+            opacity: hovered ? 0 : 1,
+            transition: 'opacity 0.4s ease, transform 0.6s var(--ease-out)',
+            transform: hovered ? 'scale(1.04)' : 'scale(1)'
+          }} 
+        />
+        {/* Video Preview (Autoplays/Loops on Hover, Muted) */}
+        <video
+          ref={videoRef}
+          src={item.video}
+          muted
+          loop
+          playsInline
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            position: 'absolute',
+            inset: 0,
+            opacity: hovered ? 1 : 0,
+            transition: 'opacity 0.4s ease',
+            pointerEvents: 'none'
+          }}
+        />
+      </div>
+      <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)', letterSpacing: '0.05em' }}>{item.category}</span>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 500, color: '#ffffff', marginTop: '0.2rem', letterSpacing: '-0.02em' }}>{item.title}</h3>
+        </div>
+        <div style={{ 
+          width: '36px', 
+          height: '36px', 
+          borderRadius: '50%', 
+          border: '1px solid rgba(255, 255, 255, 0.1)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          color: 'var(--cyan)',
+          transition: 'all 0.3s ease',
+          transform: hovered ? 'translateX(4px)' : 'none',
+          borderColor: hovered ? 'var(--cyan)' : 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: hovered ? 'rgba(56, 189, 248, 0.05)' : 'transparent'
+        }}>
+          →
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function PosterSection() {
+  const sectionRef = useRef(null)
+  const posters = [
+    { 
+      title: 'Cosmic Brand Design', 
+      category: 'Branding & Identity', 
+      image: '/branding_design_cosmic_1778433637538.png',
+      video: 'https://assets.mixkit.co/videos/preview/mixkit-working-at-a-clean-light-desk-with-a-laptop-42173-large.mp4',
+      link: '/services/brand-identity'
+    },
+    { 
+      title: 'Stellar Marketing Campaign', 
+      category: 'Digital Strategy', 
+      image: '/digital_marketing_orbit_1778433698442.png',
+      video: 'https://assets.mixkit.co/videos/preview/mixkit-statistics-being-shown-on-a-digital-tablet-42171-large.mp4',
+      link: '/services/digital-marketing'
+    },
+    { 
+      title: 'Galactic Visual Production', 
+      category: 'Motion Graphics & Film', 
+      image: '/video_production_future_1778433657751.png',
+      video: 'https://assets.mixkit.co/videos/preview/mixkit-lens-of-a-professional-video-camera-40788-large.mp4',
+      link: '/services/video-production'
+    },
+    { 
+      title: 'Interactive Space Architecture', 
+      category: 'Web App & Tech', 
+      image: '/web_dev_cosmic_code_1778433678220.png',
+      video: 'https://assets.mixkit.co/videos/preview/mixkit-typing-on-a-glowing-computer-keyboard-in-the-dark-42176-large.mp4',
+      link: '/services/web-design'
+    }
   ]
+
   useGSAP(() => {
-    gsap.fromTo('.proj-card', { y: 50, opacity: 0 }, {
-      y: 0, opacity: 1, stagger: 0.15, duration: 1, ease: 'power3.out',
-      scrollTrigger: { trigger: scrollRef.current, start: 'top 80%' },
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 85%',
+        toggleActions: 'play none none reverse',
+      }
     })
+
+    tl.fromTo(
+      '.poster-header > *',
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power3.out'
+      }
+    ).fromTo(
+      '.poster-card-wrapper',
+      { 
+        y: 50, 
+        scale: 0.94, 
+        opacity: 1 
+      },
+      {
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.75,
+        stagger: 0.15,
+        ease: 'back.out(1.15)',
+        clearProps: 'transform'
+      },
+      '-=0.25'
+    ).fromTo(
+      '.poster-btn-wrap',
+      { y: 20, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.5,
+        ease: 'power2.out'
+      },
+      '-=0.2'
+    )
   }, [])
 
   return (
-    <section id="projects" ref={scrollRef} className="pad" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+    <section id="posters" ref={sectionRef} style={{ backgroundColor: 'transparent', padding: 'clamp(4rem, 8vh, 6rem) 0', position: 'relative', zIndex: 1 }}>
       <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '5rem' }}>
-          <div>
-            <p className="sec-label" style={{ color: 'var(--purple)' }}>Recent Work</p>
-            <h2 className="sec-title">Featured <span className="p">Projects</span></h2>
-          </div>
-          <StarBorderBtn href="/projects" color="var(--purple)">View All Work</StarBorderBtn>
+        <div className="poster-header" style={{ marginBottom: '4rem' }}>
+          <p className="sec-label" style={{ color: 'var(--cyan)' }}>Portfolio Grid</p>
+          <h2 className="sec-title" style={{ margin: 0 }}>Selected <span className="c">Brandings</span></h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2.5rem' }}>
-          {projects.map((p, i) => (
-            <div key={i} className="proj-card" style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
-              <div style={{ width: '100%', aspectRatio: '16/10', overflow: 'hidden', borderRadius: 24 }}>
-                <img src={p.image} alt={p.name} className="proj-img" style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)' }} onMouseEnter={e => e.currentTarget.classList.add('hovered')} onMouseLeave={e => e.currentTarget.classList.remove('hovered')} loading="lazy" />
-              </div>
-              <div style={{ padding: '2.5rem 1rem' }}>
-                <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--purple)', fontWeight: 500, marginBottom: '1rem' }}>{p.category}</p>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: 500, letterSpacing: '-0.03em' }}>{p.name}</h3>
-              </div>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: 'clamp(1.25rem, 2.5vw, 2.25rem)',
+          width: '100%' 
+        }}>
+          <style>{`
+            @media (max-width: 768px) {
+              #posters .container > div:last-child { grid-template-columns: 1fr !important; }
+            }
+          `}</style>
+          {posters.map((item, idx) => (
+            <div key={idx} className="poster-card-wrapper" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <PosterCard item={item} />
             </div>
           ))}
+        </div>
+
+        {/* View More Button */}
+        <div className="poster-btn-wrap" style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+          <StarBorderBtn href="/projects" color="var(--cyan)">
+            View More Works →
+          </StarBorderBtn>
         </div>
       </div>
     </section>
@@ -335,7 +686,11 @@ function IndustriesSection() {
   useGSAP(() => {
     gsap.fromTo('.ind-tag', { scale: 0.85, opacity: 0 }, {
       scale: 1, opacity: 1, stagger: 0.04, duration: 0.45, ease: 'back.out(1.5)',
-      scrollTrigger: { trigger: listRef.current, start: 'top 82%' },
+      scrollTrigger: { 
+        trigger: listRef.current, 
+        start: 'top 82%',
+        toggleActions: 'play none none reverse'
+      },
     })
   }, [])
   return (
@@ -343,9 +698,9 @@ function IndustriesSection() {
       <div className="container">
         <p className="sec-label" style={{ color: 'var(--red)' }}>Sectors we serve</p>
         <h2 className="sec-title">Industries We've <span className="r">Explored</span></h2>
-        <div ref={listRef} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '2.5rem' }}>
+        <div ref={listRef} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', marginTop: '1rem' }}>
           {industries.map((tag) => (
-            <span key={tag} className="ind-tag glass-card" style={{ fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', fontWeight: 500, letterSpacing: '-0.02em', padding: '0.8rem 2rem', borderRadius: 100, transition: 'all 0.4s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.classList.add('hovered')} onMouseLeave={e => e.currentTarget.classList.remove('hovered')}>{tag}</span>
+            <span key={tag} className="ind-tag glass-card" style={{ fontSize: 'clamp(0.85rem, 1.8vw, 1.1rem)', fontWeight: 500, letterSpacing: '-0.02em', padding: 'clamp(0.4rem, 1.5vh, 0.7rem) clamp(1rem, 3.5vw, 1.6rem)', borderRadius: 100, transition: 'all 0.35s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.classList.add('hovered')} onMouseLeave={e => e.currentTarget.classList.remove('hovered')}>{tag}</span>
           ))}
         </div>
       </div>
@@ -445,6 +800,7 @@ function ProcessSection() {
         scrollTrigger: {
           trigger: ref.current,
           start: 'top 78%',
+          toggleActions: 'play none none reverse',
         },
       }
     )
@@ -491,35 +847,35 @@ function ProcessSection() {
                 cursor: 'default',
               }}
             >
-              <div style={{ padding: '2.5rem 2rem', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+              <div style={{ padding: '2rem 1.75rem', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
                 <div
                   style={{
-                    fontSize: '0.6rem',
+                    fontSize: '0.68rem',
                     letterSpacing: '0.2em',
                     color: s.color,
                     fontWeight: 600,
                     marginBottom: '1.5rem',
-                    opacity: 0.7,
+                    opacity: 0.65,
                   }}
                 >
                   {s.number}
                 </div>
                 <h3
                   style={{
-                    fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
+                    fontSize: 'clamp(1.3rem, 2.2vw, 1.7rem)',
                     fontWeight: 500,
                     letterSpacing: '-0.03em',
                     color: s.color,
-                    marginBottom: '1rem',
+                    marginBottom: '0.9rem',
                   }}
                 >
                   {s.title}
                 </h3>
                 <p
                   style={{
-                    fontSize: '0.9rem',
+                    fontSize: '0.88rem',
                     lineHeight: 1.75,
-                    color: 'rgba(242,242,242,0.5)',
+                    color: 'rgba(242,242,242,0.48)',
                     fontWeight: 400,
                   }}
                 >
@@ -528,9 +884,9 @@ function ProcessSection() {
                 <div
                   style={{
                     position: 'absolute',
-                    top: '2rem',
-                    right: '2rem',
-                    fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                    top: '1.75rem',
+                    right: '1.75rem',
+                    fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)',
                     fontWeight: 700,
                     letterSpacing: '-0.06em',
                     color: s.color,
@@ -595,6 +951,7 @@ function TestimonialsSection() {
         scrollTrigger: {
           trigger: ref.current,
           start: 'top 78%',
+          toggleActions: 'play none none reverse',
         },
       }
     )
@@ -604,7 +961,7 @@ function TestimonialsSection() {
     <section id="testimonials" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <div className="container">
         <p className="sec-label" style={{ color: 'var(--yellow)' }}>Client Stories</p>
-        <h2 className="sec-title" style={{ marginBottom: '4rem' }}>
+        <h2 className="sec-title" style={{ marginBottom: '3.5rem' }}>
           What They <span className="y">Say</span>
         </h2>
         <div
@@ -613,7 +970,7 @@ function TestimonialsSection() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '2rem',
+            gap: '1.5rem',
           }}
         >
           {testimonials.map((t, i) => (
@@ -639,26 +996,26 @@ function TestimonialsSection() {
                 cursor: 'default',
               }}
             >
-              <div style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: '100%' }}>
+              <div style={{ padding: '2.25rem', display: 'flex', flexDirection: 'column', gap: '1.75rem', height: '100%' }}>
               {/* Quote mark */}
               <div
                 style={{
-                  fontSize: '4rem',
+                  fontSize: '3.5rem',
                   lineHeight: 0.8,
                   color: t.color,
-                  opacity: 0.4,
+                  opacity: 0.35,
                   fontFamily: 'Georgia, serif',
                 }}
               >
-                "
+                “
               </div>
 
               {/* Quote text */}
               <p
                 style={{
-                  fontSize: '1rem',
+                  fontSize: '0.93rem',
                   lineHeight: 1.8,
-                  color: 'rgba(242,242,242,0.65)',
+                  color: 'rgba(242,242,242,0.62)',
                   fontWeight: 400,
                   flex: 1,
                 }}
@@ -724,19 +1081,23 @@ function ContactSection() {
   useGSAP(() => {
     gsap.fromTo(titleRef.current, { y: 70, opacity: 0 }, {
       y: 0, opacity: 1, duration: 1.1, ease: 'power4.out',
-      scrollTrigger: { trigger: titleRef.current, start: 'top 72%' },
+      scrollTrigger: { 
+        trigger: titleRef.current, 
+        start: 'top 72%',
+        toggleActions: 'play none none reverse'
+      },
     })
   }, [])
   return (
     <section id="contact" className="pad" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-      <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '5rem', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+      <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(3rem, 6vw, 6rem)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div>
           <p className="sec-label">Get in touch</p>
-          <h2 ref={titleRef} style={{ fontSize: 'clamp(4rem, 12vw, 8rem)', fontWeight: 500, letterSpacing: '-0.06em', lineHeight: 0.85, marginBottom: '3rem' }}>
+          <h2 ref={titleRef} style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)', fontWeight: 500, letterSpacing: '-0.06em', lineHeight: 0.88, marginBottom: '2.75rem' }}>
             <span className="g">LET'S</span><br /><span className="c">BUILD.</span>
           </h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', marginBottom: '4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3.5rem' }}>
             {[ 
               { label: 'Email', value: 'info@colourparrot.com', link: 'mailto:info@colourparrot.com' }, 
               { label: 'Phone', value: '+91 94008 90105', link: 'tel:+919400890105' },
@@ -744,7 +1105,7 @@ function ContactSection() {
               { 
                 label: 'Social', 
                 value: (
-                  <div style={{ display: 'flex', gap: '1rem', marginTop: '0.6rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                     <a href="https://www.instagram.com/colour.parrot/" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
                     <a href="https://www.behance.net/colourparrotbranding" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12h-4"></path><path d="M9 16h-4"></path><path d="M5 8h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M5 12h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M13 12h7"></path><path d="M20 12c0-3-2-5-5-5s-5 2-5 5 2 5 5 5 5-2 5-5z"></path></svg></a>
                     <a href="https://www.facebook.com/share/1F9u1EHMhb/?mibextid=wwXIfr" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
@@ -755,9 +1116,9 @@ function ContactSection() {
               }, 
             ].map(({ label, value, link }) => (
               <div key={label}>
-                <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(242,242,242,0.3)', fontWeight: 500, marginBottom: '0.6rem' }}>{label}</p>
+                <p style={{ fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(242,242,242,0.28)', fontWeight: 600, marginBottom: '0.55rem' }}>{label}</p>
                 {typeof value === 'string' ? (
-                  <a href={link} className="contact-link" style={{ fontSize: '1rem', fontWeight: 600, textDecoration: 'none', display: 'block' }} onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}>{value}</a>
+                  <a href={link} className="contact-link" style={{ fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', display: 'block' }} onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}>{value}</a>
                 ) : (
                   value
                 )}
@@ -765,12 +1126,14 @@ function ContactSection() {
             ))}
           </div>
           
-          <StarBorderBtn href="mailto:info@colourparrot.com" size="lg">Start a Project →</StarBorderBtn>
+          <Magnet padding={80} disabled={false}>
+            <StarBorderBtn href="mailto:info@colourparrot.com" size="lg">Start a Project →</StarBorderBtn>
+          </Magnet>
         </div>
 
         {/* Map Integration */}
         <div style={{ 
-          position: 'relative', height: '550px', borderRadius: '40px', overflow: 'hidden',
+          position: 'relative', height: 'clamp(320px, 45vh, 550px)', borderRadius: '40px', overflow: 'hidden',
           border: '1px solid var(--glass-border)', boxShadow: '0 40px 100px rgba(0,0,0,0.6)'
         }}>
           <iframe 

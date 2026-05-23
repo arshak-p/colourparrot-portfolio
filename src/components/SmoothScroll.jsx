@@ -1,34 +1,54 @@
 import { useEffect, memo } from 'react'
+import { useLocation } from 'react-router-dom'
 import Lenis from '@studio-freight/lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-
-export const lenis = typeof window !== 'undefined' ? new Lenis({
-  duration: 1.2,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  orientation: 'vertical',
-  gestureOrientation: 'vertical',
-  smoothWheel: true,
-  wheelMultiplier: 1,
-  smoothTouch: false,
-  touchMultiplier: 2,
-  infinite: false,
-}) : null
+export let lenis = null
 
 const SmoothScroll = memo(function SmoothScroll() {
+  const { pathname } = useLocation()
+
+  // Track route changes to reset scroll position and recalculate page heights
   useEffect(() => {
-    if (!lenis) return
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true })
+      // Delay slightly to let the DOM settle before measuring heights
+      const timer = setTimeout(() => {
+        lenis.resize()
+        ScrollTrigger.refresh()
+      }, 150)
+      return () => clearTimeout(timer)
+    }
+  }, [pathname])
 
-    if (!lenis) return
+  useEffect(() => {
+    if (typeof window === 'undefined') return
 
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000)
+    // Instantiate Lenis inside useEffect to make sure DOM is loaded
+    lenis = new Lenis({
+      lerp: 0.10,           // Snappier response
+      wheelMultiplier: 1.0, // Scroll speed
+      smoothWheel: true,   // Enable for mouse wheel
+      smoothTouch: false,  // Disable for mobile (use native momentum touch)
+      infinite: false,
     })
-    gsap.ticker.lagSmoothing(0)
+
+    // Keep ScrollTrigger in sync with Lenis
     lenis.on('scroll', ScrollTrigger.update)
+
+    // Use GSAP's ticker to drive Lenis raf loop
+    const updateLenis = (time) => {
+      if (lenis) {
+        lenis.raf(time * 1000) // Convert time from seconds to milliseconds
+      }
+    }
+    gsap.ticker.add(updateLenis)
+
+    // Disable lag smoothing in GSAP to prevent jumping/stuttering
+    gsap.ticker.lagSmoothing(0)
 
     const handleHashClick = (e) => {
       const link = e.target.closest('a')
@@ -42,12 +62,17 @@ const SmoothScroll = memo(function SmoothScroll() {
     }
     document.addEventListener('click', handleHashClick)
 
+    // Force layout recalculation for GSAP
+    ScrollTrigger.refresh()
+
     return () => {
       document.removeEventListener('click', handleHashClick)
-      gsap.ticker.remove(lenis.raf)
-      lenis.destroy()
+      gsap.ticker.remove(updateLenis)
+      if (lenis) {
+        lenis.destroy()
+        lenis = null
+      }
     }
-
   }, [])
 
   return null

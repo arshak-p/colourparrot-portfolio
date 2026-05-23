@@ -1,4 +1,5 @@
 import { useEffect, useRef, memo } from 'react'
+import { useLocation } from 'react-router-dom'
 import { gsap } from 'gsap'
 import styles from './CrosshairCursor.module.css'
 
@@ -16,6 +17,7 @@ const getMousePos = (e, container) => {
 }
 
 const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', containerRef = null }) {
+  const { pathname } = useLocation()
   const cursorRef = useRef(null)
   const lineHorizontalRef = useRef(null)
   const lineVerticalRef = useRef(null)
@@ -31,10 +33,6 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
     const handleMouseMove = ev => {
       mouse.current = getMousePos(ev, containerRef?.current)
       
-      // Set global mouse variables for other components to use
-      document.documentElement.style.setProperty('--mouse-x', `${ev.clientX}px`)
-      document.documentElement.style.setProperty('--mouse-y', `${ev.clientY}px`)
-
       if (containerRef?.current) {
         const bounds = containerRef.current.getBoundingClientRect()
         if (
@@ -75,7 +73,7 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
         opacity: 1
       })
 
-      requestAnimationFrame(render)
+      startRender()
       target.removeEventListener('mousemove', onMouseMoveInitial)
     }
 
@@ -113,12 +111,10 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
 
     const enter = () => {
       tl.restart()
-      gsap.to(circleRef.current, { scale: 2, duration: 0.4, ease: 'power2.out' })
       gsap.to(circleScale.current, { val: 2, duration: 0.4, ease: 'power2.out' })
     }
     const leave = () => {
       tl.progress(1).kill()
-      gsap.to(circleRef.current, { scale: 1, duration: 0.4, ease: 'power2.out' })
       gsap.to(circleScale.current, { val: 1, duration: 0.4, ease: 'power2.out' })
     }
 
@@ -134,45 +130,90 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
         )
       }
 
-      if (lineHorizontalRef.current && lineVerticalRef.current && circleRef.current && dotRef.current) {
+      const dot = dotRef.current
+      const lineV = lineVerticalRef.current
+      const lineH = lineHorizontalRef.current
+      const circle = circleRef.current
+
+      if (lineH && lineV && circle && dot) {
         const x = renderedStyles.tx.previous
         const y = renderedStyles.ty.previous
-        // Dot follows mouse IMMEDIATELY (no delay)
-        gsap.set(dotRef.current, { x: mouse.current.x, y: mouse.current.y })
         
-        // Lines and Circle follow with DELAY (lerp)
-        gsap.set(lineVerticalRef.current, { x: x })
-        gsap.set(lineHorizontalRef.current, { y: y })
-        gsap.set(circleRef.current, { x: x, y: y })
-
-        // MASK out the lines inside the circle (slightly larger radius for safety)
-        const radius = 23 * circleScale.current.val
-        const mask = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent ${radius}px, black ${radius}px)`
-        lineHorizontalRef.current.style.maskImage = mask
-        lineHorizontalRef.current.style.WebkitMaskImage = mask
-        lineVerticalRef.current.style.maskImage = mask
-        lineVerticalRef.current.style.WebkitMaskImage = mask
+        // Use direct hardware-accelerated transforms to bypass GSAP overhead in requestAnimationFrame
+        dot.style.transform = `translate3d(${mouse.current.x}px, ${mouse.current.y}px, 0) translate(-50%, -50%)`
+        lineV.style.transform = `translate3d(${x}px, 0px, 0)`
+        lineH.style.transform = `translate3d(0px, ${y}px, 0)`
+        circle.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${circleScale.current.val})`
       }
 
       requestAnimationFrame(render)
     }
 
-    const interactiveElements = document.querySelectorAll('a, button, [role="button"]')
+    let rafId
+    const startRender = () => {
+      rafId = requestAnimationFrame(render)
+    }
 
-    interactiveElements.forEach(el => {
-      el.addEventListener('mouseenter', enter)
-      el.addEventListener('mouseleave', leave)
-    })
+    const getInteractiveEl = (el) => {
+      if (!el || typeof el.closest !== 'function') return null
+      
+      let interactive = el.closest(
+        'a, button, [role="button"], input[type="submit"], input[type="button"], select, textarea, [tabindex="0"], .interactive-hover, .glass-card, .ind-tag, .star-border-container'
+      )
+      
+      if (!interactive) {
+        let current = el
+        while (current && current !== document.body && current.parentElement) {
+          if (window.getComputedStyle(current).cursor === 'pointer') {
+            interactive = current
+            break
+          }
+          current = current.parentElement
+        }
+      }
+      return interactive
+    }
+
+    let currentInteractive = null
+
+    const handleMouseOver = (e) => {
+      const interactive = getInteractiveEl(e.target)
+      if (interactive) {
+        if (interactive !== currentInteractive) {
+          currentInteractive = interactive
+          enter()
+        }
+      }
+    }
+
+    const handleMouseOut = (e) => {
+      if (!currentInteractive) return
+
+      if (!e.relatedTarget || !currentInteractive.contains(e.relatedTarget)) {
+        const nextInteractive = getInteractiveEl(e.relatedTarget)
+        if (nextInteractive) {
+          if (nextInteractive !== currentInteractive) {
+            currentInteractive = nextInteractive
+          }
+        } else {
+          currentInteractive = null
+          leave()
+        }
+      }
+    }
+
+    const delegationTarget = containerRef?.current || document
+    delegationTarget.addEventListener('mouseover', handleMouseOver)
+    delegationTarget.addEventListener('mouseout', handleMouseOut)
 
     return () => {
+      cancelAnimationFrame(rafId)
       target.removeEventListener('mousemove', handleMouseMove)
       target.removeEventListener('mousemove', onMouseMoveInitial)
-      interactiveElements.forEach(el => {
-        el.removeEventListener('mouseenter', enter)
-        el.removeEventListener('mouseleave', leave)
-      })
+      delegationTarget.removeEventListener('mouseover', handleMouseOver)
+      delegationTarget.removeEventListener('mouseout', handleMouseOut)
     }
-  }, [containerRef, color])
+  }, [containerRef, color, pathname])
 
   return (
     <div

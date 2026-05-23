@@ -1,7 +1,7 @@
 export const menuItems = [
   { label: 'Home',       ariaLabel: 'Go to home',       link: '/'          },
   { label: 'About',      ariaLabel: 'Learn about us',    link: '/about'     },
-  { label: 'Service',    ariaLabel: 'Our services',      link: '/service'   },
+  { label: 'Services',   ariaLabel: 'Our services',      link: '/services'  },
   { label: 'Projects',   ariaLabel: 'View our projects', link: '/projects'  },
   { label: 'Contact Us', ariaLabel: 'Get in touch',      link: '/contact'   },
   { label: 'Blog',       ariaLabel: 'Read our blog',     link: '/blog'      },
@@ -47,8 +47,8 @@ export const services = [
   { slug: 'video-production',     name: 'Video Production',     desc: 'Ad films, brand reels, motion graphics and storytelling content — from script to final frame.',                       pill: 'Motion + Story',      accent: 'var(--cyan)',   image: '/video_production_future_1778433657751.png' },
   { slug: 'digital-marketing',    name: 'Digital Marketing',    desc: 'Social campaigns, digital ads, performance creatives and full-funnel strategies that convert.',                        pill: 'Reach + Convert',     accent: 'var(--purple)', image: '/digital_marketing_orbit_1778433698442.png' },
   { slug: 'web-design',           name: 'Web & UI Design',      desc: 'Websites, UI/UX concepts and app interfaces as beautiful as they are functional.',                                   pill: 'Digital Experience',  accent: 'var(--yellow)', image: '/web_dev_cosmic_code_1778433678220.png' },
-  { slug: 'content-creation',     name: 'Content Creation',     desc: 'Copywriting, social media content, and digital storytelling that resonates with your audience.',                      pill: 'Narrative + Impact',  accent: 'var(--red)',    image: 'https://picsum.photos/600/400?random=55' },
-  { slug: 'creative-advertising', name: 'Creative Advertising', desc: 'Concept-driven campaigns and advertising narratives built on brand strategy and human insight.',                       pill: 'Ideas + Execution',   accent: 'var(--green)',  image: 'https://picsum.photos/600/400?random=66' },
+  { slug: 'content-creation',     name: 'Content Creation',     desc: 'Copywriting, social media content, and digital storytelling that resonates with your audience.',                      pill: 'Narrative + Impact',  accent: 'var(--red)',    image: '/content_creation_cosmic.png' },
+  { slug: 'creative-advertising', name: 'Creative Advertising', desc: 'Concept-driven campaigns and advertising narratives built on brand strategy and human insight.',                       pill: 'Ideas + Execution',   accent: 'var(--green)',  image: '/creative_advertising_orbit.png' },
 ]
 
 
@@ -57,8 +57,8 @@ export const workItems = [
   { text: 'Video Production',     image: 'https://picsum.photos/600/400?random=22', color: '#28c1e5' },
   { text: 'Digital Marketing',    image: 'https://picsum.photos/600/400?random=33', color: '#7a43ff' },
   { text: 'Web & UI Design',      image: 'https://picsum.photos/600/400?random=44', color: '#f9cc3d' },
-  { text: 'Content Creation',     image: 'https://picsum.photos/600/400?random=55', color: '#f45b42' },
-  { text: 'Creative Advertising', image: 'https://picsum.photos/600/400?random=66', color: '#0ae469' },
+  { text: 'Content Creation',     image: '/content_creation_cosmic.png', color: '#f45b42' },
+  { text: 'Creative Advertising', image: '/creative_advertising_orbit.png', color: '#0ae469' },
 ]
 
 export const planets = [

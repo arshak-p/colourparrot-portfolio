@@ -29,9 +29,9 @@ export default function ContactPage() {
 
       {/* Contact Grid */}
       <section className="pad" style={{ paddingTop: 0 }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '4rem', alignItems: 'start' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '4rem', alignItems: 'start' }}>
           {/* Form */}
-          <motion.div variants={itemVariants} className="glass-card" style={{ padding: '3.5rem' }}>
+          <motion.div variants={itemVariants} className="glass-card" style={{ padding: 'clamp(1.5rem, 5vw, 3rem)' }}>
             <h3 style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}>Send a Message</h3>
             <form style={{ display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'grid', gap: '0.8rem' }}>

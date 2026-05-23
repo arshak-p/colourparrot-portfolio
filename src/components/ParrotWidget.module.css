@@ -39,3 +39,15 @@
 .head {
   transform-origin: 125px 155px;
 }
+
+@media (max-width: 768px) {
+  .widget {
+    bottom: 20px;
+    right: 20px;
+  }
+  .container {
+    width: 60px;
+    height: 60px;
+  }
+}
+

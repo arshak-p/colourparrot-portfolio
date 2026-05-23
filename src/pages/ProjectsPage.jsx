@@ -48,7 +48,7 @@ export default function ProjectsPage() {
 
         <div className="projects-grid" style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
           gap: '2rem' 
         }}>
           {projects.map((p, i) => (

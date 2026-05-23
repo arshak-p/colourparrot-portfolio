@@ -1,17 +1,53 @@
 .strip {
-  overflow: hidden; padding: 0.75rem 0;
-  border-top: 1px solid; border-bottom: 1px solid; position: relative; z-index: 1;
+  overflow: hidden;
+  padding: 1.8rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 1;
+  background: rgba(1, 13, 18, 0.3);
+  backdrop-filter: blur(5px);
 }
+
 .track {
-  display: flex; gap: 2.5rem; width: max-content;
-  animation: marq 22s linear infinite;
+  display: flex;
+  gap: 6rem;
+  width: max-content;
+  animation: marq 34s linear infinite;
 }
-.track span {
-  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.15em;
-  text-transform: uppercase; white-space: nowrap; display: flex; align-items: center; gap: 0.7rem;
+
+.item {
+  font-family: var(--font-primary);
+  font-size: clamp(1.8rem, 4.5vw, 3.8rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease, -webkit-text-stroke 0.3s ease;
+  cursor: default;
 }
-.rev { animation-direction: reverse; }
+
+.solid {
+  color: #ffffff;
+}
+
+.outline {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.item:hover {
+  color: var(--accent-color);
+}
+
+.rev {
+  animation-direction: reverse;
+}
+
 @keyframes marq {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+
+
