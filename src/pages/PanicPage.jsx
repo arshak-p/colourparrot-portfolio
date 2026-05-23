@@ -156,9 +156,16 @@ export default function PanicPage() {
     // Track mouse position
     let mouse = { x: width / 2, y: height / 2 };
 
+    // Gun turret coordinates
+    const leftGun = { x: 120, y: height };
+    const rightGun = { x: width - 120, y: height };
+
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+      leftGun.y = height;
+      rightGun.x = width - 120;
+      rightGun.y = height;
     };
 
     const handleMouseMove = (e) => {
@@ -169,9 +176,6 @@ export default function PanicPage() {
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Gun turret coordinates
-    const leftGun = { x: 120, y: height };
-    const rightGun = { x: width - 120, y: height };
     const muzzleFlash = { left: 0, right: 0 }; // intensity value [0.0, 1.0]
 
     // Game elements arrays
