@@ -89,6 +89,7 @@ export default function PanicPage() {
   const wailingIntervalRef = useRef(null);
   const shakeRef = useRef(0);
   const wrapperRef = useRef(null);
+  const [transitionPhase, setTransitionPhase] = useState(0); // 0=off, 1=alert, 2=lock, 3=go
 
   // Sync ref for access inside requestAnimationFrame
   useEffect(() => {
@@ -133,14 +134,19 @@ export default function PanicPage() {
     };
   }, [gameState]);
 
-  // Start transition wailing effect
+  // Start transition — cinematic 3-phase countdown before game begins
   const handlePanicActivate = () => {
     setGameState('starting');
+    setTransitionPhase(1); // Phase 1: ALERT flash
+
+    setTimeout(() => setTransitionPhase(2), 900);  // Phase 2: LOCK ON
+    setTimeout(() => setTransitionPhase(3), 1900); // Phase 3: ENGAGE
     setTimeout(() => {
       setScore(0);
       setTimer(30);
+      setTransitionPhase(0);
       setGameState('playing');
-    }, 1500);
+    }, 2800); // Game starts
   };
 
   // HTML5 Canvas Game Loop
@@ -279,11 +285,14 @@ export default function PanicPage() {
 
     // Spawn Space Stone (Asteroid)
     const spawnStone = () => {
-      const radius = 25 + Math.random() * 35;
+      const radius = 25 + Math.random() * 45;
       const x = Math.random() * width;
       const y = -radius - 10;
-      const speedY = 1.5 + Math.random() * 2.5;
+      // Speed is consistent regardless of size — big stones are NOT faster
+      const speedY = 1.2 + Math.random() * 1.8;
       const speedX = (Math.random() - 0.5) * 1.5;
+      // HP based on size: small=1, medium=2, large=3 (max 3 hits)
+      const maxHp = radius > 52 ? 3 : radius > 38 ? 2 : 1;
       stones.push({
         x,
         y,
@@ -294,7 +303,12 @@ export default function PanicPage() {
         craters: generateStoneCraters(radius),
         rotation: Math.random() * Math.PI * 2,
         rotSpeed: (Math.random() - 0.5) * 0.03,
-        color: Math.random() > 0.5 ? '#0ae469' : '#28c1e5' // green or cyan outline
+        color: Math.random() > 0.5 ? '#0ae469' : '#28c1e5',
+        hp: maxHp,
+        maxHp,
+        cracks: [],
+        hitJerk: 0,
+        hitJerkAngle: 0
       });
     };
 
@@ -330,15 +344,15 @@ export default function PanicPage() {
       // Recoil screen shake
       shakeRef.current = 5.5;
 
-      // Left nozzle nozzle tips location (positioned at the rim of the 60px node)
+      // Left barrel tip: dome(36) + housing(58) + barrel(48) = 142px from pivot
       const leftAngle = Math.atan2(targetY - leftGun.y, targetX - leftGun.x);
-      const leftTipX = leftGun.x + Math.cos(leftAngle) * 60;
-      const leftTipY = leftGun.y + Math.sin(leftAngle) * 60;
+      const leftTipX = leftGun.x + Math.cos(leftAngle) * 142;
+      const leftTipY = leftGun.y + Math.sin(leftAngle) * 142;
 
-      // Right nozzle nozzle tips location
+      // Right barrel tip (same distance)
       const rightAngle = Math.atan2(targetY - rightGun.y, targetX - rightGun.x);
-      const rightTipX = rightGun.x + Math.cos(rightAngle) * 60;
-      const rightTipY = rightGun.y + Math.sin(rightAngle) * 60;
+      const rightTipX = rightGun.x + Math.cos(rightAngle) * 142;
+      const rightTipY = rightGun.y + Math.sin(rightAngle) * 142;
 
       // Add lasers
       lasers.push({
@@ -377,24 +391,102 @@ export default function PanicPage() {
       for (let sIdx = stones.length - 1; sIdx >= 0; sIdx--) {
         const s = stones[sIdx];
         const dist = Math.hypot(targetX - s.x, targetY - s.y);
-        if (dist <= s.radius + 15) { // generous hitbox
-          playSynthSound('explosion');
-          setScore((prev) => prev + 10);
-          
-          // Generate glowing neon debris particles
-          for (let p = 0; p < 24; p++) {
-            particles.push({
-              x: s.x,
-              y: s.y,
-              vx: (Math.random() - 0.5) * 8,
-              vy: (Math.random() - 0.5) * 8,
-              size: 2 + Math.random() * 3,
-              life: 1.0,
-              decay: 0.02 + Math.random() * 0.03,
-              color: s.color
+        if (dist <= s.radius + 15) {
+
+          // --- Reduce HP ---
+          s.hp -= 1;
+
+          // --- Jerk: stronger the lower the hp ---
+          const jerkAngle = Math.atan2(targetY - s.y, targetX - s.x) + Math.PI;
+          s.hitJerk = 14 + s.radius * 0.25;
+          s.hitJerkAngle = jerkAngle;
+          s.rotSpeed = (Math.random() - 0.5) * (0.18 + (s.maxHp - s.hp) * 0.12);
+
+          // --- Screen shake scales with damage ---
+          shakeRef.current = 6 + (s.maxHp - s.hp) * 4;
+
+          if (s.hp <= 0) {
+            // ========= FULL EXPLOSION =========
+            playSynthSound('explosion');
+            setScore((prev) => prev + 10 * s.maxHp); // bonus for tough stones
+
+            // Big shockwave ring
+            particles.push({ x: s.x, y: s.y, vx: 0, vy: 0,
+              size: s.radius * 0.3, life: 1.0, decay: 0.045,
+              color: s.color, isRing: true, ringMax: s.radius * 3.5 });
+            // Second outer ring
+            particles.push({ x: s.x, y: s.y, vx: 0, vy: 0,
+              size: s.radius * 0.1, life: 0.8, decay: 0.03,
+              color: '#ffffff', isRing: true, ringMax: s.radius * 4.5 });
+            // White core flash
+            particles.push({ x: s.x, y: s.y, vx: 0, vy: 0,
+              size: s.radius * 1.5, life: 1.0, decay: 0.09,
+              color: '#ffffff', isFlash: true });
+            // Neon chunks
+            for (let p = 0; p < 16; p++) {
+              const angle = (p / 16) * Math.PI * 2 + Math.random() * 0.4;
+              const speed = 4 + Math.random() * 9;
+              particles.push({
+                x: s.x + Math.cos(angle) * s.radius * 0.4,
+                y: s.y + Math.sin(angle) * s.radius * 0.4,
+                vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                size: 3 + Math.random() * 5, life: 1.0,
+                decay: 0.018 + Math.random() * 0.018, color: s.color
+              });
+            }
+            // Fine sparks
+            for (let p = 0; p < 28; p++) {
+              const angle = Math.random() * Math.PI * 2;
+              const speed = 2 + Math.random() * 7;
+              particles.push({
+                x: s.x, y: s.y,
+                vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                size: 1 + Math.random() * 2.5, life: 1.0,
+                decay: 0.028 + Math.random() * 0.035, color: '#ffffff'
+              });
+            }
+            stones.splice(sIdx, 1);
+
+          } else {
+            // ========= HIT — NOT DEAD YET =========
+            playSynthSound('explosion');
+            setScore((prev) => prev + 5);
+
+            // Add a crack line radiating from impact point (stored in stone-local coords)
+            const localAngle = jerkAngle + Math.PI + (Math.random() - 0.5) * 0.6;
+            const crackLen = s.radius * (0.4 + Math.random() * 0.45);
+            s.cracks.push({
+              x1: Math.cos(localAngle) * s.radius * 0.15,
+              y1: Math.sin(localAngle) * s.radius * 0.15,
+              x2: Math.cos(localAngle) * crackLen,
+              y2: Math.sin(localAngle) * crackLen,
+              // branch
+              bx: Math.cos(localAngle + 0.7) * crackLen * 0.55,
+              by: Math.sin(localAngle + 0.7) * crackLen * 0.55,
             });
+
+            // Small impact ring
+            particles.push({ x: s.x, y: s.y, vx: 0, vy: 0,
+              size: s.radius * 0.2, life: 1.0, decay: 0.09,
+              color: s.hp === 1 ? '#ff4444' : s.color, isRing: true, ringMax: s.radius * 1.8 });
+            // Impact flash
+            particles.push({ x: s.x, y: s.y, vx: 0, vy: 0,
+              size: s.radius * 0.7, life: 0.8, decay: 0.15,
+              color: '#ffffff', isFlash: true });
+            // Small debris burst
+            for (let p = 0; p < 8; p++) {
+              const angle = Math.random() * Math.PI * 2;
+              const speed = 2 + Math.random() * 4;
+              particles.push({
+                x: s.x, y: s.y,
+                vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                size: 1.5 + Math.random() * 2, life: 1.0,
+                decay: 0.04 + Math.random() * 0.04,
+                color: s.hp === 1 ? '#ff4444' : s.color
+              });
+            }
           }
-          stones.splice(sIdx, 1);
+
           return; // only hit one per click
         }
       }
@@ -536,49 +628,77 @@ export default function PanicPage() {
         s.y += s.vy;
         s.rotation += s.rotSpeed;
 
+        // Jerk offset — stone physically jolts on hit then decays back
+        let jx = 0, jy = 0;
+        if (s.hitJerk > 0) {
+          jx = Math.cos(s.hitJerkAngle) * s.hitJerk;
+          jy = Math.sin(s.hitJerkAngle) * s.hitJerk;
+          s.hitJerk *= 0.72; // quick spring-back
+          if (s.hitJerk < 0.4) s.hitJerk = 0;
+        }
+
         ctx.save();
-        ctx.translate(s.x, s.y);
+        ctx.translate(s.x + jx, s.y + jy);
         ctx.rotate(s.rotation);
 
         // Select cartoon sprite based on color
         const sprite = s.color === '#0ae469' ? spriteGreenKeyed : spriteCyanKeyed;
 
+        // Rage glow when low hp: pulse red
+        const isLowHp = s.hp === 1 && s.maxHp > 1;
+        const rageGlow = isLowHp ? (Math.sin(Date.now() * 0.015) * 0.5 + 0.5) : 0;
+
         if (sprite && sprite.complete && sprite.naturalWidth !== 0) {
           // Draw cartoon space stone sprite
-          ctx.shadowColor = s.color;
-          ctx.shadowBlur = 15;
+          ctx.shadowColor = isLowHp ? `rgba(255,${Math.floor(80 * rageGlow)},0,1)` : s.color;
+          ctx.shadowBlur = isLowHp ? 25 + rageGlow * 20 : 15;
+          ctx.globalAlpha = 1;
           ctx.drawImage(sprite, -s.radius, -s.radius, s.radius * 2, s.radius * 2);
         } else {
-          // Fallback to stylized vector drawing if loading
           ctx.beginPath();
           ctx.moveTo(s.shape[0].x, s.shape[0].y);
-          for (let j = 1; j < s.shape.length; j++) {
-            ctx.lineTo(s.shape[j].x, s.shape[j].y);
-          }
+          for (let j = 1; j < s.shape.length; j++) ctx.lineTo(s.shape[j].x, s.shape[j].y);
           ctx.closePath();
-          
-          ctx.fillStyle = 'rgba(2, 23, 30, 0.65)';
+          ctx.fillStyle = isLowHp ? `rgba(60,5,5,0.75)` : 'rgba(2, 23, 30, 0.65)';
           ctx.fill();
-          ctx.strokeStyle = s.color;
-          ctx.lineWidth = 2.0;
-          ctx.shadowColor = s.color;
-          ctx.shadowBlur = 10;
+          ctx.strokeStyle = isLowHp ? `rgb(255,${Math.floor(60 * rageGlow)},0)` : s.color;
+          ctx.lineWidth = isLowHp ? 2.5 : 2.0;
+          ctx.shadowColor = ctx.strokeStyle;
+          ctx.shadowBlur = isLowHp ? 18 : 10;
           ctx.stroke();
-
-          // Draw crater details
           if (s.craters) {
             s.craters.forEach(crater => {
               ctx.beginPath();
               ctx.arc(crater.x, crater.y, crater.r, 0, Math.PI * 2);
               ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
               ctx.lineWidth = 1.2;
+              ctx.shadowBlur = 0;
               ctx.stroke();
             });
           }
         }
 
+        // Draw crack lines on damaged stones
+        if (s.cracks && s.cracks.length > 0) {
+          ctx.shadowBlur = 0;
+          s.cracks.forEach(crack => {
+            ctx.beginPath();
+            ctx.moveTo(crack.x1, crack.y1);
+            ctx.lineTo(crack.x2, crack.y2);
+            // branch line
+            ctx.moveTo(
+              crack.x1 + (crack.x2 - crack.x1) * 0.5,
+              crack.y1 + (crack.y2 - crack.y1) * 0.5
+            );
+            ctx.lineTo(crack.bx, crack.by);
+            ctx.strokeStyle = isLowHp ? 'rgba(255,80,0,0.85)' : 'rgba(255,255,255,0.7)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          });
+        }
+
         ctx.restore();
-        ctx.shadowBlur = 0; // reset shadow
+        ctx.shadowBlur = 0;
 
         // Delete if out of bounds
         if (s.y > height + s.radius + 20) {
@@ -616,9 +736,49 @@ export default function PanicPage() {
         ctx.stroke();
       }
 
-      // 5. Update and draw particles
+      // 5. Update and draw particles (includes rings and flash)
+      // First pass: draw ring/flash particles (below sparks)
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
+        if (!p.isRing && !p.isFlash) continue;
+        p.life -= p.decay;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
+
+        if (p.isFlash) {
+          // Radial white flash that fades quickly
+          const alpha = p.life * 0.7;
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+          grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+          grad.addColorStop(0.5, p.color === '#ffffff' ? `rgba(200,255,240,${alpha * 0.5})` : `rgba(0,0,0,0)`);
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+
+        if (p.isRing) {
+          // Expanding shockwave ring
+          const progress = 1 - p.life;
+          const r = p.size + progress * p.ringMax;
+          const alpha = p.life * 0.9;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = 3 * p.life;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 20;
+          ctx.globalAlpha = alpha;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      // 5a. Update and draw regular particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        if (p.isRing || p.isFlash) continue; // already drawn above
         p.x += p.vx;
         p.y += p.vy;
 
@@ -716,72 +876,220 @@ export default function PanicPage() {
 
       drawTargetLock();
 
-      // 6. Draw glowing energy nozzles (nodes) in the corners
+      // 6. Draw heavy spaceship turret cannons
       const drawNozzle = (gun, color, flashVal) => {
         const angle = Math.atan2(mouse.y - gun.y, mouse.x - gun.x);
-        
+        // Recoil: barrel pushes back on fire
+        const recoil = flashVal * 14;
+
         ctx.save();
         ctx.translate(gun.x, gun.y);
 
-        // A. Draw expanding shockwave ring on fire
-        if (flashVal > 0) {
-          ctx.beginPath();
-          ctx.arc(0, 0, 60 + (1.0 - flashVal) * 90, 0, Math.PI * 2);
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 3 * flashVal;
-          ctx.globalAlpha = flashVal;
-          ctx.shadowColor = color;
-          ctx.shadowBlur = 15;
-          ctx.stroke();
-          ctx.globalAlpha = 1.0;
-          ctx.shadowBlur = 0;
-        }
-
-        // B. Draw base glowing nozzle node (large outer ring)
+        // ── LAYER 1: Base armour mount (half-circle chassis buried in the floor) ──
+        const baseR = 58;
+        const baseGrad = ctx.createRadialGradient(-8, -8, 4, 0, 0, baseR);
+        baseGrad.addColorStop(0, 'rgba(55,70,90,0.95)');
+        baseGrad.addColorStop(0.5, 'rgba(18,28,38,0.95)');
+        baseGrad.addColorStop(1, 'rgba(8,12,18,0.98)');
         ctx.beginPath();
-        ctx.arc(0, 0, 60, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(1, 13, 18, 0.85)';
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 4.0;
+        ctx.arc(0, 0, baseR, Math.PI, 0); // top half
+        ctx.closePath();
+        ctx.fillStyle = baseGrad;
         ctx.shadowColor = color;
-        ctx.shadowBlur = 15 + flashVal * 25; // intensify glow during fire!
+        ctx.shadowBlur = 18 + flashVal * 22;
         ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Base armour rim
+        ctx.beginPath();
+        ctx.arc(0, 0, baseR, Math.PI, 0);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 10;
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // C. Draw inner rotating aiming ring
+        // Armour hex detail lines on base
+        for (let seg = 0; seg < 5; seg++) {
+          const sx = -baseR + 10 + seg * 22;
+          ctx.beginPath();
+          ctx.moveTo(sx, -4);
+          ctx.lineTo(sx + 8, -22);
+          ctx.lineTo(sx + 14, -22);
+          ctx.strokeStyle = `rgba(255,255,255,0.08)`;
+          ctx.lineWidth = 1;
+          ctx.shadowBlur = 0;
+          ctx.stroke();
+        }
+
+        // ── LAYER 2: Heat vent slits on left/right sides of base ──
+        for (let v = 0; v < 3; v++) {
+          const vy = -18 - v * 10;
+          // left vents
+          ctx.beginPath();
+          ctx.roundRect(-baseR + 10, vy, 14, 5, 2);
+          ctx.fillStyle = v === 0 && flashVal > 0.3 ? `rgba(255,140,0,${flashVal * 0.8})` : 'rgba(255,120,30,0.18)';
+          ctx.shadowColor = '#ff8800';
+          ctx.shadowBlur = v === 0 && flashVal > 0.3 ? 10 : 3;
+          ctx.fill();
+          // right vents (mirror)
+          ctx.beginPath();
+          ctx.roundRect(baseR - 24, vy, 14, 5, 2);
+          ctx.fillStyle = v === 0 && flashVal > 0.3 ? `rgba(255,140,0,${flashVal * 0.8})` : 'rgba(255,120,30,0.18)';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // ── LAYER 3: Rotating turret dome (tracks the mouse) ──
         ctx.save();
         ctx.rotate(angle);
-        
-        // Aiming dashed ring to represent rotational tracking
+        ctx.translate(-recoil * 0.3, 0); // subtle base sway
+
+        // Turret dome body
+        const domeR = 36;
+        const domeGrad = ctx.createRadialGradient(-6, -6, 2, 0, 0, domeR);
+        domeGrad.addColorStop(0, 'rgba(80,100,120,0.95)');
+        domeGrad.addColorStop(0.6, 'rgba(22,34,46,0.97)');
+        domeGrad.addColorStop(1, 'rgba(6,12,18,0.99)');
         ctx.beginPath();
-        ctx.arc(0, 0, 42, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.arc(0, 0, domeR, 0, Math.PI * 2);
+        ctx.fillStyle = domeGrad;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 8 + flashVal * 12;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Turret dome rim
+        ctx.beginPath();
+        ctx.arc(0, 0, domeR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,255,255,0.18)`;
         ctx.lineWidth = 1.5;
-        ctx.setLineDash([8, 8]);
-        ctx.stroke();
-        ctx.setLineDash([]); // reset dashes
-
-        // Aiming nozzle barrel - clean modern indicator (sleek thin capsule)
-        ctx.beginPath();
-        ctx.rect(35, -7, 25, 14);
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.0;
-        ctx.fill();
         ctx.stroke();
 
-        ctx.restore();
-
-        // D. Center energy core (pulsing sphere)
+        // Dome energy ring
         ctx.beginPath();
-        ctx.arc(0, 0, 18 + flashVal * 8, 0, Math.PI * 2);
-        const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, 18 + flashVal * 8);
-        grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.3, color);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad;
+        ctx.arc(0, 0, 26, 0, Math.PI * 2);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 6 + flashVal * 10;
+        ctx.globalAlpha = 0.6 + flashVal * 0.4;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+
+        // ── LAYER 4: Twin barrel assembly ──
+        ctx.translate(-recoil, 0); // recoil pushes barrel back
+
+        // Barrel housing (wide rectangular body)
+        const barrelW = 58;
+        const barrelH = 28;
+        const bGrad = ctx.createLinearGradient(domeR, -barrelH / 2, domeR + barrelW, barrelH / 2);
+        bGrad.addColorStop(0, 'rgba(60,80,100,0.98)');
+        bGrad.addColorStop(0.4, 'rgba(30,45,60,0.98)');
+        bGrad.addColorStop(1, 'rgba(10,18,28,0.98)');
+        ctx.beginPath();
+        ctx.roundRect(domeR - 6, -barrelH / 2, barrelW, barrelH, [3, 6, 6, 3]);
+        ctx.fillStyle = bGrad;
         ctx.fill();
+        ctx.strokeStyle = `rgba(255,255,255,0.12)`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Barrel housing accent stripe
+        ctx.beginPath();
+        ctx.roundRect(domeR - 6, -2, barrelW, 4, 2);
+        ctx.fillStyle = `rgba(255,255,255,0.06)`;
+        ctx.fill();
+
+        // Twin cannon barrels (upper + lower)
+        const barrelStart = domeR + barrelW - 6;
+        const barrelLength = 48;
+        const barrelOffsets = [-7, 7]; // upper and lower barrel Y offsets
+        barrelOffsets.forEach((by, bi) => {
+          // Outer barrel tube
+          ctx.beginPath();
+          ctx.roundRect(barrelStart, by - 4.5, barrelLength, 9, [2, 4, 4, 2]);
+          const tubeGrad = ctx.createLinearGradient(barrelStart, by - 4.5, barrelStart, by + 4.5);
+          tubeGrad.addColorStop(0, 'rgba(100,130,160,0.9)');
+          tubeGrad.addColorStop(0.5, 'rgba(40,60,80,0.95)');
+          tubeGrad.addColorStop(1, 'rgba(15,25,38,0.95)');
+          ctx.fillStyle = tubeGrad;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(255,255,255,0.15)`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+
+          // Muzzle ring (tip detail)
+          ctx.beginPath();
+          ctx.roundRect(barrelStart + barrelLength - 6, by - 5.5, 8, 11, [1, 3, 3, 1]);
+          ctx.fillStyle = flashVal > 0.1 ? color : 'rgba(50,70,90,0.95)';
+          ctx.shadowColor = color;
+          ctx.shadowBlur = flashVal > 0.1 ? 18 + bi * 4 : 3;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Muzzle bloom flash on fire
+          if (flashVal > 0.05) {
+            const mx = barrelStart + barrelLength + 4;
+            const my = by;
+            const mFlash = ctx.createRadialGradient(mx, my, 0, mx, my, 22 * flashVal);
+            mFlash.addColorStop(0, `rgba(255,255,255,${flashVal})`);
+            mFlash.addColorStop(0.3, `${color.replace(')', `,${flashVal * 0.8})`).replace('rgb', 'rgba')}`);
+            mFlash.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.beginPath();
+            ctx.arc(mx, my, 22 * flashVal, 0, Math.PI * 2);
+            ctx.fillStyle = mFlash;
+            ctx.fill();
+
+            // Muzzle streak lines
+            for (let k = 0; k < 5; k++) {
+              const sa = (k / 5) * Math.PI - Math.PI / 2 + (Math.random() - 0.5) * 0.5;
+              ctx.beginPath();
+              ctx.moveTo(mx, my);
+              ctx.lineTo(mx + Math.cos(sa) * 14 * flashVal, my + Math.sin(sa) * 14 * flashVal);
+              ctx.strokeStyle = `rgba(255,255,255,${flashVal * 0.7})`;
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            }
+          }
+        });
+
+        // ── LAYER 5: Center energy core ──
+        const coreR = 11 + flashVal * 5;
+        const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreR);
+        coreGrad.addColorStop(0, '#ffffff');
+        coreGrad.addColorStop(0.35, color);
+        coreGrad.addColorStop(0.7, `${color}88`);
+        coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.beginPath();
+        ctx.arc(0, 0, coreR, 0, Math.PI * 2);
+        ctx.fillStyle = coreGrad;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 15 + flashVal * 20;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.restore(); // end rotating turret
+
+        // ── LAYER 6: Muzzle fire burst ring on canvas (world space) ──
+        if (flashVal > 0) {
+          const tipAngle = angle;
+          const tipDist = domeR + 58 + 48 - recoil;
+          const tx = Math.cos(tipAngle) * tipDist;
+          const ty = Math.sin(tipAngle) * tipDist;
+          ctx.beginPath();
+          ctx.arc(tx, ty, (1 - flashVal) * 55, 0, Math.PI * 2);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.5 * flashVal;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 20;
+          ctx.globalAlpha = flashVal * 0.85;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.shadowBlur = 0;
+        }
 
         ctx.restore();
       };
@@ -807,9 +1115,9 @@ export default function PanicPage() {
     <div className="panic-page">
       <Starfield />
 
-      {/* Exit Game Button */}
+      {/* Exit Game Button — bottom-right corner to stay clear of the site header */}
       <Link to="/" className="game-exit-btn">
-        Exit to Site
+        ✕ Exit to Site
       </Link>
 
       {/* Screen flash overlay during warning transition */}
@@ -843,10 +1151,41 @@ export default function PanicPage() {
           </div>
         )}
 
-        {/* State 2: Starting Transition */}
+        {/* State 2: Starting Transition — Cinematic Intro */}
         {gameState === 'starting' && (
-          <div className="warning-message">
-            COLLISION DEBRIS INBOUND!
+          <div className={`transition-screen phase-${transitionPhase}`}>
+            <div className="transition-inner">
+              {/* Scan lines overlay */}
+              <div className="transition-scanlines" />
+
+              {transitionPhase === 1 && (
+                <>
+                  <div className="transition-tag">⚠ EMERGENCY PROTOCOL ACTIVATED</div>
+                  <div className="transition-main alert">THREAT<br/>DETECTED</div>
+                  <div className="transition-sub">Debris field incoming — prepare defences</div>
+                  <div className="transition-bar"><div className="transition-bar-fill" /></div>
+                </>
+              )}
+
+              {transitionPhase === 2 && (
+                <>
+                  <div className="transition-tag">◈ TARGETING SYSTEMS ONLINE</div>
+                  <div className="transition-main lock">WEAPONS<br/>HOT</div>
+                  <div className="transition-sub">Twin turrets locked and loaded</div>
+                  <div className="transition-crosshair">
+                    <span /><span /><span /><span />
+                  </div>
+                </>
+              )}
+
+              {transitionPhase === 3 && (
+                <>
+                  <div className="transition-tag">▶ COMBAT INITIATED</div>
+                  <div className="transition-main go">ENGAGE</div>
+                  <div className="transition-sub">Defend the sector — good luck</div>
+                </>
+              )}
+            </div>
           </div>
         )}
 

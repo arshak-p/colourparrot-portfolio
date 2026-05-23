@@ -23,6 +23,7 @@ function MenuItem({ link, text, image, accent, speed, isFirst, index }) {
   const itemRef       = useRef(null)
   const marqueeRef    = useRef(null)
   const marqueeInnerRef = useRef(null)
+  const marqueeScrollerRef = useRef(null)
   const animationRef  = useRef(null)
   const [repetitions, setRepetitions] = useState(5)
 
@@ -37,8 +38,8 @@ function MenuItem({ link, text, image, accent, speed, isFirst, index }) {
   // Calculate how many repetitions fill the screen
   useEffect(() => {
     const calc = () => {
-      if (!marqueeInnerRef.current) return
-      const part = marqueeInnerRef.current.querySelector('.fm-part')
+      if (!marqueeScrollerRef.current) return
+      const part = marqueeScrollerRef.current.querySelector('.fm-part')
       if (!part) return
       const cw = part.offsetWidth
       if (!cw) return
@@ -52,14 +53,14 @@ function MenuItem({ link, text, image, accent, speed, isFirst, index }) {
   // Horizontal marquee scroll animation
   useEffect(() => {
     const setup = () => {
-      if (!marqueeInnerRef.current) return
-      const part = marqueeInnerRef.current.querySelector('.fm-part')
+      if (!marqueeScrollerRef.current) return
+      const part = marqueeScrollerRef.current.querySelector('.fm-part')
       if (!part) return
       const cw = part.offsetWidth
       if (!cw) return
       animationRef.current?.kill()
       animationRef.current = gsap.fromTo(
-        marqueeInnerRef.current,
+        marqueeScrollerRef.current,
         { x: 0 },
         { x: -cw, duration: speed, ease: 'none', repeat: -1 }
       )
@@ -161,41 +162,52 @@ function MenuItem({ link, text, image, accent, speed, isFirst, index }) {
             display: 'flex',
             alignItems: 'center',
             height: '100%',
-            width: 'fit-content',
+            width: '100%',
             willChange: 'transform',
           }}
         >
-          {Array.from({ length: repetitions }).map((_, i) => (
-            <div
-              key={i}
-              className="fm-part"
-              style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}
-            >
-              <span style={{
-                whiteSpace: 'nowrap',
-                textTransform: 'uppercase',
-                fontFamily: 'ClashGrotesk, var(--font-primary)',
-                fontWeight: 500,
-                fontSize: 'clamp(1.8rem, 5.5vh, 3.8rem)',
-                letterSpacing: '-0.04em',
-                padding: '0 4vw',
-                color: '#010d12',
-              }}>
-                {text}
-              </span>
-              <div style={{
-                width: '14vh',
-                height: '6vh',
-                margin: '0 2.5vw',
-                borderRadius: 100,
-                backgroundImage: `url(${image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                opacity: 0.9,
-                flexShrink: 0,
-              }} />
-            </div>
-          ))}
+          <div
+            ref={marqueeScrollerRef}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+              width: 'fit-content',
+              willChange: 'transform',
+            }}
+          >
+            {Array.from({ length: repetitions }).map((_, i) => (
+              <div
+                key={i}
+                className="fm-part"
+                style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}
+              >
+                <span style={{
+                  whiteSpace: 'nowrap',
+                  textTransform: 'uppercase',
+                  fontFamily: 'ClashGrotesk, var(--font-primary)',
+                  fontWeight: 500,
+                  fontSize: 'clamp(1.8rem, 5.5vh, 3.8rem)',
+                  letterSpacing: '-0.04em',
+                  padding: '0 4vw',
+                  color: '#010d12',
+                }}>
+                  {text}
+                </span>
+                <div style={{
+                  width: '14vh',
+                  height: '6vh',
+                  margin: '0 2.5vw',
+                  borderRadius: 100,
+                  backgroundImage: `url(${image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  opacity: 0.9,
+                  flexShrink: 0,
+                }} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
