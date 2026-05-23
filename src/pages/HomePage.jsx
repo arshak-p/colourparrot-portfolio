@@ -27,6 +27,7 @@ import {
 } from '../data'
 
 import ShapeBlur from '../components/ShapeBlur'
+import RotatingText from '../components/RotatingText'
 
 
 // ── Consolidated HomePage ──
@@ -84,17 +85,29 @@ function HeroSection() {
       <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 'clamp(2rem, 8vh, 5rem)', paddingBottom: 'clamp(2rem, 5vh, 4rem)' }}>
         
         <h1 style={{ fontSize: 'clamp(3rem, 8.5vw, 6.8rem)', fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 0.95, marginBottom: '2rem', textTransform: 'none' }}>
-          {[
-            [{ text: 'Where', cls: 'g' }, { text: 'Brands', cls: '' }],
-            [{ text: 'Go',   cls: 'c' }, { text: 'Beyond',  cls: 'p' }],
-            [{ text: 'Gravity', cls: 'y' }],
-          ].map((line, li) => (
-            <span key={li} style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
-              {line.map((w, wi) => (
-                <span key={wi} className={`hero-word ${w.cls}`} style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: wi < line.length - 1 ? '0.22em' : 0 }}>{w.text}</span>
-              ))}
-            </span>
-          ))}
+          <span style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
+            <span className="hero-word g" style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: '0.22em' }}>Where</span>
+            <span className="hero-word" style={{ display: 'inline-block', transform: 'translateY(110%)' }}>Brands</span>
+          </span>
+          <span style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
+            <span className="hero-word c" style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: '0.22em' }}>Go</span>
+            <span className="hero-word p" style={{ display: 'inline-block', transform: 'translateY(110%)' }}>Beyond</span>
+          </span>
+          <span style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
+            <RotatingText
+              texts={['Gravity', 'Limits', 'Expectations', 'Boundaries', 'The Ordinary']}
+              mainClassName="hero-word y hero-rotate-text"
+              staggerFrom="first"
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "-120%", opacity: 0 }}
+              staggerDuration={0.02}
+              splitLevelClassName="overflow-hidden pb-0.5"
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              rotationInterval={2800}
+              style={{ display: 'inline-flex', transform: 'translateY(110%)' }}
+            />
+          </span>
         </h1>
 
         {/* Tag below heading */}
