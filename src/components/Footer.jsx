@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { Link } from 'react-router-dom'
 import { socialItems } from '../data'
 import styles from './Footer.module.css'
 
@@ -16,6 +17,7 @@ const Footer = memo(function Footer() {
       <div className={styles.left}>
         <p className={styles.copyright}>
           © 2025 Colour Parrot Branding &amp; Advertising · Kozhikode, Kerala
+          <Link to="/panic" className={styles.panicDot} title="Panic Button" />
         </p>
         <div className={styles.socialRow}>
           {socialItems.map((s, i) => (

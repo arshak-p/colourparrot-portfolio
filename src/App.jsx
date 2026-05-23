@@ -18,6 +18,7 @@ const BlogPage       = lazy(() => import('./pages/BlogPage'))
 const NotFoundPage   = lazy(() => import('./pages/NotFoundPage'))
 const HeroExperiment   = lazy(() => import('./components/HeroExperiment'))
 const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'))
+const PanicPage          = lazy(() => import('./pages/PanicPage'))
 
 import { menuItems, socialItems } from './data'
 import './styles/globals.css'
@@ -72,6 +73,8 @@ export default function App() {
             <Route path="/contact"  element={<ContactPage />} />
             <Route path="/blog"     element={<BlogPage />} />
             <Route path="/experiment" element={<HeroExperiment />} />
+            <Route path="/panic"    element={<PanicPage />} />
+            <Route path="/danger"   element={<PanicPage />} />
             <Route path="*"         element={<NotFoundPage />} />
           </Routes>
         </Suspense>

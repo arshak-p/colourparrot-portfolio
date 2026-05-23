@@ -146,3 +146,19 @@
   .sm-logo-img { height: 36px; }
 }
 
+.sm-panic-item {
+  color: #ff4444 !important;
+  animation: sm-panic-blink 1.2s infinite alternate;
+}
+
+@keyframes sm-panic-blink {
+  from {
+    opacity: 0.6;
+    text-shadow: 0 0 5px rgba(255, 68, 68, 0.2);
+  }
+  to {
+    opacity: 1;
+    text-shadow: 0 0 15px rgba(255, 68, 68, 0.8), 0 0 25px rgba(255, 68, 68, 0.4);
+  }
+}
+

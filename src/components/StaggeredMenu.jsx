@@ -241,10 +241,11 @@ const StaggeredMenu = memo(function StaggeredMenu({
             {items.map((item, idx) => (
               <li key={idx} className="sm-panel-itemWrap">
                 <Link
-                  className="sm-panel-item"
+                  className={`sm-panel-item ${item.isPanic ? 'sm-panic-item' : ''}`}
                   to={item.link}
                   aria-label={item.ariaLabel}
                   onClick={closeMenu}
+                  style={item.isPanic ? { '--sm-accent': '#ff4444' } : {}}
                 >
                   <span className="sm-panel-itemLabel">{item.label}</span>
                 </Link>

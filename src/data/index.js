@@ -5,6 +5,7 @@ export const menuItems = [
   { label: 'Projects',   ariaLabel: 'View our projects', link: '/projects'  },
   { label: 'Contact Us', ariaLabel: 'Get in touch',      link: '/contact'   },
   { label: 'Blog',       ariaLabel: 'Read our blog',     link: '/blog'      },
+  { label: 'Panic',      ariaLabel: 'Panic Button',     link: '/panic', isPanic: true }
 ]
 
 export const socialItems = [
