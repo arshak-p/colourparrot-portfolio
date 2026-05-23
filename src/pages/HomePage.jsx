@@ -157,21 +157,7 @@ function AboutSection() {
 
   return (
     <section id="about" className="pad" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, opacity: 0.8, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ width: 'min(90vw, 550px)', height: 'min(90vw, 550px)', overflow: 'hidden', position: 'relative' }}>
-          <ShapeBlur 
-            variation={0}
-            pixelRatioProp={window.devicePixelRatio || 1}
-            shapeSize={0.65}
-            roundness={0.5}
-            borderSize={0.04}
-            circleSize={0.25}
-            circleEdge={1}
-            glowColor="#0ae469"
-            baseOpacity={0.12}
-          />
-        </div>
-      </div>
+
       <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(3rem, 6vw, 7rem)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div>
           <p className="sec-label">About us</p>
@@ -807,12 +793,37 @@ function ProcessSection() {
   }, [])
 
   return (
-    <section id="process" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <div className="container">
+    <section id="process" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div className="container" style={{ position: 'relative' }}>
         <p className="sec-label" style={{ color: 'var(--cyan)' }}>How We Work</p>
         <h2 className="sec-title" style={{ marginBottom: '4rem' }}>
           Our <span className="c">Process</span>
         </h2>
+        
+        {/* Background ShapeBlur element on the right of the heading */}
+        <div style={{ 
+          position: 'absolute', 
+          right: '5%', 
+          top: '-20px', 
+          pointerEvents: 'none', 
+          zIndex: 0, 
+          opacity: 0.8,
+          width: '280px', 
+          height: '280px', 
+          overflow: 'hidden' 
+        }}>
+          <ShapeBlur 
+            variation={0}
+            pixelRatioProp={window.devicePixelRatio || 1}
+            shapeSize={0.6}
+            roundness={0.5}
+            borderSize={0.04}
+            circleSize={0.2}
+            circleEdge={1}
+            glowColor="#0ae469"
+            baseOpacity={0.1}
+          />
+        </div>
         <div
           ref={ref}
           className="mobile-slider"

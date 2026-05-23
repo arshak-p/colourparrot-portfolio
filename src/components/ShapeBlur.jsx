@@ -90,6 +90,11 @@ float strokeAA(float x, float size, float w, float edge) {
     return clamp(d, 0.0, 1.0);
 }
 
+float smin(float a, float b, float k) {
+    float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+    return mix(b, a, h) - k * h * (1.0 - h);
+}
+
 float getLogoSDF(in vec2 p, in float R, in float r) {
     // Flat-capped line segments matching SVG butt caps
     float d_horiz = max(abs(p.y), abs(p.x) - R);
@@ -102,7 +107,12 @@ float getLogoSDF(in vec2 p, in float R, in float r) {
     // Sub-circle accent ring
     float d_circle = abs(length(p - vec2(-0.5 * R, 0.5 * R)) - r);
     
-    return min(d_horiz, min(d_vert, min(d_arc1, min(d_arc2, d_circle))));
+    float d = d_horiz;
+    d = smin(d, d_vert, 0.018);
+    d = smin(d, d_arc1, 0.018);
+    d = smin(d, d_arc2, 0.018);
+    d = smin(d, d_circle, 0.018);
+    return d;
 }
 
 void main() {
@@ -126,7 +136,14 @@ void main() {
         vec2 center = vec2(0.5, 0.5);
         vec2 p = st - center;
         float logoD = getLogoSDF(p, 0.45, 0.08);
-        sdf = strokeAA(logoD, 0.0, borderSize, sdfCircle) * 4.0;
+        
+        // Anti-aliased base stroke with smooth edge blending
+        float strokeVal = strokeAA(logoD, 0.0, borderSize, max(0.025, sdfCircle)) * 4.0;
+        
+        // Exponential outer glow falloff for smooth neon aura
+        float glowVal = exp(-logoD * 22.0) * 0.38;
+        
+        sdf = max(strokeVal, glowVal);
     } else if (VAR == 1) {
         sdf = sdCircle(st, vec2(0.5));
         sdf = fill(sdf, 0.6, sdfCircle) * 1.2;
