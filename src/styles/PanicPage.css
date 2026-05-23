@@ -80,53 +80,61 @@
 }
 
 .hud-item {
-  background: rgba(1, 13, 18, 0.6);
-  border: 1px solid rgba(10, 228, 105, 0.15);
-  padding: 0.75rem 1.5rem;
+  background: linear-gradient(rgba(2, 23, 30, 0.75) 50%, rgba(1, 13, 18, 0.85) 50%), rgba(1, 13, 18, 0.7);
+  background-size: 100% 4px;
+  border: 1.5px solid rgba(10, 228, 105, 0.25);
+  padding: 0.75rem 1.75rem;
   border-radius: 12px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,255,255,0.03);
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: all 0.3s ease;
 }
 
 .hud-label {
   font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 0.2rem;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
 .hud-value {
-  font-size: 1.5rem;
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
 }
 
 .hud-green {
-  border-color: rgba(10, 228, 105, 0.3);
+  border-color: rgba(10, 228, 105, 0.35);
+  box-shadow: 0 0 15px rgba(10, 228, 105, 0.05), inset 0 0 10px rgba(10, 228, 105, 0.05);
 }
 .hud-green .hud-value {
   color: var(--green, #0ae469);
-  text-shadow: 0 0 10px rgba(10, 228, 105, 0.4);
+  text-shadow: 0 0 10px rgba(10, 228, 105, 0.5);
 }
 
 .hud-cyan {
-  border-color: rgba(40, 193, 229, 0.3);
+  border-color: rgba(40, 193, 229, 0.35);
+  box-shadow: 0 0 15px rgba(40, 193, 229, 0.05), inset 0 0 10px rgba(40, 193, 229, 0.05);
 }
 .hud-cyan .hud-value {
   color: var(--cyan, #28c1e5);
-  text-shadow: 0 0 10px rgba(40, 193, 229, 0.4);
+  text-shadow: 0 0 10px rgba(40, 193, 229, 0.5);
 }
 
 .hud-red {
-  border-color: rgba(255, 68, 68, 0.3);
+  border-color: rgba(255, 68, 68, 0.4);
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.05), inset 0 0 10px rgba(255, 68, 68, 0.05);
 }
 .hud-red .hud-value {
   color: #ff4444;
-  text-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+  text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
   animation: urgent-blink 0.5s infinite alternate;
 }
 
@@ -140,12 +148,13 @@
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   z-index: 25;
-  background: rgba(0,0,0,0.6);
-  padding: 0.5rem 2rem;
+  background: rgba(1, 13, 18, 0.9);
+  padding: 0.75rem 2.5rem;
   border-radius: 8px;
-  border: 1px solid rgba(255, 68, 68, 0.3);
+  border: 2px solid #ff4444;
+  box-shadow: 0 0 35px rgba(255, 68, 68, 0.3);
   animation: urgent-blink 0.4s infinite alternate;
   pointer-events: none;
 }
@@ -165,22 +174,34 @@
 }
 
 .results-card {
-  background: rgba(2, 23, 30, 0.6);
-  border: 1px solid rgba(10, 228, 105, 0.25);
+  background: linear-gradient(rgba(2, 23, 30, 0.8) 50%, rgba(1, 13, 18, 0.9) 50%), rgba(2, 23, 30, 0.75);
+  background-size: 100% 4px;
+  border: 1.5px solid rgba(10, 228, 105, 0.35);
   padding: 3.5rem 4rem;
   border-radius: 24px;
   text-align: center;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 30px rgba(10, 228, 105, 0.15);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.9), 0 0 40px rgba(10, 228, 105, 0.2);
   max-width: 460px;
   width: 90%;
+  position: relative;
+  overflow: hidden;
+}
+
+.results-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(10, 228, 105, 0.05) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .results-title {
   font-size: 2.2rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: #fff;
   margin-bottom: 0.5rem;
+  text-shadow: 0 0 15px rgba(255,255,255,0.2);
 }
 
 .results-subtitle {
@@ -189,6 +210,7 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   margin-bottom: 2.5rem;
+  text-shadow: 0 0 8px rgba(10, 228, 105, 0.3);
 }
 
 .results-score-wrap {
@@ -204,10 +226,12 @@
 }
 
 .results-score-value {
-  font-size: 4rem;
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 4.5rem;
   font-weight: 800;
   color: #fff;
   line-height: 1;
+  text-shadow: 0 0 25px rgba(255,255,255,0.3);
 }
 
 /* Exit button */

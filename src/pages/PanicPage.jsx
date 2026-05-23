@@ -87,6 +87,8 @@ export default function PanicPage() {
   const canvasRef = useRef(null);
   const scoreRef = useRef(0);
   const wailingIntervalRef = useRef(null);
+  const shakeRef = useRef(0);
+  const wrapperRef = useRef(null);
 
   // Sync ref for access inside requestAnimationFrame
   useEffect(() => {
@@ -265,6 +267,9 @@ export default function PanicPage() {
       muzzleFlash.left = 1.0;
       muzzleFlash.right = 1.0;
 
+      // Recoil screen shake
+      shakeRef.current = 5.5;
+
       // Left nozzle nozzle tips location (positioned at the rim of the 60px node)
       const leftAngle = Math.atan2(targetY - leftGun.y, targetX - leftGun.x);
       const leftTipX = leftGun.x + Math.cos(leftAngle) * 60;
@@ -370,6 +375,19 @@ export default function PanicPage() {
     // Render loop
     const tick = () => {
       ctx.clearRect(0, 0, width, height);
+
+      // Apply screen shake
+      let shakeX = 0;
+      let shakeY = 0;
+      if (shakeRef.current > 0) {
+        shakeX = (Math.random() - 0.5) * shakeRef.current;
+        shakeY = (Math.random() - 0.5) * shakeRef.current;
+        shakeRef.current *= 0.88; // decay
+        if (shakeRef.current < 0.1) shakeRef.current = 0;
+      }
+      if (wrapperRef.current && gameState === 'playing') {
+        wrapperRef.current.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
+      }
 
       // Decrement muzzle flash intensity values
       if (muzzleFlash.left > 0) {
@@ -507,15 +525,24 @@ export default function PanicPage() {
           continue;
         }
 
+        // Draw dual-core laser: Outer glowing neon aura
         ctx.beginPath();
         ctx.moveTo(l.startX, l.startY);
         ctx.lineTo(l.endX, l.endY);
         ctx.strokeStyle = l.color;
-        ctx.lineWidth = 4 * l.life;
+        ctx.lineWidth = 7 * l.life;
         ctx.shadowColor = l.color;
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = 25;
         ctx.stroke();
+
+        // Draw dual-core laser: Inner hyper-intense white core
+        ctx.beginPath();
+        ctx.moveTo(l.startX, l.startY);
+        ctx.lineTo(l.endX, l.endY);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2 * l.life;
         ctx.shadowBlur = 0;
+        ctx.stroke();
       }
 
       // 5. Update and draw particles
@@ -523,6 +550,12 @@ export default function PanicPage() {
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
+
+        // Apply stardust physics (drag and drift)
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+        p.vy += 0.08; // gravity drift
+
         p.life -= p.decay;
 
         if (p.life <= 0) {
@@ -531,13 +564,86 @@ export default function PanicPage() {
         }
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
+        // Draw sparking tail segment lines for realistic explosion feel
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - p.vx * 1.5, p.y - p.vy * 1.5);
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = p.size * p.life;
         ctx.shadowColor = p.color;
         ctx.shadowBlur = 8;
-        ctx.fill();
+        ctx.stroke();
         ctx.shadowBlur = 0;
       }
+
+      // Futuristic target lock-on reticle
+      const drawTargetLock = () => {
+        let targetStone = null;
+        let minD = 130; // lock range
+        for (const s of stones) {
+          const d = Math.hypot(mouse.x - s.x, mouse.y - s.y);
+          if (d < s.radius + 35 && d < minD) {
+            minD = d;
+            targetStone = s;
+          }
+        }
+
+        ctx.save();
+        let cx = mouse.x;
+        let cy = mouse.y;
+        let r = 20;
+        let isLocked = false;
+        let color = '#28c1e5';
+
+        if (targetStone) {
+          cx = targetStone.x;
+          cy = targetStone.y;
+          r = targetStone.radius + 12;
+          isLocked = true;
+          color = '#ff4444'; // locked neon red reticle!
+        }
+
+        ctx.translate(cx, cy);
+        const spinAngle = (Date.now() / 450) % (Math.PI * 2);
+        ctx.rotate(spinAngle);
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 8;
+
+        // Draw 4 corner brackets
+        for (let a = 0; a < 4; a++) {
+          ctx.beginPath();
+          ctx.arc(0, 0, r, a * Math.PI / 2 + 0.15, (a + 1) * Math.PI / 2 - 0.15);
+          ctx.stroke();
+        }
+
+        // Target indicators
+        if (isLocked) {
+          ctx.beginPath();
+          ctx.arc(0, 0, 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#ff4444';
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(0, 0, r + 6, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255, 68, 68, 0.4)';
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 1.0;
+          ctx.stroke();
+          ctx.setLineDash([]);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, 2, 0, Math.PI * 2);
+          ctx.fillStyle = '#28c1e5';
+          ctx.fill();
+        }
+
+        ctx.restore();
+        ctx.shadowBlur = 0;
+      };
+
+      drawTargetLock();
 
       // 6. Draw glowing energy nozzles (nodes) in the corners
       const drawNozzle = (gun, color, flashVal) => {
@@ -646,13 +752,14 @@ export default function PanicPage() {
 
       {/* Screen shake layout */}
       <div 
+        ref={wrapperRef}
         style={{ 
           width: '100%', 
           height: '100%', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          transform: gameState === 'starting' ? `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 12}px)` : 'none'
+          transform: gameState === 'starting' ? `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 12}px)` : undefined
         }}
       >
         {/* State 1: Idle - Blinking Panic Button */}
