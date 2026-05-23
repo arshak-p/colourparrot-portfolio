@@ -817,7 +817,7 @@ function ProcessSection() {
             pixelRatioProp={window.devicePixelRatio || 1}
             shapeSize={0.6}
             roundness={0.5}
-            borderSize={0.04}
+            borderSize={0.015}
             circleSize={0.2}
             circleEdge={1}
             glowColor="#0ae469"
