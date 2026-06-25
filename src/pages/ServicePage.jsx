@@ -5,6 +5,8 @@ import { services } from '../data'
 import StarBorderBtn from '../components/StarBorderBtn'
 import PixelCard from '../components/PixelCard'
 import Magnet from '../components/Magnet'
+import CurvedLoop from '../components/CurvedLoop'
+import ScrollFloat from '../components/ScrollFloat';
 
 
 const itemVariants = {
@@ -24,18 +26,18 @@ export default function ServicePage() {
       <section className="pad" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center' }}>
         <div className="container">
           <motion.div variants={itemVariants} className="sec-label">Our Capabilities</motion.div>
-          <motion.h1 variants={itemVariants} className="sec-title" style={{ fontSize: 'clamp(3.5rem, 9vw, 6.5rem)' }}>
+          <ScrollFloat className="sec-title" tag="h1" style={{ fontSize: 'clamp(3.5rem, 9vw, 6.5rem)' }}>
             Full Spectrum <br/><span className="shiny-colour">Creativity</span>
-          </motion.h1>
+          </ScrollFloat>
           <motion.p variants={itemVariants} style={{ maxWidth: 600, fontSize: '1.1rem', color: 'rgba(255,255,255,0.5)', marginTop: '2.5rem' }}>
-            We provide a 360° approach to branding and advertising. From initial strategy to final production, we ensure your brand remains in orbit.
+            We provide a 360° approach to branding and advertising. From initial strategy to final production, we ensure your brand thrives and commands attention.
           </motion.p>
         </div>
       </section>
 
       {/* Services Grid */}
       <section className="pad" style={{ paddingTop: 0 }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '2.5rem' }}>
           {services.map((svc, i) => {
             let variant = 'default'
             if (svc.accent === 'var(--green)') variant = 'green'
@@ -102,6 +104,15 @@ export default function ServicePage() {
           })}
         </div>
       </section>
+
+      {/* Interactive Curved Loop Banner */}
+      <CurvedLoop 
+        marqueeText="Atomic Strategy ✦ High Impact Motion ✦ World Class Digital ✦ Cosmic Productions ✦"
+        speed={1.8}
+        curveAmount={140}
+        direction="right"
+        style={{ marginTop: '3rem', marginBottom: '3rem' }}
+      />
 
       {/* CTA */}
       <section className="pad" style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--glass-border)' }}>

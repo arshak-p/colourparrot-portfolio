@@ -60,8 +60,8 @@ export const ScrollVelocity = ({
     const { scrollY } = useScroll(scrollOptions);
     const scrollVelocity = useVelocity(scrollY);
     const smoothVelocity = useSpring(scrollVelocity, {
-      damping: damping ?? 50,
-      stiffness: stiffness ?? 400
+      damping: damping ?? 60,
+      stiffness: stiffness ?? 100
     });
     const velocityFactor = useTransform(
       smoothVelocity,
@@ -85,16 +85,25 @@ export const ScrollVelocity = ({
     });
 
     const directionFactor = useRef(1);
-    useAnimationFrame((t, delta) => {
-      let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
+    const smoothedDelta = useRef(16.67);
+    const currentVelocityFactor = useRef(0);
 
-      if (velocityFactor.get() < 0) {
+    useAnimationFrame((t, delta) => {
+      // Smooth the time delta to filter out browser frame-rate micro-stutters
+      smoothedDelta.current = smoothedDelta.current * 0.9 + Math.min(delta, 50) * 0.1;
+
+      // Smoothly interpolate the velocity factor for gradual flywheel acceleration/deceleration
+      currentVelocityFactor.current += (velocityFactor.get() - currentVelocityFactor.current) * 0.08;
+
+      let moveBy = directionFactor.current * baseVelocity * (smoothedDelta.current / 1000);
+
+      if (currentVelocityFactor.current < 0) {
         directionFactor.current = -1;
-      } else if (velocityFactor.get() > 0) {
+      } else if (currentVelocityFactor.current > 0) {
         directionFactor.current = 1;
       }
 
-      moveBy += directionFactor.current * moveBy * velocityFactor.get();
+      moveBy += directionFactor.current * moveBy * currentVelocityFactor.current;
       baseX.set(baseX.get() + moveBy);
     });
 

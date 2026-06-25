@@ -17,6 +17,9 @@ const getMousePos = (e, container) => {
 }
 
 const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', containerRef = null }) {
+  const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  if (isTouchDevice) return null
+
   const { pathname } = useLocation()
   const cursorRef = useRef(null)
   const lineHorizontalRef = useRef(null)
@@ -41,8 +44,7 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
           ev.clientY < bounds.top ||
           ev.clientY > bounds.bottom
         ) {
-          gsap.to([lineHorizontalRef.current, lineVerticalRef.current, circleRef.current, dotRef.current], { opacity: 0 })
-          gsap.to([lineHorizontalRef.current, lineVerticalRef.current], { opacity: 0.08 })
+          gsap.to([circleRef.current, dotRef.current], { opacity: 0 })
           gsap.to([circleRef.current, dotRef.current], { opacity: 1 })
         }
       }
@@ -56,17 +58,18 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
       ty: { previous: 0, current: 0, amt: 0.15 }
     }
 
-    gsap.set([lineHorizontalRef.current, lineVerticalRef.current, circleRef.current, dotRef.current], { opacity: 0 })
+    const lastMouse = { x: 0, y: 0 }
+    let currentSpeedScale = 1
+
+    gsap.set([circleRef.current, dotRef.current], { opacity: 0 })
 
     const onMouseMoveInitial = () => {
       renderedStyles.tx.previous = renderedStyles.tx.current = mouse.current.x
       renderedStyles.ty.previous = renderedStyles.ty.current = mouse.current.y
+      lastMouse.x = mouse.current.x
+      lastMouse.y = mouse.current.y
 
-      gsap.to([lineHorizontalRef.current, lineVerticalRef.current], {
-        duration: 0.9,
-        ease: 'Power3.easeOut',
-        opacity: 0.08
-      })
+
       gsap.to([circleRef.current, dotRef.current], {
         duration: 0.9,
         ease: 'Power3.easeOut',
@@ -83,28 +86,11 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
 
     const tl = gsap
       .timeline({
-        paused: true,
-        onStart: () => {
-          if (lineHorizontalRef.current && lineVerticalRef.current) {
-            lineHorizontalRef.current.style.filter = `url(#filter-noise-x)`
-            lineVerticalRef.current.style.filter = `url(#filter-noise-y)`
-          }
-        },
-        onUpdate: () => {
-          if (filterXRef.current && filterYRef.current) {
-            filterXRef.current.setAttribute('baseFrequency', primitiveValues.turbulence)
-            filterYRef.current.setAttribute('baseFrequency', primitiveValues.turbulence)
-          }
-        },
-        onComplete: () => {
-          if (lineHorizontalRef.current && lineVerticalRef.current) {
-            lineHorizontalRef.current.style.filter = lineVerticalRef.current.style.filter = 'none'
-          }
-        }
+        paused: true
       })
       .to(primitiveValues, {
         duration: 0.5,
-        ease: 'power1',
+        ease: 'power3.out',
         startAt: { turbulence: 1 },
         turbulence: 0
       })
@@ -130,20 +116,30 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
         )
       }
 
-      const dot = dotRef.current
-      const lineV = lineVerticalRef.current
-      const lineH = lineHorizontalRef.current
-      const circle = circleRef.current
+      // Calculate mouse speed per frame
+      const dx = mouse.current.x - lastMouse.x
+      const dy = mouse.current.y - lastMouse.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
 
-      if (lineH && lineV && circle && dot) {
+      // Update lastMouse
+      lastMouse.x = mouse.current.x
+      lastMouse.y = mouse.current.y
+
+      // Calculate target scale expansion based on speed (up to 2.2x scale increase when moving fast)
+      const targetSpeedScale = 1 + Math.min(dist * 0.05, 1.2)
+      
+      // Smoothly interpolate the speed scale factor
+      currentSpeedScale = lerp(currentSpeedScale, targetSpeedScale, 0.15)
+
+      const dot = dotRef.current
+      const circle = circleRef.current
+      if (circle && dot) {
         const x = renderedStyles.tx.previous
         const y = renderedStyles.ty.previous
         
         // Use direct hardware-accelerated transforms to bypass GSAP overhead in requestAnimationFrame
         dot.style.transform = `translate3d(${mouse.current.x}px, ${mouse.current.y}px, 0) translate(-50%, -50%)`
-        lineV.style.transform = `translate3d(${x}px, 0px, 0)`
-        lineH.style.transform = `translate3d(0px, ${y}px, 0)`
-        circle.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${circleScale.current.val})`
+        circle.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${circleScale.current.val * currentSpeedScale})`
       }
 
       requestAnimationFrame(render)
@@ -240,17 +236,7 @@ const CrosshairCursor = memo(function CrosshairCursor({ color = '#0ae469', conta
         </defs>
       </svg>
       
-      {/* Horizontal Line - Delayed */}
-      <div
-        ref={lineHorizontalRef}
-        className={styles.lineHorizontal}
-      ></div>
 
-      {/* Vertical Line - Delayed */}
-      <div
-        ref={lineVerticalRef}
-        className={styles.lineVertical}
-      ></div>
 
       <div
         ref={circleRef}

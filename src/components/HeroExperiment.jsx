@@ -1,941 +1,372 @@
-import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import ShapeBlur from "./ShapeBlur";
+import React, { useEffect, useRef } from 'react';
+import './HeroExperiment.css';
 
 export default function HeroExperiment() {
-  // Layer visibility state
-  const [layers, setLayers] = useState({
-    axisX: true,
-    axisY: true,
-    arcTR: true,
-    arcBL: true,
-    circleTL: true,
-  });
+  const videoCanvasRef = useRef(null);
+  const videoFallbackRef = useRef(null);
+  const particlesCanvasRef = useRef(null);
+  const heroRef = useRef(null);
+  const fixedCardsRef = useRef(null);
+  const cardsGridRef = useRef(null);
+  const cardsTriggerRef = useRef(null);
+  const sectionThreeInnerRef = useRef(null);
 
-  // Layer hover state
-  const [hoveredLayer, setHoveredLayer] = useState(null);
-
-  // WebGL Shader controls
-  const [glowColor, setGlowColor] = useState("#0ae469");
-  const [shapeSize, setShapeSize] = useState(0.75);
-  const [circleSize, setCircleSize] = useState(0.35);
-  const [circleEdge, setCircleEdge] = useState(0.4);
-  const [baseOpacity, setBaseOpacity] = useState(0.12);
-  const [cssBlur, setCssBlur] = useState(0);
-
-  // SVG coordinate tracker
-  const [mouseGridPos, setMouseGridPos] = useState({ x: 50, y: 50 });
-  const [mouseInside, setMouseInside] = useState(false);
-  const svgRef = useRef(null);
-
-  // Colors preset
-  const colorPresets = [
-    { name: "Parrot Emerald", hex: "#0ae469" },
-    { name: "Cyber Cyan", hex: "#28c1e5" },
-    { name: "Neon Violet", hex: "#7a43ff" },
-    { name: "Solar Yellow", hex: "#f9cc3d" },
-    { name: "Sunset Red", hex: "#f45b42" },
-    { name: "Classic Slate", hex: "#a8c2b3" },
-  ];
-
-  const handleSvgMouseMove = (e) => {
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    // SVG viewBox runs from -2 to 102 (width = 104, height = 104)
-    const x = -2 + ((e.clientX - rect.left) / rect.width) * 104;
-    const y = -2 + ((e.clientY - rect.top) / rect.height) * 104;
-    setMouseGridPos({
-      x: Math.round(Math.max(-2, Math.min(102, x))),
-      y: Math.round(Math.max(-2, Math.min(102, y))),
-    });
-  };
-
-  // Toggle single layer
-  const toggleLayer = (layerName) => {
-    setLayers((prev) => ({ ...prev, [layerName]: !prev[layerName] }));
-  };
-
-  // Reset all layers to true
-  const resetLayers = () => {
-    setLayers({
-      axisX: true,
-      axisY: true,
-      arcTR: true,
-      arcBL: true,
-      circleTL: true,
-    });
-  };
-
-  // Get SVG Code snippet based on hover/select
-  const getSelectedCodeText = () => {
-    if (hoveredLayer === "axisX") {
-      return `<line x1="0" y1="50" x2="100" y2="50" stroke="${glowColor}" stroke-width="2" />`;
-    }
-    if (hoveredLayer === "axisY") {
-      return `<line x1="50" y1="0" x2="50" y2="100" stroke="${glowColor}" stroke-width="2" />`;
-    }
-    if (hoveredLayer === "arcTR") {
-      return `<path d="M 50 0 A 50 50 0 0 1 100 50" stroke="${glowColor}" stroke-width="2" />`;
-    }
-    if (hoveredLayer === "arcBL") {
-      return `<path d="M 0 50 A 50 50 0 0 0 50 100" stroke="${glowColor}" stroke-width="2" />`;
-    }
-    if (hoveredLayer === "circleTL") {
-      return `<circle cx="25" cy="25" r="10" stroke="${glowColor}" stroke-width="2" />`;
-    }
-    return `<!-- Full SVG Viewport Grid Model -->
-<svg viewBox="-2 -2 104 104" width="250" height="250" fill="none">
-  <!-- Grid Lines active -->
-  <line x1="0" y1="50" x2="100" y2="50" />
-  <line x1="50" y1="0" x2="50" y2="100" />
-  <path d="M 50 0 A 50 50 0 0 1 100 50" />
-  <path d="M 0 50 A 50 50 0 0 0 50 100" />
-  <circle cx="25" cy="25" r="10" />
-</svg>`;
-  };
-
-  // GLSL Math snippet
-  const getGLSLSnippet = () => {
-    if (hoveredLayer === "axisX") {
-      return `float d_horiz = max(abs(p.y), abs(p.x) - R);`;
-    }
-    if (hoveredLayer === "axisY") {
-      return `float d_vert = max(abs(p.x), abs(p.y) - R);`;
-    }
-    if (hoveredLayer === "arcTR") {
-      return `float d_arc1 = max(max(abs(length(p) - R), -p.x), -p.y); // Top-Right (+x, +y)`;
-    }
-    if (hoveredLayer === "arcBL") {
-      return `float d_arc2 = max(max(abs(length(-p) - R), p.x), p.y); // Bottom-Left (-x, -y)`;
-    }
-    if (hoveredLayer === "circleTL") {
-      return `float d_circle = abs(length(p - vec2(-0.5*R, 0.5*R)) - r);`;
-    }
-    return `// GLSL Logo SDF Combinator (Flat-capped)
-float getLogoSDF(in vec2 p, in float R, in float r) {
-    float d_horiz  = max(abs(p.y), abs(p.x) - R);
-    float d_vert   = max(abs(p.x), abs(p.y) - R);
-    float d_arc1   = max(max(abs(length(p) - R), -p.x), -p.y);
-    float d_arc2   = max(max(abs(length(-p) - R), p.x), p.y);
-    float d_circle = abs(length(p - vec2(-0.5 * R, 0.5 * R)) - r);
+  useEffect(() => {
+    // Scroll Video Logic
+    const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260616_212935_bbf608da-62d1-4f25-9be4-c346e4d09cc8.mp4';
+    const canvas = videoCanvasRef.current;
+    const videoEl = videoFallbackRef.current;
+    if (!canvas || !videoEl) return;
     
-    return min(d_horiz, min(d_vert, min(d_arc1, min(d_arc2, d_circle))));
-}`;
-  };
+    const ctx = canvas.getContext('2d');
+    let frames = [];
+    let framesReady = false;
+    let lastFrameIndex = -1;
+    let videoSeeking = false;
+    let animationFrameId;
+
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.round(rect.width * dpr);
+      const h = Math.round(rect.height * dpr);
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      lastFrameIndex = -1;
+    }
+
+    let isMounted = true;
+
+    async function extractFrames() {
+      try {
+        const response = await fetch(VIDEO_URL, { mode: 'cors' });
+        const blob = await response.blob();
+        if (!isMounted) return;
+        const objectUrl = URL.createObjectURL(blob);
+
+        const video = document.createElement('video');
+        video.muted = true;
+        video.playsInline = true;
+        video.crossOrigin = 'anonymous';
+        video.preload = 'auto';
+        video.src = objectUrl;
+
+        await new Promise((resolve, reject) => {
+          video.onloadedmetadata = () => resolve();
+          video.onerror = () => reject();
+          setTimeout(() => reject(), 15000);
+        });
+
+        if (!isMounted) return;
+        const scale = Math.min(1, 800 / video.videoWidth); // Reduced from 1280 to 800 for better performance
+        const scaledWidth = Math.round(video.videoWidth * scale);
+        const scaledHeight = Math.round(video.videoHeight * scale);
+        const frameCount = Math.max(30, Math.min(120, Math.round(video.duration * 24)));
+
+        for (let i = 0; i < frameCount; i++) {
+          if (!isMounted) break;
+          const time = (i / (frameCount - 1)) * (video.duration - 0.05);
+          video.currentTime = time;
+          await new Promise((resolve, reject) => {
+            const onSeeked = () => { video.removeEventListener('seeked', onSeeked); resolve(); };
+            video.addEventListener('seeked', onSeeked);
+            setTimeout(() => { video.removeEventListener('seeked', onSeeked); reject(); }, 3000);
+          });
+          const bitmap = await window.createImageBitmap(video, { resizeWidth: scaledWidth, resizeHeight: scaledHeight });
+          frames.push(bitmap);
+        }
+
+        if (frames.length > 0) {
+          framesReady = true;
+          canvas.style.visibility = 'visible';
+          videoEl.style.display = 'none';
+        }
+        URL.revokeObjectURL(objectUrl);
+      } catch(e) { /* fallback */ }
+    }
+
+    function getScrollBounds() {
+      const vh = window.innerHeight;
+      return { start: vh * 0.5, end: document.documentElement.scrollHeight - vh };
+    }
+
+    function getProgress() {
+      const { start, end } = getScrollBounds();
+      const range = end - start;
+      if (range <= 0) return 0;
+      return Math.max(0, Math.min(1, (window.scrollY - start) / range));
+    }
+
+    function drawFrame(frame) {
+      const cw = canvas.width, ch = canvas.height;
+      const s = Math.max(cw / frame.width, ch / frame.height);
+      const dw = frame.width * s, dh = frame.height * s;
+      ctx.drawImage(frame, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+    }
+
+    function videoTick() {
+      const progress = getProgress();
+      if (framesReady && frames.length > 0) {
+        const idx = Math.round(progress * (frames.length - 1));
+        if (idx !== lastFrameIndex) {
+          lastFrameIndex = idx;
+          if (frames[idx]) drawFrame(frames[idx]);
+        }
+      } else if (videoEl.duration && isFinite(videoEl.duration) && videoEl.readyState >= 1) {
+        const target = progress * videoEl.duration;
+        if (!videoSeeking && Math.abs(videoEl.currentTime - target) > 0.001) {
+          videoSeeking = true;
+          videoEl.currentTime = target;
+        }
+      }
+      animationFrameId = requestAnimationFrame(videoTick);
+    }
+
+    const onSeeked = () => { videoSeeking = false; };
+    const onStalled = () => { videoSeeking = false; };
+    const onLoadedData = () => { videoEl.currentTime = 0; };
+
+    videoEl.addEventListener('seeked', onSeeked);
+    videoEl.addEventListener('stalled', onStalled);
+    videoEl.addEventListener('loadeddata', onLoadedData);
+    canvas.style.visibility = 'hidden';
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    animationFrameId = requestAnimationFrame(videoTick);
+    extractFrames();
+
+    // Particles
+    const pCanvas = particlesCanvasRef.current;
+    const pCtx = pCanvas ? pCanvas.getContext('2d') : null;
+    let particles = [];
+    let pAnimationId;
+
+    function resizeParticles() {
+      if (!pCanvas) return;
+      pCanvas.width = window.innerWidth;
+      pCanvas.height = window.innerHeight;
+      createParticles();
+    }
+
+    function createParticles() {
+      if (!pCanvas) return;
+      particles = [];
+      const count = Math.floor((pCanvas.width * pCanvas.height) / 12000);
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * pCanvas.width,
+          y: Math.random() * pCanvas.height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          size: Math.random() * 1.5 + 0.5,
+          opacity: Math.random() * 0.6 + 0.2
+        });
+      }
+    }
+
+    function animateParticles() {
+      if (!pCtx || !pCanvas) return;
+      pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+      for (const p of particles) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = pCanvas.width;
+        if (p.x > pCanvas.width) p.x = 0;
+        if (p.y < 0) p.y = pCanvas.height;
+        if (p.y > pCanvas.height) p.y = 0;
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+        pCtx.fill();
+      }
+      pAnimationId = requestAnimationFrame(animateParticles);
+    }
+
+    if (pCanvas) {
+      resizeParticles();
+      window.addEventListener('resize', resizeParticles);
+      animateParticles();
+    }
+
+    // Hero Fade
+    function updateHeroOpacity() {
+      if (!heroRef.current) return;
+      const fade = Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.3));
+      heroRef.current.style.opacity = fade;
+    }
+    window.addEventListener('scroll', updateHeroOpacity, { passive: true });
+
+    // Fixed Cards
+    let cardsAnimationId;
+    let cachedTriggerTop = 0;
+    let cachedTriggerHeight = 0;
+
+    function updateCardMeasurements() {
+      const trigger = cardsTriggerRef.current;
+      if (!trigger) return;
+      const rect = trigger.getBoundingClientRect();
+      cachedTriggerTop = rect.top + window.scrollY;
+      cachedTriggerHeight = rect.height;
+    }
+
+    // Initial measurement and attach to resize
+    updateCardMeasurements();
+    window.addEventListener('resize', updateCardMeasurements);
+
+    function tickCards() {
+      const fixedCards = fixedCardsRef.current;
+      const cardsGrid = cardsGridRef.current;
+      
+      if (!fixedCards || !cardsGrid) {
+        cardsAnimationId = requestAnimationFrame(tickCards);
+        return;
+      }
+
+      const scrollY = window.scrollY;
+      const vh = window.innerHeight;
+
+      const start = cachedTriggerTop - vh * 0.5;
+      const end = cachedTriggerTop + cachedTriggerHeight - vh * 0.3;
+      const range = end - start;
+
+      let progress = range > 0 ? (scrollY - start) / range : 0;
+      progress = Math.max(0, Math.min(1, progress));
+
+      const isActive = scrollY >= start - vh * 0.2 && scrollY <= end + vh * 0.3;
+      const fadeIn = Math.min(1, Math.max(0, (scrollY - (start - vh * 0.2)) / (vh * 0.2)));
+      const fadeOut = Math.min(1, Math.max(0, (end + vh * 0.3 - scrollY) / (vh * 0.3)));
+      const containerOpacity = isActive ? Math.min(fadeIn, fadeOut) : 0;
+
+      fixedCards.style.opacity = containerOpacity;
+      fixedCards.style.pointerEvents = containerOpacity > 0.1 ? 'auto' : 'none';
+
+      const isMobile = window.innerWidth < 768;
+      const revealPct = progress * 130;
+      if (isMobile) {
+        cardsGrid.style.maskImage = `linear-gradient(to bottom, black ${revealPct}%, transparent ${revealPct + 20}%)`;
+        cardsGrid.style.WebkitMaskImage = `linear-gradient(to bottom, black ${revealPct}%, transparent ${revealPct + 20}%)`;
+      } else {
+        cardsGrid.style.maskImage = `linear-gradient(to right, black ${revealPct}%, transparent ${revealPct + 15}%)`;
+        cardsGrid.style.WebkitMaskImage = `linear-gradient(to right, black ${revealPct}%, transparent ${revealPct + 15}%)`;
+      }
+
+      cardsAnimationId = requestAnimationFrame(tickCards);
+    }
+    cardsAnimationId = requestAnimationFrame(tickCards);
+
+    // Section 3 Intersection
+    const sectionThreeInner = sectionThreeInnerRef.current;
+    let observer;
+    if (sectionThreeInner) {
+      observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          sectionThreeInner.classList.add('visible');
+          if (observer) observer.unobserve(sectionThreeInner);
+        }
+      }, { threshold: 0.15 });
+      observer.observe(sectionThreeInner);
+    }
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', resizeParticles);
+      window.removeEventListener('resize', updateCardMeasurements);
+      window.removeEventListener('scroll', updateHeroOpacity);
+      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(pAnimationId);
+      cancelAnimationFrame(cardsAnimationId);
+      videoEl.removeEventListener('seeked', onSeeked);
+      videoEl.removeEventListener('stalled', onStalled);
+      videoEl.removeEventListener('loadeddata', onLoadedData);
+      if (observer && sectionThreeInner) observer.disconnect();
+    };
+  }, []);
 
   return (
-    <>
-      <style>{`
-        .lab-container {
-          min-height: 100vh;
-          background: #010a0e;
-          background-image: 
-            radial-gradient(circle at 10% 20%, rgba(10, 228, 105, 0.03) 0%, transparent 40%),
-            radial-gradient(circle at 90% 80%, rgba(40, 193, 229, 0.03) 0%, transparent 40%);
-          padding: 80px 24px 60px 24px;
-          font-family: var(--font-secondary);
-          color: var(--light);
-          position: relative;
-        }
+    <div className="hero-experiment-wrapper">
+      {/* Scroll Video Background */}
+      <div id="scroll-video-container">
+        <canvas id="video-canvas" ref={videoCanvasRef}></canvas>
+        <video 
+          id="video-fallback" 
+          ref={videoFallbackRef}
+          muted 
+          playsInline 
+          preload="auto" 
+          crossOrigin="anonymous"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260616_212935_bbf608da-62d1-4f25-9be4-c346e4d09cc8.mp4"
+        ></video>
+        <div className="overlay"></div>
+      </div>
 
-        .lab-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          max-width: 1300px;
-          margin: 0 auto 40px auto;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          padding-bottom: 20px;
-        }
+      {/* Particles */}
+      <canvas id="particles-canvas" ref={particlesCanvasRef}></canvas>
 
-        .btn-back {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: rgba(255,255,255,0.6);
-          text-decoration: none;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
-          padding: 8px 16px;
-          border-radius: 8px;
-          transition: all 0.3s var(--ease-out);
-        }
-        .btn-back:hover {
-          color: var(--green);
-          border-color: rgba(10, 228, 105, 0.4);
-          background: rgba(10, 228, 105, 0.05);
-          transform: translateX(-4px);
-        }
-
-        .header-title-block {
-          text-align: right;
-        }
-
-        .lab-tag {
-          font-size: 10px;
-          letter-spacing: 0.25em;
-          color: var(--green);
-          text-transform: uppercase;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          gap: 8px;
-          margin-bottom: 4px;
-        }
-        .pulse-dot {
-          width: 6px;
-          height: 6px;
-          background: var(--green);
-          border-radius: 50%;
-          box-shadow: 0 0 8px var(--green);
-          animation: dotPulse 2s infinite;
-        }
-
-        @keyframes dotPulse {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        .lab-title {
-          font-family: var(--font-primary);
-          font-size: 24px;
-          letter-spacing: -0.02em;
-          color: #ffffff;
-        }
-
-        .grid-workbench {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 30px;
-          max-width: 1300px;
-          margin: 0 auto;
-        }
-
-        @media (max-width: 968px) {
-          .grid-workbench {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .workbench-card {
-          background: rgba(2, 23, 30, 0.4);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 16px;
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          position: relative;
-        }
-
-        .card-label {
-          font-size: 11px;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.4);
-          margin-bottom: 20px;
-          font-weight: 500;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .card-label span.tech-coord {
-          font-family: var(--font-mono);
-          color: var(--cyan);
-          font-size: 10px;
-        }
-
-        .viewport-container {
-          background: #010e13;
-          border: 1px solid rgba(255, 255, 255, 0.04);
-          border-radius: 12px;
-          aspect-ratio: 1;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          position: relative;
-          overflow: hidden;
-          box-shadow: inset 0 4px 30px rgba(0,0,0,0.5);
-        }
-
-        .viewport-svg-blueprint {
-          width: 80%;
-          height: 80%;
-          cursor: crosshair;
-          z-index: 5;
-          position: relative;
-          overflow: visible;
-        }
-
-        /* Technical Blueprint Grid overlay */
-        .blueprint-grid-overlay {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.15;
-          z-index: 1;
-        }
-
-        .blueprint-grid-overlay-major {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.35;
-          z-index: 2;
-        }
-
-        .svg-element-group {
-          transition: all 0.3s var(--ease-out);
-        }
-
-        .svg-shape-line {
-          stroke-width: 1.5;
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
-          animation: drawStroke 2s ease forwards;
-          transition: stroke 0.3s, stroke-width 0.3s, opacity 0.3s;
-        }
-
-        @keyframes drawStroke {
-          to { stroke-dashoffset: 0; }
-        }
-
-        /* SVG layer highlighting */
-        .layer-active {
-          opacity: 1 !important;
-        }
-        .layer-inactive {
-          opacity: 0.15 !important;
-          stroke-dasharray: 4 4 !important;
-        }
-        .layer-hovered {
-          stroke-width: 3.5 !important;
-          filter: drop-shadow(0 0 6px var(--glow-color));
-        }
-
-        /* Interactive controls styling */
-        .controls-wrapper {
-          margin-top: 20px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .control-row {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .control-header {
-          display: flex;
-          justify-content: space-between;
-          font-size: 11px;
-          letter-spacing: 0.05em;
-          color: rgba(255,255,255,0.7);
-          text-transform: uppercase;
-        }
-
-        .control-val {
-          color: var(--green);
-          font-family: var(--font-mono);
-        }
-
-        /* Custom Range Slider styling */
-        .slider-input {
-          -webkit-appearance: none;
-          width: 100%;
-          height: 4px;
-          border-radius: 2px;
-          background: rgba(255, 255, 255, 0.08);
-          outline: none;
-        }
-        .slider-input::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 14px;
-          height: 14px;
-          border-radius: 50%;
-          background: var(--green);
-          cursor: pointer;
-          box-shadow: 0 0 6px var(--green);
-          transition: transform 0.2s;
-        }
-        .slider-input::-webkit-slider-thumb:hover {
-          transform: scale(1.2);
-        }
-
-        /* Preset color selection */
-        .color-preset-group {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-
-        .color-preset-btn {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          border: 2px solid rgba(255,255,255,0.2);
-          cursor: pointer;
-          transition: all 0.3s;
-          position: relative;
-        }
-        .color-preset-btn.active {
-          border-color: #ffffff;
-          transform: scale(1.15);
-        }
-        .color-preset-btn::after {
-          content: '';
-          position: absolute;
-          inset: -4px;
-          border: 1px solid currentColor;
-          border-radius: 50%;
-          opacity: 0;
-          transition: opacity 0.3s;
-        }
-        .color-preset-btn.active::after {
-          opacity: 0.4;
-        }
-
-        /* Toggle Layer Grid */
-        .layer-toggle-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-          gap: 10px;
-          margin-top: 15px;
-        }
-
-        .layer-toggle-btn {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 8px;
-          padding: 10px;
-          font-size: 11px;
-          text-align: left;
-          color: rgba(255,255,255,0.5);
-          cursor: pointer;
-          transition: all 0.3s var(--ease-out);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .layer-toggle-btn:hover {
-          background: rgba(255,255,255,0.04);
-          border-color: rgba(255,255,255,0.15);
-          color: #ffffff;
-        }
-        .layer-toggle-btn.active {
-          background: rgba(10, 228, 105, 0.04);
-          border-color: rgba(10, 228, 105, 0.3);
-          color: #ffffff;
-        }
-        .layer-toggle-indicator {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.1);
-        }
-        .layer-toggle-btn.active .layer-toggle-indicator {
-          background: var(--green);
-          box-shadow: 0 0 6px var(--green);
-        }
-
-        /* Code Inspection Terminal */
-        .terminal-block {
-          background: #00080a;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          padding: 14px;
-          margin-top: 15px;
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          color: rgba(255, 255, 255, 0.85);
-          overflow-x: auto;
-          white-space: pre-wrap;
-          line-height: 1.5;
-          position: relative;
-        }
-        .terminal-block::before {
-          content: 'TERMINAL INSPECTOR';
-          position: absolute;
-          top: 4px;
-          right: 8px;
-          font-size: 8px;
-          color: rgba(255,255,255,0.2);
-          letter-spacing: 0.1em;
-        }
-
-        /* Math section comparison */
-        .math-breakdown {
-          max-width: 1300px;
-          margin: 40px auto 0 auto;
-          background: rgba(2, 23, 30, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.04);
-          border-radius: 16px;
-          padding: 30px;
-        }
-
-        .math-title {
-          font-family: var(--font-primary);
-          font-size: 18px;
-          margin-bottom: 20px;
-          color: #ffffff;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .math-title::before {
-          content: '';
-          width: 4px;
-          height: 16px;
-          background: var(--cyan);
-          border-radius: 2px;
-        }
-
-        .math-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-        }
-        @media (max-width: 768px) {
-          .math-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .math-column {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .math-card {
-          background: rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          border-radius: 8px;
-          padding: 16px;
-        }
-
-        .math-card-header {
-          font-weight: 600;
-          font-size: 12px;
-          color: var(--cyan);
-          margin-bottom: 8px;
-          font-family: var(--font-mono);
-        }
-
-        .math-card-body {
-          font-size: 12.5px;
-          color: rgba(255,255,255,0.65);
-          line-height: 1.6;
-        }
-
-        .tech-crosshair-line {
-          stroke: rgba(40, 193, 229, 0.25);
-          stroke-width: 0.5;
-          stroke-dasharray: 2 2;
-        }
-      `}</style>
-
-      <div className="lab-container">
-        {/* Lab Page Header */}
-        <header className="lab-header">
-          <Link to="/" className="btn-back">
-            <span>← Back to Home</span>
-          </Link>
-          <div className="header-title-block">
-            <div className="lab-tag">
-              <span className="pulse-dot"></span>
-              Colour Parrot Labs // Exp #04
-            </div>
-            <h1 className="lab-title">Procedural Shape Lab</h1>
+      {/* Fixed Cards */}
+      <div id="fixed-cards" ref={fixedCardsRef}>
+        <div className="grid" ref={cardsGridRef}>
+          <div className="card">
+            <h3>Explore Veldara</h3>
+            <p>Veldara merges the elegance of Svelte 5 with the depth of Three.js within easy reach. It's crafted to be robust and adaptable while remaining intuitive and simple to grasp.</p>
           </div>
-        </header>
+          <div className="card">
+            <h3>Unlock Three.js</h3>
+            <p>The web is growing increasingly dimensional. At its heart, Veldara offers a composable declarative API for building performant Three.js experiences on the web.</p>
+          </div>
+          <div className="card">
+            <h3>Connect Everything</h3>
+            <p>Veldara ships with tooling for physics, XR, animation, layouting, model loading, and extensive utilities to make building compelling 3D apps for the web effortless.</p>
+          </div>
+        </div>
+      </div>
 
-        {/* Workbench Grid */}
-        <main className="grid-workbench">
-          
-          {/* Panel A: Vector Blueprint Workbench */}
-          <section className="workbench-card">
-            <div className="card-label">
-              <span>Vector Blueprint (SVG)</span>
-              {mouseInside && (
-                <span className="tech-coord">
-                  X: {mouseGridPos.x.toString().padStart(3, "0")} // Y: {mouseGridPos.y.toString().padStart(3, "0")}
-                </span>
-              )}
+      {/* Navigation removed */}
+
+      {/* Main Content */}
+      <div id="content">
+        {/* Section 1: Hero */}
+        <section id="hero" ref={heroRef}>
+          <div className="gradient-overlay"></div>
+          <div className="content">
+            <p className="subtitle">Our Purpose:</p>
+            <h1>
+              Instantly craft immersive
+              <span className="underlined"><span className="line"></span><span>3D worlds</span></span>
+              on the web.
+            </h1>
+            <div className="ctas">
+              <div className="code-box">
+                <span className="prompt">&gt;</span>
+                <code>npm i @veldara/core</code>
+              </div>
+              <a href="#" className="cta-btn">Get Started <span>&rarr;</span></a>
             </div>
+          </div>
+          <div className="bounce-arrow">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+          </div>
+        </section>
 
-            <div className="viewport-container">
-              {/* Technical background Grid */}
-              <svg className="blueprint-grid-overlay" width="100%" height="100%">
-                <defs>
-                  <pattern id="minorGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-                  </pattern>
-                  <pattern id="majorGrid" width="50" height="50" patternUnits="userSpaceOnUse">
-                    <rect width="50" height="50" fill="url(#minorGrid)" />
-                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#majorGrid)" />
-              </svg>
+        {/* Spacer */}
+        <div style={{ height: '150vh' }}></div>
 
-              {/* The Interactive SVG Viewport */}
-              <svg
-                ref={svgRef}
-                viewBox="-2 -2 104 104"
-                className="viewport-svg-blueprint"
-                stroke={glowColor}
-                fill="none"
-                onMouseMove={handleSvgMouseMove}
-                onMouseEnter={() => setMouseInside(true)}
-                onMouseLeave={() => setMouseInside(false)}
-                style={{ "--glow-color": glowColor }}
-              >
-                {/* Custom Hover Interactive Crosshairs */}
-                {mouseInside && (
-                  <>
-                    <line className="tech-crosshair-line" x1="-2" y1={mouseGridPos.y} x2="102" y2={mouseGridPos.y} />
-                    <line className="tech-crosshair-line" x1={mouseGridPos.x} y1="-2" x2={mouseGridPos.x} y2="102" />
-                    <circle cx={mouseGridPos.x} cy={mouseGridPos.y} r="1.5" fill={glowColor} stroke="none" />
-                  </>
-                )}
+        {/* Cards Trigger Zone */}
+        <div id="cards-trigger" ref={cardsTriggerRef} style={{ height: '200vh' }}></div>
 
-                {/* Layer 1: Horizontal Axis */}
-                <line
-                  x1="0"
-                  y1="50"
-                  x2="100"
-                  y2="50"
-                  className={`svg-shape-line svg-element-group ${
-                    layers.axisX ? "layer-active" : "layer-inactive"
-                  } ${hoveredLayer === "axisX" ? "layer-hovered" : ""}`}
-                  onMouseEnter={() => setHoveredLayer("axisX")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                />
+        {/* Spacer */}
+        <div style={{ height: '100vh' }}></div>
 
-                {/* Layer 2: Vertical Axis */}
-                <line
-                  x1="50"
-                  y1="0"
-                  x2="50"
-                  y2="100"
-                  className={`svg-shape-line svg-element-group ${
-                    layers.axisY ? "layer-active" : "layer-inactive"
-                  } ${hoveredLayer === "axisY" ? "layer-hovered" : ""}`}
-                  onMouseEnter={() => setHoveredLayer("axisY")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                />
-
-                {/* Layer 3: Top-Right Quarter Circle Arc */}
-                <path
-                  d="M 50 0 A 50 50 0 0 1 100 50"
-                  className={`svg-shape-line svg-element-group ${
-                    layers.arcTR ? "layer-active" : "layer-inactive"
-                  } ${hoveredLayer === "arcTR" ? "layer-hovered" : ""}`}
-                  onMouseEnter={() => setHoveredLayer("arcTR")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                />
-
-                {/* Layer 4: Bottom-Left Quarter Circle Arc */}
-                <path
-                  d="M 0 50 A 50 50 0 0 0 50 100"
-                  className={`svg-shape-line svg-element-group ${
-                    layers.arcBL ? "layer-active" : "layer-inactive"
-                  } ${hoveredLayer === "arcBL" ? "layer-hovered" : ""}`}
-                  onMouseEnter={() => setHoveredLayer("arcBL")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                />
-
-                {/* Layer 5: Accent Circle (Top-Left) */}
-                <circle
-                  cx="25"
-                  cy="25"
-                  r="10"
-                  className={`svg-shape-line svg-element-group ${
-                    layers.circleTL ? "layer-active" : "layer-inactive"
-                  } ${hoveredLayer === "circleTL" ? "layer-hovered" : ""}`}
-                  onMouseEnter={() => setHoveredLayer("circleTL")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                />
-              </svg>
-            </div>
-
-            {/* Blueprint Layer Visibility Toggles */}
-            <div style={{ marginTop: "24px" }}>
-              <div className="control-header">
-                <span>Vector Layer Elements</span>
-                <span className="control-val" onClick={resetLayers} style={{ cursor: "pointer", textDecoration: "underline" }}>
-                  Reset Layers
-                </span>
-              </div>
-              <div className="layer-toggle-grid">
-                <button
-                  className={`layer-toggle-btn ${layers.axisX ? "active" : ""}`}
-                  onClick={() => toggleLayer("axisX")}
-                  onMouseEnter={() => setHoveredLayer("axisX")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                >
-                  <span>1. X-Axis Segment</span>
-                  <span className="layer-toggle-indicator" />
-                </button>
-                <button
-                  className={`layer-toggle-btn ${layers.axisY ? "active" : ""}`}
-                  onClick={() => toggleLayer("axisY")}
-                  onMouseEnter={() => setHoveredLayer("axisY")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                >
-                  <span>2. Y-Axis Segment</span>
-                  <span className="layer-toggle-indicator" />
-                </button>
-                <button
-                  className={`layer-toggle-btn ${layers.arcTR ? "active" : ""}`}
-                  onClick={() => toggleLayer("arcTR")}
-                  onMouseEnter={() => setHoveredLayer("arcTR")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                >
-                  <span>3. Top-Right Arc</span>
-                  <span className="layer-toggle-indicator" />
-                </button>
-                <button
-                  className={`layer-toggle-btn ${layers.arcBL ? "active" : ""}`}
-                  onClick={() => toggleLayer("arcBL")}
-                  onMouseEnter={() => setHoveredLayer("arcBL")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                >
-                  <span>4. Bottom-Left Arc</span>
-                  <span className="layer-toggle-indicator" />
-                </button>
-                <button
-                  className={`layer-toggle-btn ${layers.circleTL ? "active" : ""}`}
-                  onClick={() => toggleLayer("circleTL")}
-                  onMouseEnter={() => setHoveredLayer("circleTL")}
-                  onMouseLeave={() => setHoveredLayer(null)}
-                >
-                  <span>5. Accent Circle</span>
-                  <span className="layer-toggle-indicator" />
-                </button>
-              </div>
-            </div>
-
-            {/* XML Inspector */}
-            <div className="terminal-block">
-              <span style={{ color: "#779" }}>{getSelectedCodeText()}</span>
-            </div>
-          </section>
-
-          {/* Panel B: GLSL Shader Workspace */}
-          <section className="workbench-card">
-            <div className="card-label">
-              <span>GLSL Shader (WebGL SDF Mode)</span>
-              <span className="tech-coord" style={{ color: varPresets => glowColor }}>
-                ACTIVE // REALTIME MOUSE TRAIL
-              </span>
-            </div>
-
-            {/* WebGL Rendering Viewport */}
-            <div className="viewport-container" style={{ background: "#00080a" }}>
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {/* Pass logoSrc as a truthy string to trigger SDF rendering */}
-                <ShapeBlur
-                  logoSrc="logo_outline"
-                  variation={0}
-                  shapeSize={shapeSize}
-                  circleSize={circleSize}
-                  circleEdge={circleEdge}
-                  glowColor={glowColor}
-                  baseOpacity={baseOpacity}
-                  blur={cssBlur}
-                  pixelRatioProp={window.devicePixelRatio || 2}
-                />
-              </div>
-            </div>
-
-            {/* Parameters Control Dashboard */}
-            <div className="controls-wrapper">
-              
-              {/* Preset Neon Colors */}
-              <div className="control-row">
-                <span className="control-header">Neon Glow Color</span>
-                <div className="color-preset-group">
-                  {colorPresets.map((preset) => (
-                    <button
-                      key={preset.name}
-                      className={`color-preset-btn ${glowColor === preset.hex ? "active" : ""}`}
-                      style={{ backgroundColor: preset.hex, color: preset.hex }}
-                      onClick={() => setGlowColor(preset.hex)}
-                      title={preset.name}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Shape Size Slider */}
-              <div className="control-row">
-                <div className="control-header">
-                  <span>Shape Size</span>
-                  <span className="control-val">{shapeSize.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.3"
-                  max="1.2"
-                  step="0.05"
-                  value={shapeSize}
-                  onChange={(e) => setShapeSize(parseFloat(e.target.value))}
-                  className="slider-input"
-                  style={{ "--green": glowColor }}
-                />
-              </div>
-
-              {/* Cursor Interaction Glow Circle Radius */}
-              <div className="control-row">
-                <div className="control-header">
-                  <span>Hover Glow Radius</span>
-                  <span className="control-val">{circleSize.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.1"
-                  max="0.8"
-                  step="0.05"
-                  value={circleSize}
-                  onChange={(e) => setCircleSize(parseFloat(e.target.value))}
-                  className="slider-input"
-                  style={{ "--green": glowColor }}
-                />
-              </div>
-
-              {/* Hover Glow Edge Softness */}
-              <div className="control-row">
-                <div className="control-header">
-                  <span>Hover Edge Softness</span>
-                  <span className="control-val">{circleEdge.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.05"
-                  max="0.8"
-                  step="0.05"
-                  value={circleEdge}
-                  onChange={(e) => setCircleEdge(parseFloat(e.target.value))}
-                  className="slider-input"
-                  style={{ "--green": glowColor }}
-                />
-              </div>
-
-              {/* Shape Base Opacity (when mouse not close) */}
-              <div className="control-row">
-                <div className="control-header">
-                  <span>Base Idle Opacity</span>
-                  <span className="control-val">{baseOpacity.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.0"
-                  max="0.4"
-                  step="0.02"
-                  value={baseOpacity}
-                  onChange={(e) => setBaseOpacity(parseFloat(e.target.value))}
-                  className="slider-input"
-                  style={{ "--green": glowColor }}
-                />
-              </div>
-
-              {/* CSS Glow Bleed Blur */}
-              <div className="control-row">
-                <div className="control-header">
-                  <span>Heavy Neon Blur Bleed</span>
-                  <span className="control-val">{cssBlur}px</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="15"
-                  step="1"
-                  value={cssBlur}
-                  onChange={(e) => setCssBlur(parseInt(e.target.value))}
-                  className="slider-input"
-                  style={{ "--green": glowColor }}
-                />
-              </div>
-
-            </div>
-
-            {/* GLSL Inspector */}
-            <div className="terminal-block">
-              <span style={{ color: "#8b9" }}>{getGLSLSnippet()}</span>
-            </div>
-          </section>
-        </main>
-
-        {/* Bottom Panel: Mathematical Blueprint Breakdown */}
-        <section className="math-breakdown">
-          <h2 className="math-title">Vector-to-SDF Math Breakdown</h2>
-          <div className="math-grid">
-            
-            <div className="math-column">
-              <div className="math-card">
-                <div className="math-card-header">1. Coordinate Grid System Mapping</div>
-                <div className="math-card-body">
-                  The SVG vector logo operates in <strong>X/Y Screen Space [0 to 100]</strong> where the center is <code>(50, 50)</code> and <code>y</code> points downwards.
-                  The GLSL Shader operates in <strong>Normalized Space [-0.5 to 0.5]</strong> where the center is <code>(0.0, 0.0)</code> and <code>y</code> points upwards.
-                  Our ThreeJS shader automatically maps coordinates between the two systems perfectly.
-                </div>
-              </div>
-              
-              <div className="math-card">
-                <div className="math-card-header">2. The Axis Segment Elements</div>
-                <div className="math-card-body">
-                  <strong>SVG elements:</strong> <code>&lt;line x1="0" y1="50" x2="100" y2="50"&gt;</code> & <code>&lt;line x1="50" y1="0" x2="50" y2="100"&gt;</code>.
-                  <br /><br />
-                  <strong>Shader SDF equivalent:</strong> <code>max(abs(p.y), abs(p.x) - R)</code>. Calculates the flat-capped distance from normalized position <code>p</code> to the axis segments of length <code>2*R</code> (radius <code>R = 0.45</code>), ensuring sharp vertical/horizontal ends.
-                </div>
-              </div>
-            </div>
-
-            <div className="math-column">
-              <div className="math-card">
-                <div className="math-card-header">3. Quarter Arc Elements</div>
-                <div className="math-card-body">
-                  <strong>SVG elements:</strong> Top-right arc (from <code>50,0</code> to <code>100,50</code>) and bottom-left arc (from <code>0,50</code> to <code>50,100</code>).
-                  <br /><br />
-                  <strong>Shader SDF equivalent:</strong> <code>max(max(abs(length(p) - R), -p.x), -p.y)</code>. Calculates the distance to a quarter circle of radius <code>R = 0.45</code> in Quadrant 1, cut flat at the axes by bounding the coordinate signs.
-                </div>
-              </div>
-              
-              <div className="math-card">
-                <div className="math-card-header">4. Sub-Circle Accent Element</div>
-                <div className="math-card-body">
-                  <strong>SVG element:</strong> <code>&lt;circle cx="25" cy="25" r="10" /&gt;</code>.
-                  <br /><br />
-                  <strong>Shader SDF equivalent:</strong> <code>abs(length(p - vec2(-0.5*R, 0.5*R)) - r)</code>.
-                  Calculates the distance from coordinate <code>p</code> to a circle center located in Quadrant 2 (top-left, <code>x = -0.5*R</code>, <code>y = 0.5*R</code>) with radius <code>r = 0.08</code>.
-                </div>
-              </div>
-            </div>
-
+        {/* Section 3 */}
+        <section id="section-three">
+          <div className="inner" id="section-three-inner" ref={sectionThreeInnerRef}>
+            <p>Presenting</p>
+            <h2>Veldara 8</h2>
           </div>
         </section>
       </div>
-    </>
+    </div>
   );
 }

@@ -10,6 +10,9 @@ const Magnet = ({
   innerClassName = '',
   ...props
 }) => {
+  const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  if (isTouchDevice) return <>{children}</>
+
   const [isActive, setIsActive] = useState(false);
   const magnetRef = useRef(null);
   const innerRef = useRef(null);

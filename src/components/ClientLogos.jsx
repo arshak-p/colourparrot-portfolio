@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ScrollFloat from './ScrollFloat';
+import { clientLogosList } from '../data/logosData';
 
+gsap.registerPlugin(ScrollTrigger);
 
 const styles = `
 .cp-section {
@@ -45,9 +50,12 @@ const styles = `
   align-items: center;
   justify-content: center;
   position: relative;
-  border: 0.5px solid rgba(255,255,255,0.08);
-  background: transparent;
-  transition: transform 0.35s ease, border-color 0.3s;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.35s ease, border-color 0.3s, background 0.3s;
   cursor: pointer;
   padding: 0;
   outline: none;
@@ -55,7 +63,8 @@ const styles = `
 }
 .cp-circle:hover {
   transform: scale(1.1);
-  border-color: rgba(10, 228, 105, 0.4);
+  border-color: rgba(10, 228, 105, 0.5);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Orbit rings removed for performance */
@@ -69,12 +78,12 @@ const styles = `
   width: 90px;
   height: 90px;
   object-fit: contain;
-  opacity: 0.5;
-  transition: opacity 0.3s;
+  opacity: 1;
+  transition: opacity 0.3s, transform 0.3s;
   position: relative;
   z-index: 1;
 }
-.cp-circle:hover img { opacity: 1; }
+.cp-circle:hover img { transform: scale(1.05); }
 
 
 
@@ -129,24 +138,20 @@ const styles = `
 }
 `;
 
-const LOGOS = Array.from({ length: 46 }, (_, i) => ({
-  id: i + 1,
-  src: `/logos/logo${i + 1}.png`,
-  alt: `Client logo ${i + 1}`,
-}));
+const LOGOS = clientLogosList;
 
-const ROW1 = LOGOS.slice(0, 16);
-const ROW2 = LOGOS.slice(16, 32);
-const ROW3 = LOGOS.slice(32, 46);
+const ROW1 = LOGOS.slice(0, 15);
+const ROW2 = LOGOS.slice(15, 30);
+const ROW3 = LOGOS.slice(30, 45);
 
-function LogoRow({ logos, direction = "fwd", speed = "30s" }) {
+function LogoRow({ logos, direction = "fwd", speed = "30s", isVisible }) {
   const doubled = [...logos, ...logos];
   return (
     <div className="cp-row-wrap">
-      <div className={`cp-row cp-${direction}`} style={{ animationDuration: speed }}>
+      <div className={`cp-row cp-${direction}`} style={{ animationDuration: speed, animationPlayState: isVisible ? 'running' : 'paused' }}>
         {doubled.map((logo, i) => (
           <div className="cp-circle" key={i}>
-            <img src={logo.src} alt={logo.alt} loading="lazy" decoding="async" />
+            <img src={logo.src} alt={logo.alt} loading="lazy" decoding="async" width="90" height="90" />
           </div>
         ))}
       </div>
@@ -155,21 +160,35 @@ function LogoRow({ logos, direction = "fwd", speed = "30s" }) {
 }
 
 export default function ClientLogos() {
+  const sectionRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    )
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <>
       <style>{styles}</style>
-      <section id="clients" className="cp-section">
+      <section id="clients" ref={sectionRef} className="cp-section">
         <div className="cp-header">
-          <p className="sec-label" style={{ color: 'var(--yellow)', justifyContent: 'center', marginBottom: '1.2rem' }}>Our universe</p>
-          <h2 className="sec-title" style={{ textAlign: 'center' }}>Trusted by <span className="y">Brands</span></h2>
+          <p className="sec-label" style={{ color: 'var(--yellow)', justifyContent: 'center', marginBottom: '1.2rem' }}>Our Network</p>
+          <ScrollFloat className="sec-title" tag="h2" style={{ textAlign: 'center' }}>
+          Trusted by <span className="y">Brands</span>
+        </ScrollFloat>
         </div>
 
 
         <div className="cp-rows">
 
-          <LogoRow logos={ROW1} direction="fwd" speed="32s" />
-          <LogoRow logos={ROW2} direction="rev" speed="40s" />
-          <LogoRow logos={ROW3} direction="fwd" speed="26s" />
+          <LogoRow logos={ROW1} direction="fwd" speed="32s" isVisible={isVisible} />
+          <LogoRow logos={ROW2} direction="rev" speed="40s" isVisible={isVisible} />
+          <LogoRow logos={ROW3} direction="fwd" speed="26s" isVisible={isVisible} />
         </div>
 
         <div className="cp-counters">

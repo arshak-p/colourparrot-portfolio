@@ -1,0 +1,62 @@
+export const creativesList = [
+  "1-creative.webp",
+  "17-creative.webp",
+  "24-creative.webp",
+  "25-creative.webp",
+  "31-creative.webp",
+  "32-creative.webp",
+  "6-creative.webp",
+  "8-creative.webp",
+  "A&C Dental ENT-creative-40.webp",
+  "Al-Farha Cargo-creative-13.webp",
+  "Al-Farha Cargo-creative-7.webp",
+  "Aqiq Silver Collections-creative-35.webp",
+  "AYS Jewels-creative-31.webp",
+  "AYS Jewels-creative-32.webp",
+  "Capitus-creative-14.webp",
+  "Capitus-creative-2.webp",
+  "Capitus-creative-23.webp",
+  "Capitus-creative-26.webp",
+  "Colour Parrot-creative-20.webp",
+  "Core Fitness Club-creative-4.webp",
+  "Drishyam-creative-19.webp",
+  "Edwin Academy-creative-29.webp",
+  "Edwin Academy-creative-39.webp",
+  "Farwaygo-creative-27.webp",
+  "Fezbay-creative-5.webp",
+  "Fobas Institute-creative-33.webp",
+  "FryWings-creative-25.webp",
+  "FryWings-creative-6.webp",
+  "HAIWA-creative-22.webp",
+  "IWER-creative-30.webp",
+  "Lesfo-creative-10.webp",
+  "Lesfo-creative-17.webp",
+  "Lesfo-creative-21.webp",
+  "Lesfo-creative-8.webp",
+  "Phone Cart-creative-41.webp",
+  "Rail Rolls-creative-15.webp",
+  "Rail Rolls-creative-16.webp",
+  "Rail Rolls-creative-24.webp",
+  "Rail Rolls-creative-36.webp",
+  "Rail Rolls-creative-38.webp",
+  "Rail Rolls-creative-9.webp",
+  "Sapphire-creative-12.webp",
+  "Sapphire-creative-28.webp",
+  "Travelbay-creative-37.webp",
+  "twafume-creative-1.webp",
+  "twafume-creative-11.webp",
+  "twafume-creative-18.webp",
+  "twafume-creative-3.webp",
+  "twafume-creative-34.webp",
+  "Zyonz-creative-42.webp"
+].map((filename, i) => {
+  let cleanName = filename.replace(/\.[^/.]+$/, '').replace(/-/g, ' ').replace(' creative', '');
+  return {
+    image: `/creatives/${filename}`,
+    caption: cleanName,
+    tags: ['Creative Advertising']
+  };
+});
+
+export const row1Projects = creativesList.slice(0, Math.ceil(creativesList.length / 2));
+export const row2Projects = creativesList.slice(Math.ceil(creativesList.length / 2));

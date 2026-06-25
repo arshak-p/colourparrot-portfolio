@@ -1,6 +1,9 @@
 import { useEffect, useRef, memo } from 'react'
 import styles from './Starfield.module.css'
 
+export let setStarWarp = (intensity) => {}
+export let setStarfieldPaused = (val) => {}
+
 const Starfield = memo(function Starfield() {
   const canvasRef = useRef(null)
 
@@ -10,15 +13,34 @@ const Starfield = memo(function Starfield() {
     let animId
     let W, H
     let scrollY = window.scrollY
+    let lastScrollY = window.scrollY
 
-    const stars = Array.from({ length: 300 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      r: Math.random() * 1.2 + 0.2,
-      a: Math.random(),
-      da: Math.random() * 0.008 - 0.004,
-      s: Math.random() * 0.5 + 0.1,
-    }))
+    let mouseX = 0.5
+    let mouseY = 0.5
+    let targetMouseX = 0.5
+    let targetMouseY = 0.5
+
+    let warpIntensity = 0
+    let targetWarpIntensity = 0
+    setStarWarp = (val) => { targetWarpIntensity = val }
+
+    let isPaused = false
+    setStarfieldPaused = (val) => { isPaused = val }
+
+    const stars = Array.from({ length: 300 }, () => {
+      const r = Math.random() * 1.2 + 0.2;
+      return {
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.00008, // Subtle continuous drift X
+        vy: (Math.random() - 0.5) * 0.00008, // Subtle continuous drift Y
+        r: r,
+        baseR: r,
+        a: Math.random(),
+        da: Math.random() * 0.008 - 0.004,
+        s: Math.random() * 0.5 + 0.1,
+      };
+    })
 
     const comets = Array.from({ length: 3 }, () => resetComet({}))
 
@@ -39,19 +61,78 @@ const Starfield = memo(function Starfield() {
       scrollY = window.scrollY
     }
 
+    const handleMouseMove = (e) => {
+      targetMouseX = e.clientX / window.innerWidth
+      targetMouseY = e.clientY / window.innerHeight
+    }
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+    if (!isTouchDevice) {
+      window.addEventListener('mousemove', handleMouseMove)
+    }
+
     const draw = () => {
+      // Only pause drawing if we are not actively warping
+      if (isPaused && targetWarpIntensity === 0 && warpIntensity < 0.01) {
+        animId = requestAnimationFrame(draw)
+        return
+      }
       ctx.clearRect(0, 0, W, H)
       
+      const scrollDelta = scrollY - lastScrollY;
+      lastScrollY = scrollY;
+      
+      warpIntensity += (targetWarpIntensity - warpIntensity) * 0.06
+
+      mouseX += (targetMouseX - mouseX) * 0.05
+      mouseY += (targetMouseY - mouseY) * 0.05
+
       stars.forEach((s) => {
-        s.a = Math.max(0.05, Math.min(1, s.a + s.da))
-        if (s.a <= 0.05 || s.a >= 1) s.da *= -1
+        // Continuous drifting motion like Veldara
+        s.x += s.vx;
+        s.y += s.vy;
+
+        // Hyperdrive motion tied directly to scroll movement
+        if (warpIntensity > 0.001 && Math.abs(scrollDelta) > 0.1) {
+          const dx = s.x - 0.5;
+          const dy = s.y - 0.5;
+          // scrollDelta is positive when scrolling down (forward), negative when up (backward)
+          const speed = scrollDelta * 0.0015 * warpIntensity;
+          s.x += dx * speed;
+          s.y += dy * speed;
+        }
+        
+        // Wrap around bounds (normalized coordinates 0 to 1)
+        if (s.x < 0 || s.x > 1 || s.y < 0 || s.y > 1) {
+          if (warpIntensity > 0.01) {
+            // Respawn randomly across the screen to prevent center clumping
+            s.x = Math.random();
+            s.y = Math.random();
+            s.a = 0; // fade in smoothly
+          } else {
+            // Normal wrap around when not warping
+            if (s.x < 0) s.x += 1;
+            if (s.x > 1) s.x -= 1;
+            if (s.y < 0) s.y += 1;
+            if (s.y > 1) s.y -= 1;
+          }
+        }
+
+        s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+        if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
 
         const parallaxOffset = scrollY * s.s * 0.4
-        let drawY = (s.y * H - parallaxOffset) % H
+        
+        const mouseOffsetX = (mouseX - 0.5) * s.s * 80
+        const mouseOffsetY = (mouseY - 0.5) * s.s * 80
+        
+        let drawX = ((s.x * W) + mouseOffsetX) % W
+        if (drawX < 0) drawX += W
+        
+        let drawY = (s.y * H - parallaxOffset + mouseOffsetY) % H
         if (drawY < 0) drawY += H
 
         ctx.beginPath()
-        ctx.arc(s.x * W, drawY, s.r, 0, Math.PI * 2)
+        ctx.arc(drawX, drawY, s.baseR, 0, Math.PI * 2)
         ctx.fillStyle = `rgba(255,255,255,${s.a})`
         ctx.fill()
       })
@@ -104,6 +185,9 @@ const Starfield = memo(function Starfield() {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', resize)
       window.removeEventListener('scroll', handleScroll)
+      if (!isTouchDevice) {
+        window.removeEventListener('mousemove', handleMouseMove)
+      }
     }
   }, [])
 

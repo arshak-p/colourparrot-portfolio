@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { InstagramIcon, BehanceIcon, FacebookIcon, LinkedInIcon } from '../components/SocialIcons'
 
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -8,6 +9,24 @@ import { lenis } from '../components/SmoothScroll'
 
 gsap.registerPlugin(ScrollTrigger)
 
+import SpaceGrid from '../components/SpaceGrid'
+import { setStarWarp, setStarfieldPaused } from '../components/Starfield'
+import PosterCard from '../components/PosterCard'
+import { brandingItems } from '../data/brandingData'
+import { row1Projects, row2Projects } from '../data/creativesData'
+
+const shuffleArray = (array) => {
+  const newArr = [...array];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+};
+
+const shuffledRow1 = shuffleArray(row1Projects).slice(0, 12);
+const shuffledRow2 = shuffleArray(row2Projects).slice(0, 12);
+
 import StarBorderBtn from '../components/StarBorderBtn'
 import Magnet from '../components/Magnet'
 import ClientLogos from "../components/ClientLogos";
@@ -15,43 +34,55 @@ import BorderGlow from '../components/BorderGlow'
 import ScrollVelocity from '../components/ScrollVelocity'
 import ParallaxStrip from '../components/ParallaxStrip'
 import FlowingMenu from '../components/FlowingMenu'
-
+import ScrollFloat from '../components/ScrollFloat';
+import PixelCard from '../components/PixelCard';
 
 import { 
   services, 
   workItems, 
-  planets, 
-  industries, 
+  industries,
   marqueeItems1, 
   marqueeItems2 
 } from '../data'
 
-import ShapeBlur from '../components/ShapeBlur'
 import RotatingText from '../components/RotatingText'
-
-
-// ── Consolidated HomePage ──
-
+import TextPressure from '../components/TextPressure'
 export default function HomePage() {
   const marqueeText1 = marqueeItems1.join('  ·  ') + '  ·'
   const marqueeText2 = marqueeItems2.join('  ·  ') + '  ·'
+  const darkWrapperRef = useRef(null)
+
+  useGSAP(() => {
+    ScrollTrigger.create({
+      trigger: darkWrapperRef.current,
+      start: 'top 50%',
+      end: 'bottom 50%',
+      refreshPriority: -1,
+      toggleClass: { targets: 'body', className: 'inverted-theme' }
+    });
+  }, { scope: darkWrapperRef })
 
   return (
-    <div className="homepage-wrapper">
-      <HeroSection />
-      <ScrollVelocity texts={[marqueeText1]} velocity={60} className="scroll-text-green" />
-      <AboutSection />
-      <ScrollVelocity texts={[marqueeText2]} velocity={-60} className="scroll-text-cyan" />
-      <ServicesSection />
-      <ProjectsSection />
-      <PosterSection />
-      <ClientLogos />
-      <IndustriesSection />
-      <ProcessSection />
-      <TestimonialsSection />
-      <ParallaxStrip />
-      <ContactSection />
-    </div>
+    <>
+      <div className="homepage-wrapper">
+        <HeroSection />
+        <ScrollVelocity texts={[marqueeText1]} velocity={60} className="scroll-text-green" />
+        <AboutSection />
+        <ScrollVelocity texts={[marqueeText2]} velocity={-60} className="scroll-text-cyan" />
+        <ServicesSection />
+        <div ref={darkWrapperRef} className="dark-theme-wrapper" style={{ position: 'relative', color: '#ffffff' }}>
+          <ProjectsSection />
+          <PosterSection />
+          <ClientLogos />
+        </div>
+        <IndustriesSection />
+        <ProcessSection />
+        <TestimonialsSection />
+        <FAQSection />
+        <ParallaxStrip />
+        <ContactSection />
+      </div>
+    </>
   )
 }
 
@@ -116,11 +147,11 @@ function HeroSection() {
         {/* Tag below heading */}
         <p className="hero-tag" style={{ fontSize: '0.65rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--green)', fontWeight: 600, opacity: 0, transform: 'translateY(12px)', display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.75rem' }}>
           <span style={{ width: 26, height: 1, background: 'var(--green)', display: 'inline-block', opacity: 0.4, flexShrink: 0 }} />
-          Kozhikode · Kerala · Est. 2020
+          Kozhikode · Kerala · Est. 2024
         </p>
         
         <p className="hero-sub" style={{ maxWidth: 520, fontSize: '1.05rem', lineHeight: 1.8, color: 'rgba(242,242,242,0.45)', fontWeight: 400, opacity: 0, transform: 'translateY(12px)', marginBottom: '3rem' }}>
-          Colour Parrot is a full-spectrum creative agency — branding, motion, production, digital — launching brands into orbit from Calicut.
+          Colour Parrot is a full-spectrum creative agency — branding, motion, production, digital — elevating brands to the next level from Calicut.
         </p>
         
         <div className="hero-btns" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: 0, transform: 'translateY(12px)', alignItems: 'center' }}>
@@ -177,7 +208,9 @@ function AboutSection() {
       <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(3rem, 6vw, 7rem)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div>
           <p className="sec-label">About us</p>
-          <h2 className="sec-title">A Creative Force<br />From <span className="c">Deep Space</span></h2>
+          <ScrollFloat className="sec-title" tag="h2">
+            A Creative Force<br />From <span className="c">Deep Space</span>
+          </ScrollFloat>
           <p style={{ fontSize: '1.05rem', lineHeight: 1.75, color: 'rgba(242,242,242,0.55)', fontWeight: 400, marginBottom: '1.5rem', maxWidth: 500 }}>
             Based in Kozhikode, Colour Parrot is a full-service branding and advertising agency that transforms ideas into iconic brand experiences. We live at the intersection of strategy and art — every pixel, frame, and word is intentional.
           </p>
@@ -226,6 +259,7 @@ function ServicesSection() {
     link: `/services/${s.slug}`,
     text: s.name,
     image: s.image,
+    images: s.images,
     accent: s.accent,
     index: idx + 1,
   }))
@@ -243,16 +277,16 @@ function ServicesSection() {
       }}
     >
       {/* Section header */}
-      <div className="container" style={{ paddingTop: 'clamp(5rem, 9vh, 8rem)', paddingBottom: '2.5rem' }}>
+      <div className="container" style={{ paddingTop: 'clamp(5rem, 9vh, 8rem)', paddingBottom: 'clamp(1.5rem, 3vh, 2.5rem)' }}>
         <p className="sec-label">Our Expertise</p>
-        <h2 className="sec-title" style={{ marginBottom: 0 }}>
-          Services in <span className="g">Orbit</span>
-        </h2>
+        <ScrollFloat className="sec-title" tag="h2" style={{ marginBottom: 0 }}>
+          Our Core <span className="g">Services</span>
+        </ScrollFloat>
       </div>
 
       {/* FlowingMenu fills remaining height */}
-      <div style={{ flex: 1, borderTop: '1px solid rgba(242,242,242,0.07)' }}>
-        <FlowingMenu items={menuItems} speed={18} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderTop: '1px solid rgba(242,242,242,0.07)' }}>
+        <FlowingMenu items={menuItems} speed={35} />
       </div>
     </section>
   )
@@ -266,47 +300,19 @@ function ProjectsSection() {
   const row1Ref = useRef(null)
   const row2Ref = useRef(null)
 
-  const row1Projects = [
-    { name: 'Creative 1', category: 'Creative Design', image: '/creatives/1.webp', ratio: 0.8 },
-    { name: 'Creative 2', category: 'Creative Design', image: '/creatives/2.webp', ratio: 1.0 },
-    { name: 'Creative 3', category: 'Creative Design', image: '/creatives/3.webp', ratio: 1.0 },
-    { name: 'Creative 4', category: 'Creative Design', image: '/creatives/4.webp', ratio: 0.8 },
-    { name: 'Creative 5', category: 'Creative Design', image: '/creatives/5.webp', ratio: 1.0 },
-    { name: 'Creative 6', category: 'Creative Design', image: '/creatives/6.webp', ratio: 1.0 },
-    { name: 'Creative 7', category: 'Creative Design', image: '/creatives/7.webp', ratio: 0.8 },
-    { name: 'Creative 8', category: 'Creative Design', image: '/creatives/8.webp', ratio: 1.0 },
-    { name: 'Creative 9', category: 'Creative Design', image: '/creatives/9.webp', ratio: 1.0 },
-    { name: 'Creative 10', category: 'Creative Design', image: '/creatives/10.webp', ratio: 1.0 },
-    { name: 'Creative 11', category: 'Creative Design', image: '/creatives/11.webp', ratio: 0.8 },
-    { name: 'Creative 12', category: 'Creative Design', image: '/creatives/12.webp', ratio: 1.0 },
-  ]
-
-  const row2Projects = [
-    { name: 'Creative 13', category: 'Creative Design', image: '/creatives/13.webp', ratio: 0.8 },
-    { name: 'Creative 14', category: 'Creative Design', image: '/creatives/14.webp', ratio: 0.8 },
-    { name: 'Creative 15', category: 'Creative Design', image: '/creatives/15.webp', ratio: 1.0 },
-    { name: 'Creative 16', category: 'Creative Design', image: '/creatives/16.webp', ratio: 0.8 },
-    { name: 'Creative 17', category: 'Creative Design', image: '/creatives/17.webp', ratio: 0.8 },
-    { name: 'Creative 18', category: 'Creative Design', image: '/creatives/18.webp', ratio: 0.8 },
-    { name: 'Creative 19', category: 'Creative Design', image: '/creatives/19.webp', ratio: 1.0 },
-    { name: 'Creative 20', category: 'Creative Design', image: '/creatives/20.webp', ratio: 0.8 },
-    { name: 'Creative 21', category: 'Creative Design', image: '/creatives/21.webp', ratio: 1.0 },
-    { name: 'Creative 22', category: 'Creative Design', image: '/creatives/22.webp', ratio: 1.0 },
-    { name: 'Creative 23', category: 'Creative Design', image: '/creatives/23.webp', ratio: 1.0 },
-    { name: 'Creative 24', category: 'Creative Design', image: '/creatives/24.webp', ratio: 0.8 },
-  ]
-
   useGSAP(() => {
     // 1. Pinned Sliding Animation Timeline
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
         start: 'top top',
-        end: '+=1600',
+        end: () => "+=" + (window.innerWidth <= 768 ? 3000 : 3000),
         pin: true,
         pinSpacing: true,
-        anticipatePin: 1,
-        scrub: 0.5
+        anticipatePin: 0,
+        scrub: 0.5,
+        fastScrollEnd: true,
+        lazy: false
       }
     })
 
@@ -323,32 +329,20 @@ function ProjectsSection() {
     // Row 1 — LEFT entry, sweeps right (enters completely from offscreen left)
     tl.fromTo(row1Ref.current,
       { x: () => -(row1Ref.current.scrollWidth + 100) },
-      { x: 0, ease: 'none', duration: 7 },
+      { x: 0, ease: 'none', duration: 8 },
       0
     )
 
     // Row 2 — RIGHT entry, sweeps left (enters completely from offscreen right)
     tl.fromTo(row2Ref.current,
       { x: () => window.innerWidth + 100 },
-      { x: () => -getRowOverflow(row2Ref.current), ease: 'none', duration: 7 },
+      { x: () => -getRowOverflow(row2Ref.current), ease: 'none', duration: 8 },
       0
     )
 
-    // Dead zone — pause so user sees the final state before unpinning
-    tl.to({}, { duration: 1.5 }, 7)
-
     // Smooth exit — services fade back
-    tl.to('#services', { opacity: 1, pointerEvents: 'auto', duration: 1.5, ease: 'power2.inOut' }, 7)
+    tl.to('#services', { opacity: 1, pointerEvents: 'auto', duration: 1.2, ease: 'power2.inOut' }, 6)
 
-    // 2. Unified Background Color and Comet Color (Inverted Theme) Toggle ScrollTrigger
-    // Spans from the start of #projects (bottom of #services) to the end of #clients (top of #industries)
-    ScrollTrigger.create({
-      trigger: '#services',
-      endTrigger: '#industries',
-      start: 'bottom top',
-      end: 'top top',
-      toggleClass: { targets: 'body, html', className: 'inverted-theme' }
-    })
 
     // Trigger layout refresh after initial render to avoid offsets
     const refreshTimer = setTimeout(() => {
@@ -372,7 +366,7 @@ function ProjectsSection() {
       {/* Title */}
       <div ref={headerRef} className="container" style={{ 
         position: 'absolute', 
-        top: '6vh', 
+        top: '2vh', 
         left: 0,
         right: 0,
         zIndex: 10, 
@@ -382,11 +376,13 @@ function ProjectsSection() {
         <div className="proj-header-flex">
           <div>
             <p className="sec-label" style={{ color: 'var(--green)' }}>Recent Work</p>
-            <h2 className="sec-title" style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+            <ScrollFloat className="sec-title" tag="h2" style={{ margin: 0 }}>
               Featured <span className="g">Projects</span>
-            </h2>
+            </ScrollFloat>
           </div>
-          <StarBorderBtn href="/projects" color="var(--green)">View All Work</StarBorderBtn>
+          <div className="desktop-only-btn">
+            <StarBorderBtn href="/projects" color="var(--green)">View All Work</StarBorderBtn>
+          </div>
         </div>
       </div>
 
@@ -402,15 +398,15 @@ function ProjectsSection() {
         overflow: 'hidden'
       }}>
         {/* Row 1 */}
-        <div style={{ overflow: 'visible', width: '100%', height: 'auto' }}>
-          <div ref={row1Ref} className="proj-row-scroll" style={{ opacity: 1, height: '100%', gap: '3vw' }}>
-            {row1Projects.map((p, idx) => (
+        <div style={{ overflow: 'visible', width: '100%', height: 'auto', transform: 'translateZ(0)' }}>
+          <div ref={row1Ref} className="proj-row-scroll" style={{ opacity: 1, height: '100%', gap: '3vw', transform: 'translateZ(0)' }}>
+            {shuffledRow1.map((p, idx) => (
               <div 
                 key={idx} 
-                className="proj-img-wrapper float-item" 
+                className="proj-img-wrapper" 
                 style={{ 
                   animationDelay: `${idx * 0.35}s`, 
-                  animationDuration: `${7 + (idx % 3) * 1.5}s`,
+                  animationDuration: `${4 + (idx % 3) * 1.5}s`,
                   aspectRatio: p.ratio,
                   height: '46vh'
                 }}
@@ -428,15 +424,15 @@ function ProjectsSection() {
         </div>
 
         {/* Row 2 */}
-        <div style={{ overflow: 'visible', width: '100%', height: 'auto' }}>
-          <div ref={row2Ref} className="proj-row-scroll" style={{ opacity: 1, height: '100%', gap: '3vw' }}>
-            {row2Projects.map((p, idx) => (
+        <div style={{ overflow: 'visible', width: '100%', height: 'auto', transform: 'translateZ(0)' }}>
+          <div ref={row2Ref} className="proj-row-scroll" style={{ opacity: 1, height: '100%', gap: '3vw', transform: 'translateZ(0)' }}>
+            {shuffledRow2.map((p, idx) => (
               <div 
                 key={idx} 
-                className="proj-img-wrapper float-item" 
+                className="proj-img-wrapper" 
                 style={{ 
-                  animationDelay: `${(idx + 1) * 0.4}s`, 
-                  animationDuration: `${8 + (idx % 4) * 1.2}s`,
+                  animationDelay: `${idx * 0.45}s`, 
+                  animationDuration: `${4 + (idx % 3) * 1.5}s`,
                   aspectRatio: p.ratio,
                   height: '46vh'
                 }}
@@ -453,228 +449,188 @@ function ProjectsSection() {
           </div>
         </div>
       </div>
+      
+      <div className="mobile-only-btn" style={{ position: 'absolute', bottom: '4vh', left: '50%', transform: 'translateX(-50%)', zIndex: 10, pointerEvents: 'auto' }}>
+        <StarBorderBtn href="/projects" color="var(--green)">View All Work</StarBorderBtn>
+      </div>
     </section>
   )
 }
 
-function PosterCard({ item }) {
-  const videoRef = useRef(null)
-  const [hovered, setHovered] = useState(false)
 
-  const handleMouseEnter = () => {
-    setHovered(true)
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {})
-    }
-  }
-
-  const handleMouseLeave = () => {
-    setHovered(false)
-    if (videoRef.current) {
-      videoRef.current.pause()
-      videoRef.current.currentTime = 0
-    }
-  }
-
-  return (
-    <Link 
-      to={item.link} 
-      className="glass-card" 
-      style={{ 
-        padding: '1.2rem', 
-        backgroundColor: 'rgba(255, 255, 255, 0.02)',
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        overflow: 'hidden', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        borderRadius: '20px',
-        textDecoration: 'none',
-        transition: 'transform 0.4s var(--ease-out), border-color 0.4s var(--ease-out)'
-      }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div style={{ 
-        borderRadius: '12px', 
-        overflow: 'hidden', 
-        width: '100%', 
-        aspectRatio: '1.4',
-        backgroundColor: '#010d12',
-        position: 'relative'
-      }}>
-        {/* Static Image */}
-        <img 
-          src={item.image} 
-          alt={item.title} 
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover',
-            position: 'absolute',
-            inset: 0,
-            opacity: hovered ? 0 : 1,
-            transition: 'opacity 0.4s ease, transform 0.6s var(--ease-out)',
-            transform: hovered ? 'scale(1.04)' : 'scale(1)'
-          }} 
-        />
-        {/* Video Preview (Autoplays/Loops on Hover, Muted) */}
-        <video
-          ref={videoRef}
-          src={item.video}
-          muted
-          loop
-          playsInline
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            position: 'absolute',
-            inset: 0,
-            opacity: hovered ? 1 : 0,
-            transition: 'opacity 0.4s ease',
-            pointerEvents: 'none'
-          }}
-        />
-      </div>
-      <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)', letterSpacing: '0.05em' }}>{item.category}</span>
-          <h3 style={{ fontSize: '1.4rem', fontWeight: 500, color: '#ffffff', marginTop: '0.2rem', letterSpacing: '-0.02em' }}>{item.title}</h3>
-        </div>
-        <div style={{ 
-          width: '36px', 
-          height: '36px', 
-          borderRadius: '50%', 
-          border: '1px solid rgba(255, 255, 255, 0.1)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          color: 'var(--cyan)',
-          transition: 'all 0.3s ease',
-          transform: hovered ? 'translateX(4px)' : 'none',
-          borderColor: hovered ? 'var(--cyan)' : 'rgba(255, 255, 255, 0.1)',
-          backgroundColor: hovered ? 'rgba(56, 189, 248, 0.05)' : 'transparent'
-        }}>
-          →
-        </div>
-      </div>
-    </Link>
-  )
-}
 
 function PosterSection() {
   const sectionRef = useRef(null)
-  const posters = [
-    { 
-      title: 'Cosmic Brand Design', 
-      category: 'Branding & Identity', 
-      image: '/branding_design_cosmic_1778433637538.png',
-      video: 'https://assets.mixkit.co/videos/preview/mixkit-working-at-a-clean-light-desk-with-a-laptop-42173-large.mp4',
-      link: '/services/brand-identity'
-    },
-    { 
-      title: 'Stellar Marketing Campaign', 
-      category: 'Digital Strategy', 
-      image: '/digital_marketing_orbit_1778433698442.png',
-      video: 'https://assets.mixkit.co/videos/preview/mixkit-statistics-being-shown-on-a-digital-tablet-42171-large.mp4',
-      link: '/services/digital-marketing'
-    },
-    { 
-      title: 'Galactic Visual Production', 
-      category: 'Motion Graphics & Film', 
-      image: '/video_production_future_1778433657751.png',
-      video: 'https://assets.mixkit.co/videos/preview/mixkit-lens-of-a-professional-video-camera-40788-large.mp4',
-      link: '/services/video-production'
-    },
-    { 
-      title: 'Interactive Space Architecture', 
-      category: 'Web App & Tech', 
-      image: '/web_dev_cosmic_code_1778433678220.png',
-      video: 'https://assets.mixkit.co/videos/preview/mixkit-typing-on-a-glowing-computer-keyboard-in-the-dark-42176-large.mp4',
-      link: '/services/web-design'
-    }
-  ]
+  const [group2Ready, setGroup2Ready] = useState(false)
+  const selectedSlugs = ['aptitude', 'healthicart', 'liara', 'nuvana', 'taiwo-fx', 'topnotch', 'aidenx', 'fobas'];
+  const posters = selectedSlugs.map(slug => brandingItems.find(item => item.slug === slug)).filter(Boolean);
+  
+  const group1 = posters.slice(4, 8)
+  const group2 = posters.slice(0, 4)
 
   useGSAP(() => {
-    const tl = gsap.timeline({
+    // 1. Initial entrance animation
+    const tlIntro = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
         start: 'top 85%',
-        toggleActions: 'play none none reverse',
+        toggleActions: 'play none none none',
+        once: true
       }
     })
 
-    tl.fromTo(
+    tlIntro.fromTo(
       '.poster-header > *',
       { y: 30, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power3.out'
-      }
-    ).fromTo(
-      '.poster-card-wrapper',
-      { 
-        y: 50, 
-        scale: 0.94, 
-        opacity: 1 
-      },
-      {
-        y: 0,
-        scale: 1,
-        opacity: 1,
-        duration: 0.75,
-        stagger: 0.15,
-        ease: 'back.out(1.15)',
-        clearProps: 'transform'
-      },
-      '-=0.25'
-    ).fromTo(
-      '.poster-btn-wrap',
-      { y: 20, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.5,
-        ease: 'power2.out'
-      },
-      '-=0.2'
+      { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power3.out' }
     )
+
+    const g1 = document.querySelector('.group1-grid')
+    const g2 = document.querySelector('.group2-grid')
+
+    const tlScrub = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'center center',
+        end: '+=3000',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1.5,
+        anticipatePin: 1,
+        fastScrollEnd: true,
+        onEnter: () => setStarfieldPaused(true),
+        onLeave: () => setStarfieldPaused(false),
+        onEnterBack: () => setStarfieldPaused(true),
+        onLeaveBack: () => setStarfieldPaused(false),
+        onUpdate: (self) => { if (self.progress > 0.3 && !group2Ready) setGroup2Ready(true) }
+      }
+    })
+
+    tlScrub.to('.group1-grid', {
+      scale: 1.8,
+      autoAlpha: 0,
+      transformOrigin: '50% 50%',
+      ease: 'power1.in',
+      duration: 0.8,
+      onUpdate: function() {
+        if (g1) g1.style.setProperty('--grid-gap', `${1 + this.progress() * 6}rem`)
+      }
+    }, 0)
+
+    tlScrub.to({ val: 0 }, {
+      val: 1,
+      duration: 0.4,
+      ease: 'power1.in',
+      onUpdate: function() { setStarWarp(this.targets()[0].val) }
+    }, 0)
+
+    tlScrub.to({ val: 1 }, {
+      val: 0,
+      duration: 0.4,
+      ease: 'power1.out',
+      onUpdate: function() { setStarWarp(this.targets()[0].val) }
+    }, 0.4)
+
+    tlScrub.fromTo('.group2-grid',
+      { scale: 0.15, autoAlpha: 0, transformOrigin: '50% 50%' },
+      { scale: 1, autoAlpha: 1, transformOrigin: '50% 50%', ease: 'power1.out', duration: 0.8 }
+    , 0.4)
+
+    tlScrub.to('.group2-grid', {
+      scale: 1.8,
+      autoAlpha: 0,
+      transformOrigin: '50% 50%',
+      ease: 'power1.in',
+      duration: 0.8,
+      onUpdate: function() {
+        if (g2) g2.style.setProperty('--grid-gap', `${1 + this.progress() * 6}rem`)
+      }
+    }, 1.2)
+
+    tlScrub.to({ val: 0 }, {
+      val: 1,
+      duration: 0.4,
+      ease: 'power1.in',
+      onUpdate: function() { setStarWarp(this.targets()[0].val) }
+    }, 1.2)
+
+    tlScrub.to({ val: 1 }, {
+      val: 0,
+      duration: 0.4,
+      ease: 'power1.out',
+      onUpdate: function() { setStarWarp(this.targets()[0].val) }
+    }, 1.6)
+
+    tlScrub.to('.poster-btn-wrap', {
+      scale: 1,
+      autoAlpha: 1,
+      ease: 'back.out(1.4)',
+      duration: 0.6
+    }, 1.8)
+
   }, [])
 
   return (
-    <section id="posters" ref={sectionRef} style={{ backgroundColor: 'transparent', padding: 'clamp(4rem, 8vh, 6rem) 0', position: 'relative', zIndex: 1 }}>
-      <div className="container">
-        <div className="poster-header" style={{ marginBottom: '4rem' }}>
-          <p className="sec-label" style={{ color: 'var(--cyan)' }}>Portfolio Grid</p>
-          <h2 className="sec-title" style={{ margin: 0 }}>Selected <span className="c">Brandings</span></h2>
+    <section id="posters" ref={sectionRef} style={{ backgroundColor: 'transparent', position: 'relative', zIndex: 1, overflow: 'hidden', paddingTop: 'clamp(1rem, 3vh, 3rem)', paddingBottom: 'clamp(1rem, 3vh, 3rem)' }}>
+      <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <div className="poster-header" style={{ marginBottom: '1rem', width: '100%' }}>
+          <p className="sec-label" style={{ color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.15em', fontSize: '0.75rem', marginBottom: '0.5rem', paddingLeft: '0' }}>PORTFOLIO GRID</p>
+          <ScrollFloat className="sec-title" tag="h2" style={{ margin: 0, letterSpacing: '-0.03em', justifyContent: 'center' }}>
+            <span style={{ color: '#ffffff' }}>Selected </span> 
+            <span style={{ color: 'var(--cyan)' }}>Brandings</span>
+          </ScrollFloat>
         </div>
         
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(2, 1fr)', 
-          gap: 'clamp(1.25rem, 2.5vw, 2.25rem)',
-          width: '100%' 
-        }}>
+        <div style={{ position: 'relative', width: '100%', minHeight: '500px' }}>
           <style>{`
+            .posters-grid-layer {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: var(--grid-gap, 1rem);
+              width: 100%;
+              transform-origin: center center;
+              will-change: transform, opacity, gap;
+              transform: translateZ(0);
+            }
             @media (max-width: 768px) {
-              #posters .container > div:last-child { grid-template-columns: 1fr !important; }
+              .posters-grid-layer { grid-template-columns: 1fr !important; }
             }
           `}</style>
-          {posters.map((item, idx) => (
-            <div key={idx} className="poster-card-wrapper" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <PosterCard item={item} />
-            </div>
-          ))}
-        </div>
+          
+          {/* DUMMY GRID FOR STABLE HEIGHT (Invisible) */}
+          <div className="posters-grid-layer" style={{ position: 'relative', visibility: 'hidden', opacity: 0, pointerEvents: 'none', zIndex: 0 }}>
+            {group1.map((item, idx) => (
+              <div key={idx} className="poster-card-wrapper" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <PosterCard item={item} />
+              </div>
+            ))}
+          </div>
 
-        {/* View More Button */}
-        <div className="poster-btn-wrap" style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
-          <StarBorderBtn href="/projects" color="var(--cyan)">
-            View More Works →
-          </StarBorderBtn>
+          {/* LAYER 2 (Behind) */}
+          <div className="posters-grid-layer group2-grid" style={{ position: 'absolute', inset: 0, opacity: 0, visibility: 'hidden', transform: 'scale(0.15)' }}>
+            {group2.map((item, idx) => (
+              <div key={idx} className="poster-card-wrapper" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <PosterCard item={item} shouldLoad={group2Ready} />
+              </div>
+            ))}
+          </div>
+
+          {/* LAYER 1 (Front) */}
+          <div className="posters-grid-layer group1-grid" style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
+            {group1.map((item, idx) => (
+              <div key={idx} className="poster-card-wrapper" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <PosterCard item={item} />
+              </div>
+            ))}
+          </div>
+
+          {/* View More Button (Hidden Initially, centered in the grid area) */}
+          <div className="poster-btn-wrap" style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 3, display: 'flex', justifyContent: 'center', width: '100%', opacity: 0, visibility: 'hidden', transform: 'translate(-50%, -50%) scale(0.5)' }}>
+            <StarBorderBtn href="/projects" color="var(--cyan)">
+              View More Works →
+            </StarBorderBtn>
+          </div>
+
         </div>
       </div>
     </section>
@@ -686,7 +642,7 @@ function PosterSection() {
 function IndustriesSection() {
   const listRef = useRef(null)
   useGSAP(() => {
-    gsap.fromTo('.ind-tag', { scale: 0.85, opacity: 0 }, {
+    gsap.fromTo('.ind-tag.desktop', { scale: 0.85, opacity: 0 }, {
       scale: 1, opacity: 1, stagger: 0.04, duration: 0.45, ease: 'back.out(1.5)',
       scrollTrigger: { 
         trigger: listRef.current, 
@@ -697,14 +653,105 @@ function IndustriesSection() {
   }, [])
   return (
     <section id="industries" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <div className="container">
+      <div className="container" style={{ position: 'relative' }}>
         <p className="sec-label" style={{ color: 'var(--red)' }}>Sectors we serve</p>
-        <h2 className="sec-title">Industries We've <span className="r">Explored</span></h2>
-        <div ref={listRef} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', marginTop: '1rem' }}>
+        <ScrollFloat className="sec-title" tag="h2">
+          Industries We've <span className="r">Explored</span>
+        </ScrollFloat>
+        
+        <style>{`
+          .industries-desktop {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-top: 1rem;
+            padding-right: 130px;
+          }
+          
+          .industries-mobile {
+            display: none;
+            margin-top: 2rem;
+            margin-left: -20px;
+            margin-right: -20px;
+            overflow: hidden;
+          }
+          
+          .ind-row-wrap {
+            position: relative;
+            width: 100vw;
+            overflow: hidden;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            margin-bottom: 0.75rem;
+          }
+          
+          .ind-row {
+            display: flex;
+            gap: 0.75rem;
+            width: max-content;
+          }
+          
+          .ind-row.fwd {
+            animation: scroll-left 30s linear infinite;
+          }
+          
+          .ind-row.rev {
+            animation: scroll-right 35s linear infinite;
+          }
+          
+          @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          
+          @keyframes scroll-right {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+          }
+          
+          .ind-tag {
+            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            padding: clamp(0.4rem, 1.5vh, 0.7rem) clamp(1rem, 3.5vw, 1.6rem);
+            border-radius: 100px;
+            transition: all 0.35s;
+            cursor: default;
+            white-space: nowrap;
+          }
+
+          @media (max-width: 768px) {
+            .industries-desktop { display: none; }
+            .industries-mobile { display: block; }
+          }
+        `}</style>
+
+        <div ref={listRef} className="industries-desktop">
           {industries.map((tag) => (
-            <span key={tag} className="ind-tag glass-card" style={{ fontSize: 'clamp(0.85rem, 1.8vw, 1.1rem)', fontWeight: 500, letterSpacing: '-0.02em', padding: 'clamp(0.4rem, 1.5vh, 0.7rem) clamp(1rem, 3.5vw, 1.6rem)', borderRadius: 100, transition: 'all 0.35s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.classList.add('hovered')} onMouseLeave={e => e.currentTarget.classList.remove('hovered')}>{tag}</span>
+            <span key={tag} className="ind-tag desktop glass-card" onMouseEnter={e => e.currentTarget.classList.add('hovered')} onMouseLeave={e => e.currentTarget.classList.remove('hovered')}>{tag}</span>
           ))}
         </div>
+
+        <div className="industries-mobile">
+          {[
+            ['Restaurants & Cafés', 'Fashion & Apparel', 'Technology & AI'],
+            ['Event Management', 'Retail & E-commerce', 'Logistics & Cargo'],
+            ['Healthcare', 'Real Estate', 'Hospitality'],
+            ['Education', 'Restaurants & Cafés', 'Fashion & Apparel']
+          ].map((row, rowIndex) => {
+            const duplicated = [...row, ...row, ...row, ...row];
+            return (
+              <div key={rowIndex} className="ind-row-wrap">
+                <div className={`ind-row ${rowIndex % 2 === 0 ? 'fwd' : 'rev'}`}>
+                  {duplicated.map((tag, i) => (
+                    <span key={i} className="ind-tag glass-card" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
       </div>
     </section>
   )
@@ -722,10 +769,10 @@ function useAutoScroll(ref, delay = 3000) {
         if (window.innerWidth <= 768) {
           const maxScroll = container.scrollWidth - container.clientWidth
           if (container.scrollLeft >= maxScroll - 10) {
-            container.scrollTo({ left: 0, behavior: 'smooth' })
+            gsap.to(container, { scrollLeft: 0, duration: 1.8, ease: 'power3.inOut' })
           } else {
-            const cardWidth = container.clientWidth * 0.85 + 16
-            container.scrollBy({ left: cardWidth, behavior: 'smooth' })
+            const scrollDist = container.clientWidth;
+            gsap.to(container, { scrollLeft: container.scrollLeft + scrollDist, duration: 1.8, ease: 'power3.inOut' })
           }
         }
       }, delay)
@@ -753,7 +800,23 @@ function useAutoScroll(ref, delay = 3000) {
 
 function ProcessSection() {
   const ref = useRef(null)
-  useAutoScroll(ref, 2500)
+  const [activeIndex, setActiveIndex] = useState(0)
+  
+  useAutoScroll(ref, 6000)
+
+  const handleScroll = () => {
+    if (!ref.current) return;
+    const cardWidth = window.innerWidth;
+    const newIndex = Math.round(ref.current.scrollLeft / cardWidth);
+    setActiveIndex(newIndex);
+  };
+
+  const scrollTo = (index) => {
+    if (!ref.current) return;
+    const cardWidth = window.innerWidth;
+    ref.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+  };
+
   const steps = [
     {
       number: '01',
@@ -812,120 +875,110 @@ function ProcessSection() {
     <section id="process" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
       <div className="container" style={{ position: 'relative' }}>
         <p className="sec-label" style={{ color: 'var(--cyan)' }}>How We Work</p>
-        <h2 className="sec-title" style={{ marginBottom: '4rem' }}>
+        <ScrollFloat className="sec-title" tag="h2" style={{ marginBottom: 'clamp(1.5rem, 2vw, 4rem)' }}>
           Our <span className="c">Process</span>
-        </h2>
+        </ScrollFloat>
         
-        {/* Background ShapeBlur element on the right of the heading */}
-        <div style={{ 
-          position: 'absolute', 
-          right: '-10%', 
-          top: '-150px', 
-          pointerEvents: 'none', 
-          zIndex: 0, 
-          opacity: 0.8,
-          width: '550px', 
-          height: '550px', 
-          overflow: 'hidden' 
-        }}>
-          <ShapeBlur 
-            variation={0}
-            pixelRatioProp={window.devicePixelRatio || 1}
-            shapeSize={0.23}
-            roundness={0.5}
-            borderSize={0.02}
-            circleSize={0.1}
-            circleEdge={1}
-            glowColor="#0ae469"
-            baseOpacity={0.1}
-          />
-        </div>
-        <div
-          ref={ref}
-          className="mobile-slider"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '1.5rem',
-          }}
-        >
-          {steps.map((s, i) => (
-            <BorderGlow
-              key={i}
-              className="process-card"
-              glowColor={
-                s.color === 'var(--green)' ? '160 84 62' :
-                s.color === 'var(--cyan)' ? '190 80 60' :
-                s.color === 'var(--purple)' ? '260 70 60' :
-                '45 90 60'
-              }
-              colors={
-                s.color === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
-                s.color === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
-                s.color === 'var(--purple)' ? ['#7a43ff', '#c084fc'] :
-                ['#f9cc3d', '#facc15']
-              }
-              backgroundColor={s.bg}
-              borderRadius={24}
-              fillOpacity={0}
-              style={{
-                border: `1px solid ${s.border}`,
-                transition: 'transform 0.3s ease, border-color 0.3s ease',
-                cursor: 'default',
-              }}
-            >
-              <div style={{ padding: '2rem 1.75rem', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-                <div
-                  style={{
-                    fontSize: '0.68rem',
-                    letterSpacing: '0.2em',
-                    color: s.color,
-                    fontWeight: 600,
-                    marginBottom: '1.5rem',
-                    opacity: 0.65,
-                  }}
-                >
-                  {s.number}
+        <div style={{ position: 'relative', width: '100%' }}>
+          <div 
+            className="process-grid mobile-slider" 
+            ref={ref} 
+            onScroll={handleScroll}
+            style={{
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '1.5rem',
+              marginTop: '3rem',
+              width: '100%',
+              transform: 'translateZ(0)'
+            }}
+          >
+            {steps.map((s, i) => (
+              <BorderGlow
+                key={i}
+                className="process-card"
+                glowColor={
+                  s.color === 'var(--green)' ? '160 84 62' :
+                  s.color === 'var(--cyan)' ? '190 80 60' :
+                  s.color === 'var(--purple)' ? '260 70 60' :
+                  '45 90 60'
+                }
+                colors={
+                  s.color === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
+                  s.color === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
+                  s.color === 'var(--purple)' ? ['#7a43ff', '#c084fc'] :
+                  ['#f9cc3d', '#facc15']
+                }
+                backgroundColor={s.bg}
+                borderRadius={24}
+                fillOpacity={0}
+                style={{
+                  border: `1px solid ${s.border}`,
+                  transition: 'transform 0.3s ease, border-color 0.3s ease',
+                  cursor: 'default',
+                }}
+              >
+                <div style={{ padding: '2rem 1.75rem', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                  <div
+                    style={{
+                      fontSize: '0.68rem',
+                      letterSpacing: '0.2em',
+                      color: s.color,
+                      fontWeight: 600,
+                      marginBottom: '1.5rem',
+                      opacity: 0.65,
+                    }}
+                  >
+                    {s.number}
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: 'clamp(1.3rem, 2.2vw, 1.7rem)',
+                      fontWeight: 500,
+                      letterSpacing: '-0.03em',
+                      color: s.color,
+                      marginBottom: '0.9rem',
+                    }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: '0.88rem',
+                      lineHeight: 1.75,
+                      color: 'rgba(242,242,242,0.48)',
+                      fontWeight: 400,
+                    }}
+                  >
+                    {s.desc}
+                  </p>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '1.75rem',
+                      right: '1.75rem',
+                      fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)',
+                      fontWeight: 700,
+                      letterSpacing: '-0.06em',
+                      color: s.color,
+                      opacity: 0.06,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {s.number}
+                  </div>
                 </div>
-                <h3
-                  style={{
-                    fontSize: 'clamp(1.3rem, 2.2vw, 1.7rem)',
-                    fontWeight: 500,
-                    letterSpacing: '-0.03em',
-                    color: s.color,
-                    marginBottom: '0.9rem',
-                  }}
-                >
-                  {s.title}
-                </h3>
-                <p
-                  style={{
-                    fontSize: '0.88rem',
-                    lineHeight: 1.75,
-                    color: 'rgba(242,242,242,0.48)',
-                    fontWeight: 400,
-                  }}
-                >
-                  {s.desc}
-                </p>
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '1.75rem',
-                    right: '1.75rem',
-                    fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)',
-                    fontWeight: 700,
-                    letterSpacing: '-0.06em',
-                    color: s.color,
-                    opacity: 0.06,
-                    lineHeight: 1,
-                  }}
-                >
-                  {s.number}
-                </div>
-              </div>
-            </BorderGlow>
-          ))}
+              </BorderGlow>
+            ))}
+          </div>
+
+          <div className="mobile-only-btn" style={{ width: '100%', marginTop: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center' }}>
+              {steps.map((_, i) => (
+                <div key={i} onClick={() => scrollTo(i)} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === activeIndex ? 'var(--yellow)' : 'rgba(255,255,255,0.2)', cursor: 'pointer', transition: 'background 0.3s ease' }} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -934,25 +987,43 @@ function ProcessSection() {
 
 function TestimonialsSection() {
   const ref = useRef(null)
-  useAutoScroll(ref, 2500)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  useAutoScroll(ref, 4000)
+
+  const handleScroll = () => {
+    if (!ref.current) return;
+    const cardWidth = window.innerWidth;
+    const newIndex = Math.round(ref.current.scrollLeft / cardWidth);
+    setActiveIndex(newIndex);
+  };
+
+  const scrollTo = (index) => {
+    if (!ref.current) return;
+    const cardWidth = window.innerWidth;
+    ref.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+  };
+
   const testimonials = [
     {
-      quote: 'Colour Parrot completely transformed our brand identity. The team brought creativity and strategy together in a way we had never experienced before.',
-      name: 'Rahul Menon',
-      role: 'CEO, TechNova Solutions',
+      quote: 'Working with Colour Parrot has been an absolute delight. They understand our vision without us having to over-explain, and that’s what makes the process so easy. Every idea we share comes back better, sharper, & perfectly in tune with who we are as an institute. Their team is an excellent creative bunch, consistent, thoughtful, and full of fresh ideas.',
+      name: 'Nizam',
+      role: 'Capitus',
       color: 'var(--green)',
       border: 'rgba(10,228,105,0.15)',
       bg: 'rgba(10,228,105,0.04)',
-      initial: 'R',
+      initial: 'N',
+      logo: null,
     },
     {
-      quote: 'From concept to execution, everything was flawless. Our social media engagement tripled within two months of working with them.',
-      name: 'Priya Sharma',
-      role: 'Marketing Head, Blossom Retail',
+      quote: 'Color Parrot is doing a great job in Digital marketing! Their videos and posters are really creative and effective. I’m very happy with their work and highly recommend their services. 👍 Fobas Institute appreciates the excellent digital marketing support from Color Parrot. Their creative videos and posters have greatly enhanced our online presence',
+      name: 'Aparna',
+      role: 'Fobas',
       color: 'var(--cyan)',
       border: 'rgba(40,193,229,0.15)',
       bg: 'rgba(40,193,229,0.04)',
-      initial: 'P',
+      initial: 'A',
+      logo: null,
     },
     {
       quote: 'The motion graphics they created for our product launch exceeded every expectation. Truly a world-class creative team based right here in Kerala.',
@@ -972,14 +1043,14 @@ function TestimonialsSection() {
       {
         y: 0,
         opacity: 1,
-        stagger: 0.15,
-        duration: 0.9,
+        stagger: 0.1,
+        duration: 0.8,
         ease: 'power3.out',
         scrollTrigger: {
           trigger: ref.current,
-          start: 'top 78%',
+          start: 'top 85%',
           toggleActions: 'play none none reverse',
-        },
+        }
       }
     )
   }, [])
@@ -988,115 +1059,186 @@ function TestimonialsSection() {
     <section id="testimonials" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <div className="container">
         <p className="sec-label" style={{ color: 'var(--yellow)' }}>Client Stories</p>
-        <h2 className="sec-title" style={{ marginBottom: '3.5rem' }}>
+        <ScrollFloat className="sec-title" tag="h2" style={{ marginBottom: 'clamp(1.5rem, 2vw, 3.5rem)' }}>
           What They <span className="y">Say</span>
-        </h2>
-        <div
-          ref={ref}
-          className="mobile-slider"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.5rem',
-          }}
-        >
-          {testimonials.map((t, i) => (
-            <BorderGlow
-              key={i}
-              className="testi-card"
-              glowColor={
-                t.color === 'var(--green)' ? '160 84 62' :
-                t.color === 'var(--cyan)' ? '190 80 60' :
-                '260 70 60'
-              }
-              colors={
-                t.color === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
-                t.color === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
-                ['#7a43ff', '#c084fc']
-              }
-              backgroundColor={t.bg}
-              borderRadius={28}
-              fillOpacity={0}
-              style={{
-                border: `1px solid ${t.border}`,
-                transition: 'transform 0.3s ease',
-                cursor: 'default',
-              }}
-            >
-              <div style={{ padding: '2.25rem', display: 'flex', flexDirection: 'column', gap: '1.75rem', height: '100%' }}>
-              {/* Quote mark */}
-              <div
+        </ScrollFloat>
+        
+        <div style={{ position: 'relative', width: '100%' }}>
+          <div 
+            className="testi-grid mobile-slider" 
+            ref={ref} 
+            onScroll={handleScroll}
+            style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+              gap: '1.5rem', 
+              marginTop: '3rem',
+              width: '100%',
+              transform: 'translateZ(0)'
+            }}
+          >
+            {testimonials.map((t, i) => (
+              <BorderGlow
+                key={i}
+                className="testi-card"
+                glowColor={
+                  t.color === 'var(--green)' ? '160 84 62' :
+                  t.color === 'var(--cyan)' ? '190 80 60' :
+                  '260 70 60'
+                }
+                colors={
+                  t.color === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
+                  t.color === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
+                  ['#7a43ff', '#c084fc']
+                }
+                backgroundColor={t.bg}
+                borderRadius={28}
+                fillOpacity={0}
                 style={{
-                  fontSize: '3.5rem',
-                  lineHeight: 0.8,
-                  color: t.color,
-                  opacity: 0.35,
-                  fontFamily: 'Georgia, serif',
+                  border: `1px solid ${t.border}`,
+                  transition: 'transform 0.3s ease',
+                  cursor: 'default',
+                  height: '100%'
                 }}
               >
-                “
-              </div>
-
-              {/* Quote text */}
-              <p
-                style={{
-                  fontSize: '0.93rem',
-                  lineHeight: 1.8,
-                  color: 'rgba(242,242,242,0.62)',
-                  fontWeight: 400,
-                  flex: 1,
-                }}
-              >
-                {t.quote}
-              </p>
-
-              {/* Author */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    background: t.border,
-                    border: `1px solid ${t.border}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    color: t.color,
-                    flexShrink: 0,
-                  }}
-                >
-                  {t.initial}
-                </div>
-                <div>
-                  <p
+                <div style={{ padding: '2.25rem', display: 'flex', flexDirection: 'column', gap: '1.75rem', height: '100%' }}>
+                  <div
                     style={{
-                      fontSize: '0.9rem',
-                      fontWeight: 600,
-                      color: 'rgba(242,242,242,0.9)',
-                      marginBottom: '0.2rem',
-                    }}
-                  >
-                    {t.name}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: '0.7rem',
-                      letterSpacing: '0.08em',
+                      fontSize: '3.5rem',
+                      lineHeight: 0.8,
                       color: t.color,
-                      opacity: 0.7,
-                      textTransform: 'uppercase',
+                      opacity: 0.35,
+                      fontFamily: 'Georgia, serif',
                     }}
                   >
-                    {t.role}
+                    “
+                  </div>
+
+                  <p
+                    style={{
+                      fontSize: '0.93rem',
+                      lineHeight: 1.8,
+                      color: 'rgba(242,242,242,0.62)',
+                      fontWeight: 400,
+                      flex: 1,
+                    }}
+                  >
+                    {t.quote}
                   </p>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    {t.logo ? (
+                      <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: `1px solid ${t.border}`, background: '#fff' }}>
+                        <img src={t.logo} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: '50%',
+                          background: t.border,
+                          border: `1px solid ${t.border}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.1rem',
+                          fontWeight: 600,
+                          color: t.color,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {t.initial}
+                      </div>
+                    )}
+                    <div>
+                      <p
+                        style={{
+                          fontSize: '0.9rem',
+                          fontWeight: 600,
+                          color: 'rgba(242,242,242,0.9)',
+                          marginBottom: '0.2rem',
+                        }}
+                      >
+                        {t.name}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: '0.7rem',
+                          letterSpacing: '0.08em',
+                          color: t.color,
+                          opacity: 0.7,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        {t.role}
+                      </p>
+                    </div>
+                  </div>
                 </div>
+              </BorderGlow>
+            ))}
+          </div>
+
+          <div className="mobile-only-btn" style={{ width: '100%', marginTop: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center' }}>
+              {testimonials.map((_, i) => (
+                <div key={i} onClick={() => scrollTo(i)} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === activeIndex ? 'var(--cyan)' : 'rgba(255,255,255,0.2)', cursor: 'pointer', transition: 'background 0.3s ease' }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function FAQSection() {
+  const faqs = [
+    { q: "What services does Colour Parrot offer?", a: "We offer a full spectrum of creative services including Brand Identity, Motion Graphics, Digital Marketing, and Video Production." },
+    { q: "Where are you located?", a: "We are based in Kozhikode, Kerala, but we work with clients globally." },
+    { q: "How do we start a project?", a: "You can reach out to us via email or phone. We'll set up a discovery call to understand your needs and craft a tailored strategy." },
+    { q: "Do you work with startups?", a: "Absolutely! We love helping emerging brands launch with impact, establishing strong foundations and creative campaigns." }
+  ]
+  
+  const [open, setOpen] = useState(null)
+
+  return (
+    <section id="faq" className="pad" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div className="container" style={{ maxWidth: 1100 }}>
+        <p className="sec-label" style={{ color: 'var(--purple)', justifyContent: 'center' }}>Got Questions?</p>
+        <ScrollFloat className="sec-title" tag="h2" style={{ textAlign: 'center', marginBottom: 'clamp(1.5rem, 2vw, 3rem)' }}>
+          Frequently Asked <span className="p">Questions</span>
+        </ScrollFloat>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {faqs.map((faq, i) => (
+            <div 
+              key={i} 
+              style={{ 
+                border: '1px solid rgba(255,255,255,0.08)', 
+                borderRadius: '16px', 
+                padding: '1.5rem',
+                cursor: 'pointer',
+                background: open === i ? 'rgba(255,255,255,0.03)' : 'transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onClick={() => setOpen(open === i ? null : i)}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 500, color: open === i ? 'var(--purple)' : '#fff' }}>{faq.q}</h4>
+                <span style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.5)', transform: open === i ? 'rotate(45deg)' : 'none', transition: 'transform 0.3s ease' }}>+</span>
+              </div>
+              <div style={{ 
+                maxHeight: open === i ? '200px' : '0', 
+                overflow: 'hidden', 
+                transition: 'max-height 0.3s ease',
+                marginTop: open === i ? '1rem' : '0'
+              }}>
+                <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{faq.a}</p>
               </div>
             </div>
-          </BorderGlow>
-        ))}
+          ))}
         </div>
       </div>
     </section>
@@ -1133,10 +1275,10 @@ function ContactSection() {
                 label: 'Social', 
                 value: (
                   <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-                    <a href="https://www.instagram.com/colour.parrot/" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
-                    <a href="https://www.behance.net/colourparrotbranding" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12h-4"></path><path d="M9 16h-4"></path><path d="M5 8h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M5 12h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M13 12h7"></path><path d="M20 12c0-3-2-5-5-5s-5 2-5 5 2 5 5 5 5-2 5-5z"></path></svg></a>
-                    <a href="https://www.facebook.com/share/1F9u1EHMhb/?mibextid=wwXIfr" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-                    <a href="https://www.linkedin.com/company/colour-parrot/" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+                    <a href="https://www.instagram.com/colour.parrot/" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><InstagramIcon width="22" height="22" /></a>
+                    <a href="https://www.behance.net/colourparrotbranding" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><BehanceIcon width="22" height="22" /></a>
+                    <a href="https://www.facebook.com/share/1F9u1EHMhb/?mibextid=wwXIfr" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><FacebookIcon width="22" height="22" /></a>
+                    <a href="https://www.linkedin.com/company/colour-parrot/" target="_blank" rel="noreferrer" className="social-link" onMouseEnter={e=>e.currentTarget.classList.add('hovered')} onMouseLeave={e=>e.currentTarget.classList.remove('hovered')}><LinkedInIcon width="22" height="22" /></a>
                   </div>
                 ),
                 link: '#' 
@@ -1154,7 +1296,7 @@ function ContactSection() {
           </div>
           
           <Magnet padding={80} disabled={false}>
-            <StarBorderBtn href="mailto:info@colourparrot.com" size="lg">Start a Project →</StarBorderBtn>
+            <StarBorderBtn href="/contact" size="lg">Start a Project →</StarBorderBtn>
           </Magnet>
         </div>
 
@@ -1166,7 +1308,7 @@ function ContactSection() {
           <iframe 
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6277.856447745043!2d75.79854311168889!3d11.225695361399202!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba659d721eb6aeb%3A0x972a68879fe6780!2sColour%20Parrot%20Branding%20%26%20Advertising!5e0!3m2!1sen!2sin!4v1760282951078!5m2!1sen!2sin" 
             width="100%" height="100%" style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(0.8) contrast(1.2)' }} 
-            allowFullScreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
           ></iframe>
         </div>
       </div>

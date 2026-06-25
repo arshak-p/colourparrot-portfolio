@@ -1,0 +1,17 @@
+.scroll-float {
+  overflow: hidden;
+  padding-bottom: 0.15em; /* Prevents descenders like 'g' or 'y' from being cut off */
+  margin-bottom: -0.15em; /* Compensate for the extra padding */
+}
+
+.scroll-float-text {
+  display: inline-block;
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: inherit;
+  line-height: inherit;
+}
+
+.char {
+  display: inline-block;
+}

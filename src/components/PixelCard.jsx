@@ -231,8 +231,26 @@ export default function PixelCard({ variant = 'default', gap, speed, colors, noF
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
+    let io;
+    if (window.innerWidth <= 768) {
+      io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            handleAnimation('appear');
+          } else {
+            handleAnimation('disappear');
+          }
+        });
+      }, { threshold: 0.2 });
+      
+      if (containerRef.current) {
+        io.observe(containerRef.current);
+      }
+    }
+
     return () => {
       observer.disconnect();
+      if (io) io.disconnect();
       cancelAnimationFrame(animationRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

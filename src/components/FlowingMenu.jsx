@@ -1,217 +1,175 @@
-import { useRef, useEffect, useState } from 'react'
-import { gsap } from 'gsap'
-import { Link } from 'react-router-dom'
+import { useRef, useEffect, useState } from 'react';
+import { gsap } from 'gsap';
+import { Link } from 'react-router-dom';
 
-/* ─────────────────────────────────────────────
-   FlowingMenu — pure inline-styles, no Tailwind
-   Matches react-bits FlowingMenu-JS logic exactly
-───────────────────────────────────────────── */
+import './FlowingMenu.css';
 
-function FlowingMenu({ items = [], speed = 18 }) {
+function FlowingMenu({
+  items = [],
+  speed = 15,
+  bgColor = 'transparent',
+  borderColor = 'rgba(242,242,242,0.06)'
+}) {
   return (
-    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-      <nav style={{ display: 'flex', flexDirection: 'column', height: '100%', margin: 0, padding: 0 }}>
-        {items.map((item, idx) => (
-          <MenuItem key={idx} {...item} speed={speed} isFirst={idx === 0} index={idx + 1} />
-        ))}
+    <div className="menu-wrap" style={{ backgroundColor: bgColor }}>
+      <nav className="menu">
+        {items.map((item, idx) => {
+          // Resolve accent color
+          const accentMap = {
+            'var(--cyan)':   '#00f0ff',
+            'var(--yellow)': '#e2ff00',
+            'var(--green)':  '#0ae469',
+            'var(--purple)': '#b838ff',
+            'var(--red)':    '#f45b42',
+          };
+          const accentHex = accentMap[item.accent] || item.accent || '#fff';
+
+          return (
+            <MenuItem
+              key={idx}
+              {...item}
+              speed={speed}
+              textColor={accentHex}
+              marqueeBgColor={accentHex}
+              marqueeTextColor="#060606"
+              borderColor={borderColor}
+              index={idx + 1}
+            />
+          );
+        })}
       </nav>
     </div>
-  )
+  );
 }
 
-function MenuItem({ link, text, image, accent, speed, isFirst, index }) {
-  const itemRef       = useRef(null)
-  const marqueeRef    = useRef(null)
-  const marqueeInnerRef = useRef(null)
-  const marqueeScrollerRef = useRef(null)
-  const animationRef  = useRef(null)
-  const [repetitions, setRepetitions] = useState(5)
+function MenuItem({ link, text, image, images, speed, textColor, marqueeBgColor, marqueeTextColor, borderColor, index }) {
+  const itemRef = useRef(null);
+  const marqueeRef = useRef(null);
+  const marqueeInnerRef = useRef(null);
+  const animationRef = useRef(null);
+  const [repetitions, setRepetitions] = useState(4);
 
-  const animDefaults = { duration: 0.6, ease: 'expo.out' }
+  const animationDefaults = { duration: 0.6, ease: 'expo' };
 
-  const closestEdge = (mx, my, w, h) => {
-    const top = (mx - w / 2) ** 2 + my ** 2
-    const bot = (mx - w / 2) ** 2 + (my - h) ** 2
-    return top < bot ? 'top' : 'bottom'
-  }
+  const findClosestEdge = (mouseX, mouseY, width, height) => {
+    const topEdgeDist = distMetric(mouseX, mouseY, width / 2, 0);
+    const bottomEdgeDist = distMetric(mouseX, mouseY, width / 2, height);
+    return topEdgeDist < bottomEdgeDist ? 'top' : 'bottom';
+  };
 
-  // Calculate how many repetitions fill the screen
+  const distMetric = (x, y, x2, y2) => {
+    const xDiff = x - x2;
+    const yDiff = y - y2;
+    return xDiff * xDiff + yDiff * yDiff;
+  };
+
   useEffect(() => {
-    const calc = () => {
-      if (!marqueeScrollerRef.current) return
-      const part = marqueeScrollerRef.current.querySelector('.fm-part')
-      if (!part) return
-      const cw = part.offsetWidth
-      if (!cw) return
-      setRepetitions(Math.max(5, Math.ceil(window.innerWidth / cw) + 2))
-    }
-    calc()
-    window.addEventListener('resize', calc)
-    return () => window.removeEventListener('resize', calc)
-  }, [text, image])
+    const calculateRepetitions = () => {
+      if (!marqueeInnerRef.current) return;
 
-  // Horizontal marquee scroll animation
+      const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part');
+      if (!marqueeContent) return;
+
+      const contentWidth = marqueeContent.offsetWidth;
+      const viewportWidth = window.innerWidth;
+
+      const needed = Math.ceil(viewportWidth / contentWidth) + 2;
+      setRepetitions(Math.max(4, needed));
+    };
+
+    calculateRepetitions();
+    window.addEventListener('resize', calculateRepetitions);
+    return () => window.removeEventListener('resize', calculateRepetitions);
+  }, [text, image]);
+
   useEffect(() => {
-    const setup = () => {
-      if (!marqueeScrollerRef.current) return
-      const part = marqueeScrollerRef.current.querySelector('.fm-part')
-      if (!part) return
-      const cw = part.offsetWidth
-      if (!cw) return
-      animationRef.current?.kill()
-      animationRef.current = gsap.fromTo(
-        marqueeScrollerRef.current,
-        { x: 0 },
-        { x: -cw, duration: speed, ease: 'none', repeat: -1 }
-      )
-    }
-    const t = setTimeout(setup, 60)
+    const setupMarquee = () => {
+      if (!marqueeInnerRef.current) return;
+
+      const marqueeContent = marqueeInnerRef.current.querySelector('.marquee__part');
+      if (!marqueeContent) return;
+
+      const contentWidth = marqueeContent.offsetWidth;
+      if (contentWidth === 0) return;
+
+      if (animationRef.current) {
+        animationRef.current.kill();
+      }
+
+      animationRef.current = gsap.to(marqueeInnerRef.current, {
+        x: -contentWidth,
+        duration: speed,
+        ease: 'none',
+        repeat: -1
+      });
+    };
+
+    const timer = setTimeout(setupMarquee, 50);
+
     return () => {
-      clearTimeout(t)
-      animationRef.current?.kill()
-    }
-  }, [text, image, repetitions, speed])
+      clearTimeout(timer);
+      if (animationRef.current) {
+        animationRef.current.kill();
+      }
+    };
+  }, [text, image, repetitions, speed]);
 
-  const onEnter = (ev) => {
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return
-    const r = itemRef.current.getBoundingClientRect()
-    const e = closestEdge(ev.clientX - r.left, ev.clientY - r.top, r.width, r.height)
-    gsap.timeline({ defaults: animDefaults })
-      .set(marqueeRef.current,      { y: e === 'top' ? '-101%' : '101%' }, 0)
-      .set(marqueeInnerRef.current, { y: e === 'top' ? '101%'  : '-101%' }, 0)
-      .to([marqueeRef.current, marqueeInnerRef.current], { y: '0%' }, 0)
-  }
+  const handleMouseEnter = ev => {
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+    const rect = itemRef.current.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    const edge = findClosestEdge(x, y, rect.width, rect.height);
 
-  const onLeave = (ev) => {
-    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return
-    const r = itemRef.current.getBoundingClientRect()
-    const e = closestEdge(ev.clientX - r.left, ev.clientY - r.top, r.width, r.height)
-    gsap.timeline({ defaults: { duration: 0.55, ease: 'expo.inOut' } })
-      .to(marqueeRef.current,      { y: e === 'top' ? '-101%' : '101%' }, 0)
-      .to(marqueeInnerRef.current, { y: e === 'top' ? '101%'  : '-101%' }, 0)
-  }
+    gsap
+      .timeline({ defaults: animationDefaults })
+      .set(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
+      .set(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0)
+      .to([marqueeRef.current, marqueeInnerRef.current], { y: '0%' }, 0);
+  };
 
-  // Resolve CSS variable to its actual hex value for marquee background
-  const accentMap = {
-    'var(--green)':  '#0ae469',
-    'var(--cyan)':   '#28c1e5',
-    'var(--purple)': '#7a43ff',
-    'var(--yellow)': '#f9cc3d',
-    'var(--red)':    '#f45b42',
-  }
-  const accentHex = accentMap[accent] || accent
+  const handleMouseLeave = ev => {
+    if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current) return;
+    const rect = itemRef.current.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    const edge = findClosestEdge(x, y, rect.width, rect.height);
+
+    gsap
+      .timeline({ defaults: animationDefaults })
+      .to(marqueeRef.current, { y: edge === 'top' ? '-101%' : '101%' }, 0)
+      .to(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
+  };
 
   return (
-    <div
-      ref={itemRef}
-      style={{
-        flex: 1,
-        position: 'relative',
-        overflow: 'hidden',
-        textAlign: 'center',
-        borderBottom: '1px solid rgba(242,242,242,0.06)',
-        display: 'flex',
-      }}
-    >
-      {/* Main label link */}
+    <div className="menu__item" ref={itemRef} style={{ borderBottom: `1px solid ${borderColor}` }}>
       <Link
+        className="menu__item-link"
         to={link}
-        onMouseEnter={onEnter}
-        onMouseLeave={onLeave}
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '1.5rem',
-          height: '100%',
-          textDecoration: 'none',
-          textTransform: 'uppercase',
-          fontFamily: 'ClashGrotesk, var(--font-primary)',
-          fontWeight: 500,
-          fontSize: 'clamp(2.2rem, 8vh, 5.2rem)',
-          letterSpacing: '-0.04em',
-          color: accent,
-          position: 'relative',
-          zIndex: 1,
-          cursor: 'pointer',
-        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{ color: textColor }}
       >
-        <span style={{ fontSize: '0.35em', fontWeight: 600, opacity: 0.5, letterSpacing: '0.05em' }}>
-            {'0' + index}
-          </span>
+        <span className="menu__item-index">{'0' + index}</span>
         {text}
       </Link>
-
-      {/* Marquee overlay panel — slides in from top/bottom on hover */}
-      <div
-        ref={marqueeRef}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          overflow: 'hidden',
-          pointerEvents: 'none',
-          transform: 'translateY(101%)',
-          zIndex: 2,
-          backgroundColor: accentHex,
-        }}
-      >
-        <div
-          ref={marqueeInnerRef}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%',
-            width: '100%',
-            willChange: 'transform',
-          }}
-        >
-          <div
-            ref={marqueeScrollerRef}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              height: '100%',
-              width: 'fit-content',
-              willChange: 'transform',
-            }}
-          >
-            {Array.from({ length: repetitions }).map((_, i) => (
-              <div
-                key={i}
-                className="fm-part"
-                style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}
-              >
-                <span style={{
-                  whiteSpace: 'nowrap',
-                  textTransform: 'uppercase',
-                  fontFamily: 'ClashGrotesk, var(--font-primary)',
-                  fontWeight: 500,
-                  fontSize: 'clamp(1.8rem, 5.5vh, 3.8rem)',
-                  letterSpacing: '-0.04em',
-                  padding: '0 4vw',
-                  color: '#010d12',
-                }}>
-                  {text}
-                </span>
-                <div style={{
-                  width: '14vh',
-                  height: '6vh',
-                  margin: '0 2.5vw',
-                  borderRadius: 100,
-                  backgroundImage: `url(${image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  opacity: 0.9,
-                  flexShrink: 0,
-                }} />
-              </div>
-            ))}
+      <div className="marquee" ref={marqueeRef} style={{ backgroundColor: marqueeBgColor }}>
+        <div className="marquee__inner-wrap">
+          <div className="marquee__inner" ref={marqueeInnerRef} aria-hidden="true">
+            {Array.from({ length: repetitions }).map((_, idx) => {
+              const displayImage = (images && images.length > 0) ? images[idx % images.length] : image;
+              return (
+                <div className="marquee__part" key={idx} style={{ color: marqueeTextColor }}>
+                  <span>{text}</span>
+                  <div className="marquee__img" style={{ backgroundImage: `url(${displayImage})` }} />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default FlowingMenu
+export default FlowingMenu;

@@ -91,7 +91,9 @@
   letter-spacing: -2px; text-transform: uppercase; display: inline-block;
   text-decoration: none; padding-right: 1.4em; font-family: var(--font);
   transition: color 0.25s;
+  white-space: nowrap;
 }
+.sm-panel-item.is-active,
 .sm-panel-item:hover { color: var(--sm-accent, var(--green)); }
 .sm-panel-list[data-numbering] .sm-panel-item::after {
   counter-increment: smItem;

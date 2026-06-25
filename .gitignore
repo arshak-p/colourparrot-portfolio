@@ -18,10 +18,10 @@ build/
 .cache/
 
 # Backups and Large Files
-backup/*.sql
-backup/*.gz
-backup/*.zip
-backup/*.txt
+*.sql
+*.gz
+*.zip
+*.txt
 
 # Environment variables
 .env
@@ -52,3 +52,8 @@ Thumbs.db
 
 # Coverage
 coverage/
+
+# Large Video Files
+*.mp4
+*.mov
+*.webm

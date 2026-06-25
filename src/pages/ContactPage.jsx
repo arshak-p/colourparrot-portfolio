@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import StarBorderBtn from '../components/StarBorderBtn'
+import CurvedLoop from '../components/CurvedLoop'
+import ScrollFloat from '../components/ScrollFloat';
 
 const itemVariants = {
   hidden: { y: 30, opacity: 0 },
@@ -7,6 +10,34 @@ const itemVariants = {
 }
 
 export default function ContactPage() {
+  const [status, setStatus] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('Sending...');
+
+    const formData = new FormData(e.target);
+    // Replace this key with your Web3Forms access key
+    formData.append("access_key", "YOUR_ACCESS_KEY_HERE"); 
+    
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setStatus('Message sent successfully!');
+        e.target.reset();
+      } else {
+        setStatus('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      setStatus('An error occurred. Please try again later.');
+    }
+  };
+
   return (
     <motion.div 
       initial="hidden"
@@ -18,9 +49,9 @@ export default function ContactPage() {
       <section className="pad" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center' }}>
         <div className="container">
           <motion.div variants={itemVariants} className="sec-label">Connect with us</motion.div>
-          <motion.h1 variants={itemVariants} className="sec-title" style={{ fontSize: 'clamp(3.5rem, 9vw, 6.5rem)' }}>
+          <ScrollFloat className="sec-title" tag="h1" style={{ fontSize: 'clamp(3.5rem, 9vw, 6.5rem)' }}>
             Let's Start Your <br/><span className="shiny-colour">Journey</span>
-          </motion.h1>
+          </ScrollFloat>
           <motion.p variants={itemVariants} style={{ maxWidth: 600, fontSize: '1.1rem', color: 'rgba(255,255,255,0.5)', marginTop: '2.5rem' }}>
             We're always looking for ambitious brands to partner with. Drop us a line and let's explore what's possible.
           </motion.p>
@@ -29,24 +60,31 @@ export default function ContactPage() {
 
       {/* Contact Grid */}
       <section className="pad" style={{ paddingTop: 0 }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '4rem', alignItems: 'start' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '4rem', alignItems: 'start' }}>
           {/* Form */}
           <motion.div variants={itemVariants} className="glass-card" style={{ padding: 'clamp(1.5rem, 5vw, 3rem)' }}>
-            <h3 style={{ fontSize: '1.8rem', marginBottom: '2.5rem' }}>Send a Message</h3>
-            <form style={{ display: 'grid', gap: '2rem' }}>
+            <h3 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Send a Message</h3>
+            {status && (
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: '8px', background: status.includes('success') ? 'rgba(10,228,105,0.1)' : 'rgba(255,255,255,0.05)', color: status.includes('success') ? 'var(--green)' : 'white', fontSize: '0.9rem' }}>
+                {status}
+              </div>
+            )}
+            <form style={{ display: 'grid', gap: '2rem' }} onSubmit={handleSubmit}>
               <div style={{ display: 'grid', gap: '0.8rem' }}>
                 <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 500, opacity: 0.6 }}>Full Name</label>
-                <input type="text" placeholder="John Doe" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'} />
+                <input name="name" required type="text" placeholder="John Doe" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'} />
               </div>
               <div style={{ display: 'grid', gap: '0.8rem' }}>
                 <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 500, opacity: 0.6 }}>Email Address</label>
-                <input type="email" placeholder="john@example.com" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'} />
+                <input name="email" required type="email" placeholder="john@example.com" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'} />
               </div>
               <div style={{ display: 'grid', gap: '0.8rem' }}>
                 <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 500, opacity: 0.6 }}>Message</label>
-                <textarea rows="4" placeholder="How can we help?" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s', resize: 'none' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'}></textarea>
+                <textarea name="message" required rows="4" placeholder="How can we help?" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s', resize: 'none' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'}></textarea>
               </div>
-              <StarBorderBtn style={{ width: '100%' }}>Send Message →</StarBorderBtn>
+              <StarBorderBtn as="button" type="submit" style={{ width: '100%' }} disabled={status === 'Sending...'}>
+                {status === 'Sending...' ? 'Sending...' : 'Send Message →'}
+              </StarBorderBtn>
             </form>
           </motion.div>
 
@@ -62,6 +100,13 @@ export default function ContactPage() {
                 <div>
                   <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.4, marginBottom: '0.5rem' }}>Phone</p>
                   <a href="tel:+919400890105" style={{ fontSize: '1.2rem', fontWeight: 500, color: 'var(--light)', textDecoration: 'none', transition: 'color 0.3s' }} onMouseEnter={e=>e.target.style.color='var(--green)'} onMouseLeave={e=>e.target.style.color='var(--light)'}>+91 94008 90105</a>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.4, marginBottom: '0.5rem' }}>WhatsApp</p>
+                  <a href="https://wa.me/919400890105" target="_blank" rel="noopener noreferrer" style={{ fontSize: '1.2rem', fontWeight: 500, color: 'var(--light)', textDecoration: 'none', transition: 'color 0.3s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseEnter={e=>e.target.style.color='#25D366'} onMouseLeave={e=>e.target.style.color='var(--light)'}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    Chat with us
+                  </a>
                 </div>
                 <div>
                   <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.4, marginBottom: '0.5rem' }}>Location</p>
@@ -83,6 +128,15 @@ export default function ContactPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Interactive Curved Loop Banner */}
+      <CurvedLoop 
+        marqueeText="Say Hello ✦ Start Your Journey Today ✦ Get In Touch ✦"
+        speed={1.5}
+        curveAmount={150}
+        direction="right"
+        style={{ marginTop: '2rem', marginBottom: '3rem' }}
+      />
     </motion.div>
   )
 }

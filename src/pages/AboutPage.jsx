@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import ParrotWidget from '../components/ParrotWidget'
 import BorderGlow from '../components/BorderGlow'
+import CurvedLoop from '../components/CurvedLoop'
+import ScrollFloat from '../components/ScrollFloat';
 
 
 const itemVariants = {
@@ -20,9 +21,9 @@ export default function AboutPage() {
       <section className="pad" style={{ minHeight: '85vh', display: 'flex', alignItems: 'center', position: 'relative' }}>
         <div className="container">
           <motion.div variants={itemVariants} className="sec-label">Who we are</motion.div>
-          <motion.h1 variants={itemVariants} className="sec-title" style={{ fontSize: 'clamp(3.5rem, 9vw, 6.5rem)', maxWidth: '15ch' }}>
+          <ScrollFloat className="sec-title" tag="h1" style={{ fontSize: 'clamp(3.5rem, 9vw, 6.5rem)', maxWidth: '15ch' }}>
             Squawking the <span className="shiny-colour">Future</span> into existence
-          </motion.h1>
+          </ScrollFloat>
           <motion.p variants={itemVariants} style={{ maxWidth: 600, fontSize: '1.1rem', color: 'rgba(255,255,255,0.5)', marginTop: '2.5rem', lineHeight: 1.8 }}>
             Colour Parrot is Calicut's premier creative laboratory. We don't just advertise; we craft cosmic identities that resonate across every digital and physical dimension.
           </motion.p>
@@ -34,10 +35,12 @@ export default function AboutPage() {
 
       {/* Story */}
       <section className="pad" style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '5rem', alignItems: 'center' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '5rem', alignItems: 'center' }}>
           <motion.div variants={itemVariants}>
             <div className="sec-label c">Our Genesis</div>
-            <h2 className="sec-title">Intelligence & <span className="g">Beauty</span></h2>
+            <ScrollFloat className="sec-title" tag="h2">
+              Intelligence & <span className="g">Beauty</span>
+            </ScrollFloat>
             <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '1.8rem' }}>
               Our journey began with a simple idea: to bring the same intelligence and vibrancy found in the parrot into the world of branding. We combine technical precision with artistic soul.
             </p>
@@ -67,12 +70,14 @@ export default function AboutPage() {
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: 800, margin: '0 auto' }}>
             <motion.div variants={itemVariants} className="sec-label p" style={{ justifyContent: 'center' }}>Our Process</motion.div>
-            <motion.h2 variants={itemVariants} className="sec-title">Built for <span className="p">Impact</span></motion.h2>
+            <ScrollFloat className="sec-title" tag="h2">
+              Built for <span className="p">Impact</span>
+            </ScrollFloat>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginTop: '4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '2rem', marginTop: '4rem' }}>
             {[
-              { t: 'Strategy', d: 'Deep-dive analysis of your market orbit.' },
+              { t: 'Strategy', d: 'Deep-dive analysis of your market landscape.' },
               { t: 'Creation', d: 'Atomic-level design and content production.' },
               { t: 'Launch',   d: 'Global delivery across all channels.' }
             ].map((step, i) => (
@@ -95,7 +100,14 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <ParrotWidget />
+      {/* Interactive Curved Loop Banner */}
+      <CurvedLoop 
+        marqueeText="Squawking the Future Today ✦ Creative Agency ✦ Colour Parrot ✦"
+        speed={1.5}
+        curveAmount={160}
+        direction="left"
+        style={{ marginTop: '5rem', marginBottom: '2rem' }}
+      />
     </motion.div>
   )
 }

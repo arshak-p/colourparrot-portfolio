@@ -57,7 +57,7 @@ export default function NotFoundPage() {
       </p>
 
       <StarBorderBtn href="/" color="var(--purple)">
-        Return to Orbit
+        Return Home
       </StarBorderBtn>
     </div>
   )

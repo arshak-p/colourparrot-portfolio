@@ -1,0 +1,148 @@
+/* HeroExperiment.css */
+
+/* Wrap all resets to avoid breaking the rest of the app */
+.hero-experiment-wrapper {
+  font-family: 'Inter', sans-serif;
+  background: #010101;
+  color: #fff;
+  position: relative;
+  z-index: 100; /* Overlap global background effects */
+  overflow-x: hidden;
+}
+
+.hero-experiment-wrapper * {
+  box-sizing: border-box;
+}
+
+.hero-experiment-wrapper .fixed { position: fixed; }
+.hero-experiment-wrapper .absolute { position: absolute; }
+.hero-experiment-wrapper .relative { position: relative; }
+.hero-experiment-wrapper .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+
+/* Scroll Video */
+.hero-experiment-wrapper #scroll-video-container {
+  position: fixed; inset: 0; z-index: -10;
+  background: #0a0a0a; top: -20%;
+}
+.hero-experiment-wrapper #scroll-video-container canvas,
+.hero-experiment-wrapper #scroll-video-container video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+.hero-experiment-wrapper #scroll-video-container .overlay { 
+  position: absolute; inset: 0; background: rgba(0,0,0,0.2); 
+}
+
+/* Particles */
+.hero-experiment-wrapper #particles-canvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 3;
+}
+
+/* Nav */
+.hero-experiment-wrapper .experiment-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 2.5rem;
+}
+.hero-experiment-wrapper .experiment-nav .logo { font-weight: 700; font-size: 1.25rem; color: #fff; letter-spacing: -0.025em; }
+.hero-experiment-wrapper .experiment-nav .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+.hero-experiment-wrapper .experiment-nav .nav-links a { font-size: 0.875rem; color: #d1d5db; text-decoration: none; transition: color 0.2s; }
+.hero-experiment-wrapper .experiment-nav .nav-links a:hover { color: #fff; }
+.hero-experiment-wrapper .experiment-nav .social { display: flex; align-items: center; gap: 1rem; }
+.hero-experiment-wrapper .experiment-nav .social a { color: #d1d5db; transition: color 0.2s; }
+.hero-experiment-wrapper .experiment-nav .social a:hover { color: #fff; }
+.hero-experiment-wrapper .experiment-nav .social svg { width: 1.25rem; height: 1.25rem; }
+
+/* Hero */
+.hero-experiment-wrapper #hero {
+  position: relative; height: 100vh; width: 100%; display: flex; flex-direction: column;
+}
+.hero-experiment-wrapper #hero .gradient-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent, transparent);
+}
+.hero-experiment-wrapper #hero .content {
+  position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end; text-align: center;
+  padding: 0 1.5rem 6rem;
+}
+.hero-experiment-wrapper #hero .subtitle { font-size: 0.875rem; color: #9ca3af; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.hero-experiment-wrapper #hero h1 { font-size: clamp(1.5rem, 5vw, 3.75rem); font-weight: 600; line-height: 1.15; max-width: 48rem; margin: 0; }
+.hero-experiment-wrapper #hero h1 .underlined {
+  position: relative; display: inline-block;
+}
+.hero-experiment-wrapper #hero h1 .underlined .line {
+  position: absolute; bottom: 0.25rem; left: 0; width: 100%; height: 10px;
+  background: #2C5C88; border-radius: 2px;
+}
+.hero-experiment-wrapper #hero h1 .underlined span { position: relative; }
+.hero-experiment-wrapper #hero .ctas {
+  display: flex; align-items: center; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center;
+}
+.hero-experiment-wrapper #hero .code-box {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: #1a1a1a; border: 1px solid rgba(55,65,81,0.5);
+  border-radius: 0.5rem; padding: 0.875rem 2rem;
+}
+.hero-experiment-wrapper #hero .code-box .prompt { color: #2C5C88; font-family: monospace; font-size: 0.875rem; }
+.hero-experiment-wrapper #hero .code-box code { font-size: 0.875rem; color: #e5e7eb; font-family: monospace; }
+.hero-experiment-wrapper #hero .cta-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: #2C5C88; color: #fff; font-weight: 500; border-radius: 0.5rem;
+  padding: 0.875rem 2rem; font-size: 0.875rem; text-decoration: none; transition: background 0.2s;
+}
+.hero-experiment-wrapper #hero .cta-btn:hover { background: #3a7aad; }
+.hero-experiment-wrapper #hero .bounce-arrow {
+  position: relative; z-index: 10; display: flex; justify-content: center; padding-bottom: 2rem;
+}
+.hero-experiment-wrapper #hero .bounce-arrow svg { width: 1.5rem; height: 1.5rem; color: #6b7280; animation: bounce 1s infinite; }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-25%); }
+}
+
+/* Cards */
+.hero-experiment-wrapper #fixed-cards {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 4;
+  padding: 2rem 2.5rem; opacity: 0; pointer-events: none;
+}
+.hero-experiment-wrapper #fixed-cards .grid {
+  max-width: 72rem; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem;
+}
+.hero-experiment-wrapper #fixed-cards .card {
+  background: transparent;
+}
+.hero-experiment-wrapper #fixed-cards .card h3 { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem; }
+.hero-experiment-wrapper #fixed-cards .card p { color: #d1d5db; font-size: 0.875rem; line-height: 1.6; margin: 0; }
+
+/* Section 3 */
+.hero-experiment-wrapper #section-three {
+  position: relative; min-height: 100vh; display: flex; align-items: flex-end;
+  justify-content: center; padding: 0 2.5rem 8rem;
+}
+.hero-experiment-wrapper #section-three .inner {
+  position: relative; z-index: 10; display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  opacity: 0; transform: translateY(32px); filter: blur(8px);
+  transition: opacity 1s ease-out, transform 1s ease-out, filter 1s ease-out;
+}
+.hero-experiment-wrapper #section-three .inner.visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+.hero-experiment-wrapper #section-three .inner p { color: #d1d5db; font-size: 1rem; margin-bottom: 0.75rem; }
+.hero-experiment-wrapper #section-three .inner h2 { font-size: clamp(1.875rem, 6vw, 4.5rem); font-weight: 700; margin: 0; }
+
+/* Content wrapper */
+.hero-experiment-wrapper #content { position: relative; z-index: 2; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-experiment-wrapper .experiment-nav { padding: 1rem 1.5rem; }
+  .hero-experiment-wrapper .experiment-nav .nav-links { display: none; }
+  .hero-experiment-wrapper #hero .content { padding-bottom: 5rem; }
+  .hero-experiment-wrapper #hero h1 { font-size: 1.5rem; }
+  .hero-experiment-wrapper #hero .ctas { flex-direction: column; }
+  .hero-experiment-wrapper #fixed-cards .grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .hero-experiment-wrapper #fixed-cards { padding: 1.5rem 1rem; }
+  .hero-experiment-wrapper #section-three { padding-bottom: 5rem; }
+}

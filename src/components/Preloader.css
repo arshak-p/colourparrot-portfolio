@@ -30,7 +30,7 @@
 
 /* Custom styling for the GradientText in the preloader */
 .pre-brand-text {
-  font-family: 'ClashGrotesk', sans-serif !important;
+  font-family: 'Clash Grotesk', sans-serif !important;
   font-size: clamp(2.5rem, 10vw, 8rem);
   font-weight: 800;
   letter-spacing: -0.05em;

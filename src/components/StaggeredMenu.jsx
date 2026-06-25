@@ -1,9 +1,9 @@
 import { useCallback, useLayoutEffect, useRef, useState, memo } from 'react'
 import { gsap } from 'gsap'
-import { Link } from 'react-router-dom'
-import logo from '../assets/logo.png'
+import { Link, useLocation } from 'react-router-dom'
+import { InstagramIcon, BehanceIcon, FacebookIcon, LinkedInIcon } from './SocialIcons'
+import logo from '../assets/logo.webp'
 import './StaggeredMenu.css'
-
 const StaggeredMenu = memo(function StaggeredMenu({
   position = 'right',
   colors   = ['#0ae469', '#021f14'],
@@ -191,6 +191,47 @@ const StaggeredMenu = memo(function StaggeredMenu({
     playClose()
   }, [animateText, animateIcon, animateColor, playClose, onMenuClose])
 
+  const closeMenuInstantly = useCallback(() => {
+    if (!openRef.current) return
+    openRef.current = false
+    setOpen(false)
+
+    // Kill any active GSAP animations on menu elements
+    openTlRef.current?.kill()
+    openTlRef.current = null
+    closeTwRef.current?.kill()
+    closeTwRef.current = null
+    spinTwRef.current?.kill()
+    spinTwRef.current = null
+    textAnimRef.current?.kill()
+    textAnimRef.current = null
+    colorTwRef.current?.kill()
+    colorTwRef.current = null
+
+    // Reset styles immediately without animating
+    const panel = panelRef.current
+    const layers = prelayerElsRef.current
+    if (panel) {
+      const offX = position === 'left' ? -100 : 100
+      gsap.set([panel, ...layers], { xPercent: offX })
+      const ils = [...panel.querySelectorAll('.sm-panel-itemLabel')]
+      if (ils.length) gsap.set(ils, { yPercent: 140, rotate: 10 })
+      const st = panel.querySelector('.sm-socials-title')
+      const sl = [...panel.querySelectorAll('.sm-socials-link')]
+      if (st) gsap.set(st, { opacity: 0 })
+      if (sl.length) gsap.set(sl, { y: 25, opacity: 0 })
+    }
+
+    // Reset toggle icon & text immediately
+    if (iconRef.current) gsap.set(iconRef.current, { rotate: 0 })
+    if (iconHRef.current) gsap.set(iconHRef.current, { rotate: 0 })
+    if (iconVRef.current) gsap.set(iconVRef.current, { rotate: 90 })
+    if (textInnerRef.current) gsap.set(textInnerRef.current, { yPercent: 0 })
+    setTextLines(['Menu'])
+
+    onMenuClose?.()
+  }, [position, onMenuClose])
+
   /* ── click away ── */
   useLayoutEffect(() => {
     if (!closeOnClickAway || !open) return
@@ -207,6 +248,7 @@ const StaggeredMenu = memo(function StaggeredMenu({
     }
   }, [closeOnClickAway, open, closeMenu])
 
+
   /* ── prelayer colors ── */
   const prelayerColors = (() => {
     const raw = colors.slice(0, 4)
@@ -215,43 +257,49 @@ const StaggeredMenu = memo(function StaggeredMenu({
     return arr
   })()
 
-  return (
-    <div
-      className="sm-wrapper"
-      style={{ '--sm-accent': accentColor }}
-      data-position={position}
-      data-open={open || undefined}
-    >
-      {/* Prelayers */}
-      <div ref={prelayersRef} className="sm-prelayers" aria-hidden="true">
-        {prelayerColors.map((c, i) => (
-          <div key={i} className="sm-prelayer" style={{ background: c }} />
-        ))}
-      </div>
+    const location = useLocation();
 
-      {/* Panel */}
-      <aside ref={panelRef} id="sm-panel" className="sm-panel" aria-hidden={!open}>
-        <div className="sm-panel-inner" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <ul
-            className="sm-panel-list"
-            role="list"
-            {...(displayItemNumbering ? { 'data-numbering': true } : {})}
-            style={{ marginBottom: 'auto' }}
-          >
-            {items.map((item, idx) => (
-              <li key={idx} className="sm-panel-itemWrap">
-                <Link
-                  className={`sm-panel-item ${item.isPanic ? 'sm-panic-item' : ''}`}
-                  to={item.link}
-                  aria-label={item.ariaLabel}
-                  onClick={closeMenu}
-                  style={item.isPanic ? { '--sm-accent': '#ff4444' } : {}}
-                >
-                  <span className="sm-panel-itemLabel">{item.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+    return (
+      <div
+        className="sm-wrapper"
+        style={{ '--sm-accent': accentColor }}
+        data-position={position}
+        data-open={open || undefined}
+      >
+        {/* Prelayers */}
+        <div ref={prelayersRef} className="sm-prelayers" aria-hidden="true">
+          {prelayerColors.map((c, i) => (
+            <div key={i} className="sm-prelayer" style={{ background: c }} />
+          ))}
+        </div>
+
+        {/* Panel */}
+        <aside ref={panelRef} id="sm-panel" className="sm-panel" aria-hidden={!open}>
+          <div className="sm-panel-inner" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <ul
+              className="sm-panel-list"
+              role="list"
+              {...(displayItemNumbering ? { 'data-numbering': true } : {})}
+              style={{ marginBottom: 'auto' }}
+            >
+              {items.map((item, idx) => {
+                const isActive = location.pathname === item.link || 
+                                 (item.link !== '/' && location.pathname.startsWith(item.link));
+                return (
+                  <li key={idx} className="sm-panel-itemWrap">
+                    <Link
+                      className={`sm-panel-item ${item.isPanic ? 'sm-panic-item' : ''} ${isActive ? 'is-active' : ''}`}
+                      to={item.link}
+                      aria-label={item.ariaLabel}
+                      onClick={closeMenu}
+                      style={item.isPanic ? { '--sm-accent': '#ff4444' } : {}}
+                    >
+                      <span className="sm-panel-itemLabel" style={{ transition: 'color 0.3s ease' }}>{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
           {displaySocials && socialItems.length > 0 && (
             <div className="sm-socials" aria-label="Social links">
@@ -261,16 +309,16 @@ const StaggeredMenu = memo(function StaggeredMenu({
                   <li key={i}>
                     <a href={s.link} target="_blank" rel="noopener noreferrer" className="sm-socials-link" aria-label={s.label}>
                       {s.icon === 'instagram' && (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        <InstagramIcon width="20" height="20" />
                       )}
                       {s.icon === 'behance' && (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12h-4"></path><path d="M9 16h-4"></path><path d="M5 8h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M5 12h4a2 2 0 1 1 0 4h-4v-4z"></path><path d="M13 12h7"></path><path d="M20 12c0-3-2-5-5-5s-5 2-5 5 2 5 5 5 5-2 5-5z"></path></svg>
+                        <BehanceIcon width="20" height="20" />
                       )}
                       {s.icon === 'facebook' && (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                        <FacebookIcon width="20" height="20" />
                       )}
                       {s.icon === 'linkedin' && (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                        <LinkedInIcon width="20" height="20" />
                       )}
                     </a>
                   </li>
