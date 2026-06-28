@@ -107,7 +107,7 @@ function HeroSection() {
   }
 
   return (
-    <section id="hero" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+    <section id="hero" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
       <style>{`
         @media (max-width: 768px) {
           #hero h1 { font-size: clamp(2.5rem, 12vw, 4rem) !important; line-height: 1.05 !important; }
@@ -203,7 +203,7 @@ function AboutSection() {
   }, [])
 
   return (
-    <section id="about" className="pad" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+    <section id="about" className="pad" style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
 
       <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(3rem, 6vw, 7rem)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div>
@@ -268,7 +268,7 @@ function ServicesSection() {
     <section
       id="services"
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
@@ -359,7 +359,7 @@ function ProjectsSection() {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
-      height: '100vh',
+      height: '100dvh',
       padding: 0,
       boxSizing: 'border-box'
     }}>
@@ -388,7 +388,7 @@ function ProjectsSection() {
 
       {/* Rows wrapper — gap: 4vh */}
       <div className="proj-rows-wrapper" style={{ 
-        height: '100vh',
+        height: '100dvh',
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'center',
@@ -1258,7 +1258,7 @@ function ContactSection() {
     })
   }, [])
   return (
-    <section id="contact" className="pad" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+    <section id="contact" className="pad" style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
       <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(3rem, 6vw, 6rem)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div>
           <p className="sec-label">Get in touch</p>
