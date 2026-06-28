@@ -13,10 +13,9 @@ export default function Preloader({ onComplete }) {
     const ctx = gsap.context(() => {
       const master = gsap.timeline({
         onComplete: () => {
-          // Exit animation
-          gsap.to('.preloader-inner', { y: -30, opacity: 0, duration: 0.4, ease: 'power2.in' })
-          gsap.to('.pre-curtain-top', { yPercent: -100, duration: 0.7, ease: 'power4.inOut', delay: 0.2 })
-          gsap.to('.pre-curtain-bottom', { yPercent: 100, duration: 0.7, ease: 'power4.inOut', delay: 0.2, onComplete: () => {
+          // Exit animation: Split the curtains (which contain the text halves)
+          gsap.to('.pre-curtain-top', { yPercent: -100, duration: 0.8, ease: 'power4.inOut' })
+          gsap.to('.pre-curtain-bottom', { yPercent: 100, duration: 0.8, ease: 'power4.inOut', onComplete: () => {
             document.body.style.overflow = ''
             onCompleteCb()
           }})
@@ -40,19 +39,38 @@ export default function Preloader({ onComplete }) {
 
   return (
     <div ref={wrapRef} className="preloader">
-      <div className="pre-curtain pre-curtain-top" />
-      <div className="pre-curtain pre-curtain-bottom" />
+      {/* Top Half */}
+      <div className="pre-curtain pre-curtain-top">
+        <div className="pre-content-wrapper pre-content-top">
+          <div className="preloader-inner">
+            <GradientText
+              colors={['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#8b00ff']}
+              animationSpeed={1.5}
+              showBorder={false}
+              className="pre-brand-text"
+              yoyo={false}
+            >
+              COLOUR PARROT
+            </GradientText>
+          </div>
+        </div>
+      </div>
 
-      <div className="preloader-inner">
-        <GradientText
-          colors={['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#8b00ff']}
-          animationSpeed={1.5}
-          showBorder={false}
-          className="pre-brand-text"
-          yoyo={false}
-        >
-          COLOUR PARROT
-        </GradientText>
+      {/* Bottom Half */}
+      <div className="pre-curtain pre-curtain-bottom">
+        <div className="pre-content-wrapper pre-content-bottom">
+          <div className="preloader-inner">
+            <GradientText
+              colors={['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#8b00ff']}
+              animationSpeed={1.5}
+              showBorder={false}
+              className="pre-brand-text"
+              yoyo={false}
+            >
+              COLOUR PARROT
+            </GradientText>
+          </div>
+        </div>
       </div>
     </div>
   )
