@@ -27,6 +27,11 @@ const SmoothScroll = memo(function SmoothScroll() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    window.scrollTo(0, 0)
+
     // Instantiate Lenis inside useEffect to make sure DOM is loaded
     lenis = new Lenis({
       lerp: 0.1,           // Snappier response
