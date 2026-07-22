@@ -41,16 +41,16 @@ export const marqueeItems1 = [
 ]
 
 export const marqueeItems2 = [
-  'Restaurants', 'Fashion & Apparel', 'Tech & AI',
-  'Event Management', 'Retail & E-commerce',
-  'Logistics', 'Hospitality', 'Real Estate',
+  'LOGISTICS', 'HOSPITALITY', 'REAL ESTATE', 
+  'FOOD & BEVERAGE', 'FASHION & APPAREL', 'TECHNOLOGY & AI', 
+  'EVENT MANAGEMENT', 'RETAIL & E-COMMERCE'
 ]
 
 export const services = [
   { slug: 'brand-identity',       name: 'Brand Identity',       desc: 'Logo systems, typography, colour palettes, brand guidelines — built to last across every touchpoint.',               pill: 'Strategy + Design',   accent: 'var(--green)',  image: brandingItems[0].image, images: [brandingItems[0].image, brandingItems[1].image, brandingItems[2].image] },
   { slug: 'video-production',     name: 'Video Production',     desc: 'Ad films, brand reels, motion graphics and storytelling content — from script to final frame.',                       pill: 'Motion + Story',      accent: 'var(--cyan)',   image: '/video_production_new.png' },
   { slug: 'digital-marketing',    name: 'Digital Marketing',    desc: 'Social campaigns, digital ads, performance creatives and full-funnel strategies that convert.',                        pill: 'Reach + Convert',     accent: 'var(--purple)', image: '/digital_marketing_new.png' },
-  { slug: 'web-design',           name: 'Web & UI Design',      desc: 'Websites, UI/UX concepts and app interfaces as beautiful as they are functional.',                                   pill: 'Digital Experience',  accent: 'var(--yellow)', image: '/web_design_new.png' },
+  { slug: 'web-design',           name: 'Web & UI/UX Design',   desc: 'Websites, UI/UX concepts and app interfaces as beautiful as they are functional.',                                   pill: 'Digital Experience',  accent: 'var(--yellow)', image: '/web_design_new.png' },
   { slug: 'content-creation',     name: 'Content Creation',     desc: 'Copywriting, social media content, and digital storytelling that resonates with your audience.',                      pill: 'Narrative + Impact',  accent: 'var(--red)',    image: '/content_creation_new.png' },
   { slug: 'creative-advertising', name: 'Creative Advertising', desc: 'Concept-driven campaigns and advertising narratives built on brand strategy and human insight.',                       pill: 'Ideas + Execution',   accent: 'var(--green)',  image: creativesList[0].image, images: [creativesList[0].image, creativesList[1].image, creativesList[2].image] },
 ]
@@ -67,7 +67,6 @@ export const workItems = [
 
 
 export const industries = [
-  'Restaurants & Cafés', 'Fashion & Apparel', 'Technology & AI',
-  'Event Management', 'Retail & E-commerce', 'Logistics & Cargo',
-  'Healthcare', 'Real Estate', 'Hospitality', 'Education',
+  'Logistics', 'Hospitality', 'Real Estate', 'Food & Beverage',
+  'Fashion & Apparel', 'Technology & AI', 'Event Management', 'Retail & E-commerce'
 ]

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Static Routes -->
+  <url><loc>https://colourparrot.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://colourparrot.com/about</loc><priority>0.8</priority></url>
+  <url><loc>https://colourparrot.com/services</loc><priority>0.8</priority></url>
+  <url><loc>https://colourparrot.com/projects</loc><priority>0.8</priority></url>
+  <url><loc>https://colourparrot.com/video-archive</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/contact</loc><priority>0.8</priority></url>
+  <url><loc>https://colourparrot.com/blog</loc><priority>0.7</priority></url>
+
+  <!-- Service Routes -->
+  <url><loc>https://colourparrot.com/services/brand-identity</loc><priority>0.9</priority></url>
+  <url><loc>https://colourparrot.com/services/video-production</loc><priority>0.9</priority></url>
+  <url><loc>https://colourparrot.com/services/digital-marketing</loc><priority>0.9</priority></url>
+  <url><loc>https://colourparrot.com/services/web-design</loc><priority>0.9</priority></url>
+  <url><loc>https://colourparrot.com/services/content-creation</loc><priority>0.9</priority></url>
+  <url><loc>https://colourparrot.com/services/creative-advertising</loc><priority>0.9</priority></url>
+
+  <!-- Branding Projects -->
+  <url><loc>https://colourparrot.com/brand/aidenx</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/alfawz</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/aptitude</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/astron</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/dessert-kitchen</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/fobas</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/freshifi</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/healthicart</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/jadwa</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/liara</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/nuvana</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/sapphire</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/taiwo-fx</loc><priority>0.7</priority></url>
+  <url><loc>https://colourparrot.com/brand/topnotch</loc><priority>0.7</priority></url>
+</urlset>

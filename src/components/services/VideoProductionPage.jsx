@@ -66,6 +66,18 @@ const gridItems = allHeroVideos.slice(0, 28).map((vid, i) => (
 
 export default function VideoProductionPage({ service }) {
   const sectionRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (window.location.hash) {
+      setTimeout(() => {
+        const id = window.location.hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500); // Wait for the page to render and Lenis to initialize
+    }
+  }, []);
   
   useGSAP(() => {
     gsap.from('.vid-reel', {

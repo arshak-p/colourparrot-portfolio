@@ -16,9 +16,10 @@ const Footer = memo(function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.left}>
-        <p className={styles.copyright}>
-          © 2025 Colour Parrot Branding &amp; Advertising · Kozhikode, Kerala
-        </p>
+        <div className={styles.copyright} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', alignItems: 'flex-start' }}>
+          <span>© 2025 Colour Parrot Branding &amp; Advertising · Kozhikode, Kerala</span>
+          <span>Designed by <a href="https://www.linkedin.com/in/arshak-p" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'var(--cyan)', fontWeight: '500' }}>Arshak - P</a></span>
+        </div>
         <div className={styles.socialRow}>
           {socialItems.map((s, i) => (
             <a

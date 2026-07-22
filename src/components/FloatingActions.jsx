@@ -42,7 +42,7 @@ export default function FloatingActions() {
     <div className="floating-actions">
       {/* WhatsApp Button */}
       <a 
-        href="https://wa.me/919400890105" 
+        href="https://wa.me/919633865774" 
         target="_blank" 
         rel="noopener noreferrer" 
         className="float-btn whatsapp-btn"

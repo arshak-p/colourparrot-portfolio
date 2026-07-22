@@ -35,7 +35,7 @@ const SmoothScroll = memo(function SmoothScroll() {
     // Instantiate Lenis inside useEffect to make sure DOM is loaded
     lenis = new Lenis({
       lerp: 0.1,           // Snappier response
-      wheelMultiplier: 0.6, // Scroll speed
+      wheelMultiplier: 1,  // Normal scroll speed
       smoothWheel: true,   // Enable for mouse wheel
       smoothTouch: false,  // Disable for mobile (use native momentum touch)
       infinite: false,

@@ -31,6 +31,55 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches
 
+  useEffect(() => {
+    let title = 'Colour Parrot | Branding, Motion & Digital Agency in Kozhikode';
+    let desc = 'Colour Parrot is a full-service creative agency helping businesses build brands that are clear, consistent, and unforgettable.';
+    
+    switch (true) {
+      case pathname === '/':
+        title = 'Colour Parrot | Brand Strategy & Digital Marketing Agency';
+        break;
+      case pathname === '/about':
+        title = 'About Us | Colour Parrot';
+        desc = 'Learn about our creative team, our approach to branding, and how we deliver stunning digital experiences.';
+        break;
+      case pathname === '/services':
+        title = 'Our Services | Colour Parrot';
+        desc = 'Explore our end-to-end creative solutions including brand identity, video production, web design, and digital marketing.';
+        break;
+      case pathname.startsWith('/services/'):
+        const serviceName = pathname.split('/')[2];
+        title = `${serviceName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} Services | Colour Parrot`;
+        desc = `Professional ${serviceName.replace(/-/g, ' ')} solutions to elevate your business.`;
+        break;
+      case pathname === '/projects':
+        title = 'Our Work & Case Studies | Colour Parrot';
+        desc = 'Browse our portfolio of brand identities, video campaigns, and digital marketing success stories.';
+        break;
+      case pathname.startsWith('/brand/'):
+        const brandName = pathname.split('/')[2];
+        title = `${brandName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} Branding Case Study | Colour Parrot`;
+        desc = `Discover how we transformed ${brandName.replace(/-/g, ' ')} through strategic design and creative execution.`;
+        break;
+      case pathname === '/video-archive':
+        title = 'Video Archive | Colour Parrot';
+        desc = 'Watch our collection of motion graphics, cinematic ads, and brand films.';
+        break;
+      case pathname === '/blog':
+        title = 'Insights & Blog | Colour Parrot';
+        desc = 'Read the latest thoughts on branding, marketing trends, and creative strategies from our experts.';
+        break;
+      case pathname === '/contact':
+        title = 'Contact Us | Colour Parrot';
+        desc = 'Ready to start a project? Get in touch with Colour Parrot today.';
+        break;
+    }
+
+    document.title = title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.content = desc;
+  }, [pathname]);
+
   const handlePreloaderComplete = () => {
     setLoading(false)
     // Delay slightly to let body style update and DOM settle before calculations
@@ -78,8 +127,12 @@ export default function App() {
             <Route path="/video-archive" element={<VideoArchivePage />} />
             <Route path="/contact"  element={<ContactPage />} />
             <Route path="/blog"     element={<BlogPage />} />
-            <Route path="/experiment" element={<HeroExperiment />} />
-            <Route path="/brand-hero-drop" element={<BrandingHeroDrop />} />
+            {import.meta.env.DEV && (
+              <>
+                <Route path="/experiment" element={<HeroExperiment />} />
+                <Route path="/brand-hero-drop" element={<BrandingHeroDrop />} />
+              </>
+            )}
             <Route path="*"         element={<NotFoundPage />} />
           </Routes>
         </Suspense>

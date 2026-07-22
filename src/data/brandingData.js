@@ -192,7 +192,7 @@ export const brandingItems = [
     ],
     "slug": "healthicart",
     "link": "/brand/healthicart",
-    "title": "HEALTHICART",
+    "title": "HEALTHYCART",
     "description": "Brand identity and design guidelines."
   },
   {

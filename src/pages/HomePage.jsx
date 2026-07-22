@@ -36,6 +36,8 @@ import ParallaxStrip from '../components/ParallaxStrip'
 import FlowingMenu from '../components/FlowingMenu'
 import ScrollFloat from '../components/ScrollFloat';
 import PixelCard from '../components/PixelCard';
+import CurvedLoop from '../components/CurvedLoop'
+import { TestimonialsCard } from '../components/TestimonialsCard';
 
 import { 
   services, 
@@ -120,16 +122,16 @@ function HeroSection() {
         
         <h1 style={{ fontSize: 'clamp(3rem, 8.5vw, 6.8rem)', fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 0.95, marginBottom: '2rem', textTransform: 'none' }}>
           <span style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
-            <span className="hero-word g" style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: '0.22em' }}>Where</span>
+            <span className="hero-word g" style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: '0.22em' }}>Building</span>
             <span className="hero-word" style={{ display: 'inline-block', transform: 'translateY(110%)' }}>Brands</span>
           </span>
           <span style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
-            <span className="hero-word c" style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: '0.22em' }}>Go</span>
-            <span className="hero-word p" style={{ display: 'inline-block', transform: 'translateY(110%)' }}>Beyond</span>
+            <span className="hero-word c" style={{ display: 'inline-block', transform: 'translateY(110%)', marginRight: '0.22em' }}>That</span>
+            <span className="hero-word p" style={{ display: 'inline-block', transform: 'translateY(110%)' }}>Shape</span>
           </span>
           <span style={{ overflow: 'hidden', display: 'block', paddingBottom: '0.08em' }}>
             <RotatingText
-              texts={['Gravity', 'Limits', 'Expectations', 'Boundaries', 'The Ordinary']}
+              texts={['Markets', 'Culture', 'Experiences', 'Perception', 'The Future']}
               mainClassName="hero-word y hero-rotate-text"
               staggerFrom="first"
               initial={{ y: "100%", opacity: 0 }}
@@ -151,11 +153,11 @@ function HeroSection() {
         </p>
         
         <p className="hero-sub" style={{ maxWidth: 520, fontSize: '1.05rem', lineHeight: 1.8, color: 'rgba(242,242,242,0.45)', fontWeight: 400, opacity: 0, transform: 'translateY(12px)', marginBottom: '3rem' }}>
-          Colour Parrot is a full-spectrum creative agency — branding, motion, production, digital — elevating brands to the next level from Calicut.
+          We combine strategy, creativity, and digital innovation to build brands that stand out and drive meaningful growth.
         </p>
         
         <div className="hero-btns" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: 0, transform: 'translateY(12px)', alignItems: 'center' }}>
-          <StarBorderBtn onClick={() => scrollTo('#projects')}>Explore Work</StarBorderBtn>
+          <StarBorderBtn href="/contact" className="highlight-cta">Start a Project</StarBorderBtn>
           <StarBorderBtn onClick={() => scrollTo('#services')}>Our Services</StarBorderBtn>
         </div>
       </div>
@@ -164,20 +166,25 @@ function HeroSection() {
       <div className="hero-badges" style={{ position: 'absolute', right: '5%', top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: '0.8rem', opacity: 0 }}>
         <style>{`
           @media (max-width: 1024px) { .hero-badges { display: none !important; } }
+          .hero-badge-link:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.05) !important;
+          }
         `}</style>
         {[
-          { label: 'Brand Identity',   color: 'var(--green)',  bc: 'rgba(10,228,105,0.2)'  },
-          { label: 'Motion Graphics',  color: 'var(--cyan)',   bc: 'rgba(40,193,229,0.2)'  },
-          { label: 'Digital Marketing',color: 'var(--purple)', bc: 'rgba(122,67,255,0.2)'  },
-          { label: 'Video Production', color: 'var(--yellow)', bc: 'rgba(249,204,61,0.2)'  },
+          { label: 'Brand Identity',   color: 'var(--green)',  bc: 'rgba(10,228,105,0.2)', link: '/services/brand-identity' },
+          { label: 'Motion Graphics',  color: 'var(--cyan)',   bc: 'rgba(40,193,229,0.2)', link: '/services/video-production#section-motion' },
+          { label: 'Digital Marketing',color: 'var(--purple)', bc: 'rgba(122,67,255,0.2)', link: '/services/digital-marketing' },
+          { label: 'Video Production', color: 'var(--yellow)', bc: 'rgba(249,204,61,0.2)', link: '/services/video-production' },
         ].map((b) => (
-          <div key={b.label} style={{ 
+          <Link to={b.link} key={b.label} className="hero-badge-link" style={{ 
             padding: '0.5rem 1.1rem', fontSize: '0.5rem', letterSpacing: '0.12em', textTransform: 'uppercase', 
             fontWeight: 500, color: b.color, borderRadius: '100px', border: `1px solid ${b.bc}`,
-            background: 'rgba(2,23,30,0.4)', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease'
+            background: 'rgba(2,23,30,0.4)', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease',
+            textDecoration: 'none', display: 'block', textAlign: 'center'
           }}>
             {b.label}
-          </div>
+          </Link>
         ))}
       </div>
     </section>
@@ -187,9 +194,9 @@ function HeroSection() {
 function AboutSection() {
   const cardsRef = useRef(null)
   const cards = [
-    { n: '50+',  l: 'Projects Launched',     col: 'var(--green)',  bg: 'rgba(10,228,105,0.06)',   bd: 'rgba(10,228,105,0.18)',  span: 1 },
+    { n: '50+',  l: 'Projects Delivered',     col: 'var(--green)',  bg: 'rgba(10,228,105,0.06)',   bd: 'rgba(10,228,105,0.18)',  span: 1 },
     { n: '6+',   l: 'Industries Served',      col: 'var(--cyan)',   bg: 'rgba(40,193,229,0.06)',   bd: 'rgba(40,193,229,0.18)',  span: 1 },
-    { n: '360°', l: 'Full Spectrum Creative — Brand · Motion · Web · Production', col: 'var(--purple)', bg: 'rgba(122,67,255,0.06)', bd: 'rgba(122,67,255,0.18)', span: 2 },
+    { n: '360°', l: 'Integrated Creative Solutions — Branding · Motion · Web · Production · Digital', col: 'var(--purple)', bg: 'rgba(122,67,255,0.06)', bd: 'rgba(122,67,255,0.18)', span: 2 },
   ]
   useGSAP(() => {
     gsap.fromTo('.acard', { y: 35, opacity: 0 }, {
@@ -209,10 +216,10 @@ function AboutSection() {
         <div>
           <p className="sec-label">About us</p>
           <ScrollFloat className="sec-title" tag="h2">
-            A Creative Force<br />From <span className="c">Deep Space</span>
+            Where Strategy Meets<br /><span className="c">Creative Excellence</span>
           </ScrollFloat>
           <p style={{ fontSize: '1.05rem', lineHeight: 1.75, color: 'rgba(242,242,242,0.55)', fontWeight: 400, marginBottom: '1.5rem', maxWidth: 500 }}>
-            Based in Kozhikode, Colour Parrot is a full-service branding and advertising agency that transforms ideas into iconic brand experiences. We live at the intersection of strategy and art — every pixel, frame, and word is intentional.
+            Colour Parrot is a full-service creative agency helping businesses build brands that are clear, consistent, and unforgettable. We combine strategic thinking with bold creativity to create work that delivers real business impact.
           </p>
           <StarBorderBtn onClick={() => lenis ? lenis.scrollTo('#contact') : document.querySelector('#contact')?.scrollIntoView({ behavior: 'auto' })}>Work With Us</StarBorderBtn>
         </div>
@@ -280,7 +287,7 @@ function ServicesSection() {
       <div className="container" style={{ paddingTop: 'clamp(5rem, 9vh, 8rem)', paddingBottom: 'clamp(1.5rem, 3vh, 2.5rem)' }}>
         <p className="sec-label">Our Expertise</p>
         <ScrollFloat className="sec-title" tag="h2" style={{ marginBottom: 0 }}>
-          Our Core <span className="g">Services</span>
+          What We <span className="g">Do</span>
         </ScrollFloat>
       </div>
 
@@ -495,7 +502,7 @@ function PosterSection() {
         end: '+=3000',
         pin: true,
         pinSpacing: true,
-        scrub: 1.5,
+        scrub: 0.5,
         anticipatePin: 1,
         fastScrollEnd: true,
         onEnter: () => setStarfieldPaused(true),
@@ -734,10 +741,10 @@ function IndustriesSection() {
 
         <div className="industries-mobile">
           {[
-            ['Restaurants & Cafés', 'Fashion & Apparel', 'Technology & AI'],
-            ['Event Management', 'Retail & E-commerce', 'Logistics & Cargo'],
-            ['Healthcare', 'Real Estate', 'Hospitality'],
-            ['Education', 'Restaurants & Cafés', 'Fashion & Apparel']
+            ['Logistics', 'Hospitality', 'Real Estate'],
+            ['Food & Beverage', 'Fashion & Apparel', 'Technology & AI'],
+            ['Event Management', 'Retail & E-commerce', 'Logistics'],
+            ['Hospitality', 'Real Estate', 'Food & Beverage']
           ].map((row, rowIndex) => {
             const duplicated = [...row, ...row, ...row, ...row];
             return (
@@ -821,7 +828,7 @@ function ProcessSection() {
     {
       number: '01',
       title: 'Discovery',
-      desc: 'We dive deep into your brand, audience, and goals. Research, strategy, and positioning — everything starts here.',
+      desc: 'We uncover your brand\'s vision, audience, and opportunities to build a strong strategic foundation.',
       color: 'var(--green)',
       bg: 'rgba(10,228,105,0.06)',
       border: 'rgba(10,228,105,0.15)',
@@ -829,7 +836,7 @@ function ProcessSection() {
     {
       number: '02',
       title: 'Strategy',
-      desc: 'We craft a creative blueprint — messaging, visual direction, and campaign architecture built around your objectives.',
+      desc: 'We define the positioning, messaging, and creative direction that align with your business goals.',
       color: 'var(--cyan)',
       bg: 'rgba(40,193,229,0.06)',
       border: 'rgba(40,193,229,0.15)',
@@ -837,7 +844,7 @@ function ProcessSection() {
     {
       number: '03',
       title: 'Creation',
-      desc: 'Design, motion, production — our team brings the strategy to life with precision and creative excellence.',
+      desc: 'Our team transforms strategy into compelling identities, content, campaigns, and digital experiences.',
       color: 'var(--purple)',
       bg: 'rgba(122,67,255,0.06)',
       border: 'rgba(122,67,255,0.15)',
@@ -845,7 +852,7 @@ function ProcessSection() {
     {
       number: '04',
       title: 'Launch',
-      desc: 'We deliver, deploy, and amplify. Your brand goes live and we track performance to keep pushing boundaries.',
+      desc: 'We launch, optimize, and measure every initiative to maximize performance and long-term growth.',
       color: 'var(--yellow)',
       bg: 'rgba(249,204,61,0.06)',
       border: 'rgba(249,204,61,0.15)',
@@ -986,207 +993,66 @@ function ProcessSection() {
 }
 
 function TestimonialsSection() {
-  const ref = useRef(null)
-  const [activeIndex, setActiveIndex] = useState(0)
-
-  useAutoScroll(ref, 4000)
-
-  const handleScroll = () => {
-    if (!ref.current) return;
-    const cardWidth = window.innerWidth;
-    const newIndex = Math.round(ref.current.scrollLeft / cardWidth);
-    setActiveIndex(newIndex);
-  };
-
-  const scrollTo = (index) => {
-    if (!ref.current) return;
-    const cardWidth = window.innerWidth;
-    ref.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
-  };
+  const sectionRef = useRef(null)
+  
+  useGSAP(() => {
+    gsap.from('.testimonial-reveal', {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 85%',
+        once: true,
+        scrub: 0.5,
+      },
+      y: 50,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.2,
+      ease: 'power3.out'
+    })
+  }, { scope: sectionRef })
 
   const testimonials = [
     {
-      quote: 'Working with Colour Parrot has been an absolute delight. They understand our vision without us having to over-explain, and that’s what makes the process so easy. Every idea we share comes back better, sharper, & perfectly in tune with who we are as an institute. Their team is an excellent creative bunch, consistent, thoughtful, and full of fresh ideas.',
-      name: 'Nizam',
-      role: 'Capitus',
-      color: 'var(--green)',
-      border: 'rgba(10,228,105,0.15)',
-      bg: 'rgba(10,228,105,0.04)',
+      id: 1,
+      title: 'Nizam - Capitus',
+      description: 'Working with Colour Parrot has been an absolute delight. They understand our vision without us having to over-explain, and that’s what makes the process so easy. Every idea we share comes back better, sharper, & perfectly in tune with who we are as an institute. Their team is an excellent creative bunch, consistent, thoughtful, and full of fresh ideas.',
+      image: '/logos/capitus.webp',
       initial: 'N',
-      logo: null,
+      color: 'var(--green)'
     },
     {
-      quote: 'Color Parrot is doing a great job in Digital marketing! Their videos and posters are really creative and effective. I’m very happy with their work and highly recommend their services. 👍 Fobas Institute appreciates the excellent digital marketing support from Color Parrot. Their creative videos and posters have greatly enhanced our online presence',
-      name: 'Aparna',
-      role: 'Fobas',
-      color: 'var(--cyan)',
-      border: 'rgba(40,193,229,0.15)',
-      bg: 'rgba(40,193,229,0.04)',
+      id: 2,
+      title: 'Aparna - Fobas',
+      description: 'Color Parrot is doing a great job in Digital marketing! Their videos and posters are really creative and effective. I’m very happy with their work and highly recommend their services. 👍 Fobas Institute appreciates the excellent digital marketing support from Color Parrot. Their creative videos and posters have greatly enhanced our online presence',
+      image: '/logos/fobas.webp',
       initial: 'A',
-      logo: null,
+      color: 'var(--cyan)'
     },
     {
-      quote: 'The motion graphics they created for our product launch exceeded every expectation. Truly a world-class creative team based right here in Kerala.',
-      name: 'Arun Krishna',
-      role: 'Founder, Nuvana Health',
-      color: 'var(--purple)',
-      border: 'rgba(122,67,255,0.15)',
-      bg: 'rgba(122,67,255,0.04)',
+      id: 3,
+      title: 'Arun Krishna - Founder, Nuvana Health',
+      description: 'The motion graphics they created for our product launch exceeded every expectation. Truly a world-class creative team based right here in Kerala.',
+      image: '/logos/nuvana-logo.webp',
       initial: 'A',
+      color: 'var(--purple)'
     },
   ]
 
-  useGSAP(() => {
-    gsap.fromTo(
-      '.testi-card',
-      { y: 50, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: ref.current,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        }
-      }
-    )
-  }, [])
-
   return (
-    <section id="testimonials" className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <div className="container">
+    <section id="testimonials" ref={sectionRef} className="pad" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
+      <div className="container testimonial-reveal">
         <p className="sec-label" style={{ color: 'var(--yellow)' }}>Client Stories</p>
         <ScrollFloat className="sec-title" tag="h2" style={{ marginBottom: 'clamp(1.5rem, 2vw, 3.5rem)' }}>
           What They <span className="y">Say</span>
         </ScrollFloat>
         
-        <div style={{ position: 'relative', width: '100%' }}>
-          <div 
-            className="testi-grid mobile-slider" 
-            ref={ref} 
-            onScroll={handleScroll}
-            style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-              gap: '1.5rem', 
-              marginTop: '3rem',
-              width: '100%',
-              transform: 'translateZ(0)'
-            }}
-          >
-            {testimonials.map((t, i) => (
-              <BorderGlow
-                key={i}
-                className="testi-card"
-                glowColor={
-                  t.color === 'var(--green)' ? '160 84 62' :
-                  t.color === 'var(--cyan)' ? '190 80 60' :
-                  '260 70 60'
-                }
-                colors={
-                  t.color === 'var(--green)' ? ['#1D9E75', '#0ae469'] :
-                  t.color === 'var(--cyan)' ? ['#28c1e5', '#38bdf8'] :
-                  ['#7a43ff', '#c084fc']
-                }
-                backgroundColor={t.bg}
-                borderRadius={28}
-                fillOpacity={0}
-                style={{
-                  border: `1px solid ${t.border}`,
-                  transition: 'transform 0.3s ease',
-                  cursor: 'default',
-                  height: '100%'
-                }}
-              >
-                <div style={{ padding: '2.25rem', display: 'flex', flexDirection: 'column', gap: '1.75rem', height: '100%' }}>
-                  <div
-                    style={{
-                      fontSize: '3.5rem',
-                      lineHeight: 0.8,
-                      color: t.color,
-                      opacity: 0.35,
-                      fontFamily: 'Georgia, serif',
-                    }}
-                  >
-                    “
-                  </div>
-
-                  <p
-                    style={{
-                      fontSize: '0.93rem',
-                      lineHeight: 1.8,
-                      color: 'rgba(242,242,242,0.62)',
-                      fontWeight: 400,
-                      flex: 1,
-                    }}
-                  >
-                    {t.quote}
-                  </p>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    {t.logo ? (
-                      <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: `1px solid ${t.border}`, background: '#fff' }}>
-                        <img src={t.logo} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: '50%',
-                          background: t.border,
-                          border: `1px solid ${t.border}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '1.1rem',
-                          fontWeight: 600,
-                          color: t.color,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {t.initial}
-                      </div>
-                    )}
-                    <div>
-                      <p
-                        style={{
-                          fontSize: '0.9rem',
-                          fontWeight: 600,
-                          color: 'rgba(242,242,242,0.9)',
-                          marginBottom: '0.2rem',
-                        }}
-                      >
-                        {t.name}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: '0.7rem',
-                          letterSpacing: '0.08em',
-                          color: t.color,
-                          opacity: 0.7,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {t.role}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </BorderGlow>
-            ))}
-          </div>
-
-          <div className="mobile-only-btn" style={{ width: '100%', marginTop: '1.5rem' }}>
-            <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center' }}>
-              {testimonials.map((_, i) => (
-                <div key={i} onClick={() => scrollTo(i)} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === activeIndex ? 'var(--cyan)' : 'rgba(255,255,255,0.2)', cursor: 'pointer', transition: 'background 0.3s ease' }} />
-              ))}
-            </div>
-          </div>
+        <div className="testimonial-reveal" style={{ marginTop: '3rem', width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <TestimonialsCard 
+            items={testimonials} 
+            width={800} 
+            autoPlay={true}
+            autoPlayInterval={5000}
+          />
         </div>
       </div>
     </section>
@@ -1195,10 +1061,14 @@ function TestimonialsSection() {
 
 function FAQSection() {
   const faqs = [
-    { q: "What services does Colour Parrot offer?", a: "We offer a full spectrum of creative services including Brand Identity, Motion Graphics, Digital Marketing, and Video Production." },
-    { q: "Where are you located?", a: "We are based in Kozhikode, Kerala, but we work with clients globally." },
-    { q: "How do we start a project?", a: "You can reach out to us via email or phone. We'll set up a discovery call to understand your needs and craft a tailored strategy." },
-    { q: "Do you work with startups?", a: "Absolutely! We love helping emerging brands launch with impact, establishing strong foundations and creative campaigns." }
+    { q: "What services does Colour Parrot offer?", a: "We provide end-to-end creative solutions, including brand identity, video production, digital marketing, web & UI/UX design, content creation, and creative advertising." },
+    { q: "Which industries do you work with?", a: "We work with businesses across logistics, hospitality, real estate, food & beverage, fashion & apparel, technology & AI, event management, retail, and e-commerce. Our approach is tailored to every industry and business goal." },
+    { q: "Do you work with startups as well as established businesses?", a: "Yes. Whether you're launching a new brand or scaling an existing one, we develop creative strategies that align with your stage of growth." },
+    { q: "Can you handle an entire project from strategy to execution?", a: "Absolutely. From brand strategy and creative direction to production, marketing, and launch, we manage the complete creative process under one roof." },
+    { q: "Do you offer custom solutions?", a: "Yes. Every business is different, so every solution we deliver is tailored to your objectives, audience, and market." },
+    { q: "How does your creative process work?", a: "Our process consists of four stages: Discovery, Strategy, Creation, and Launch. This structured approach ensures every project is aligned with your business goals and delivers measurable results." },
+    { q: "How long does a typical project take?", a: "Project timelines vary depending on the scope and complexity. After understanding your requirements, we'll provide a detailed timeline before the project begins." },
+    { q: "How do I get started?", a: "Simply reach out through our contact form or schedule a consultation. We'll discuss your goals, understand your requirements, and recommend the best approach for your brand." }
   ]
   
   const [open, setOpen] = useState(null)
@@ -1247,6 +1117,8 @@ function FAQSection() {
 
 function ContactSection() {
   const titleRef = useRef(null)
+  const [status, setStatus] = useState('');
+
   useGSAP(() => {
     gsap.fromTo(titleRef.current, { y: 70, opacity: 0 }, {
       y: 0, opacity: 1, duration: 1.1, ease: 'power4.out',
@@ -1257,6 +1129,26 @@ function ContactSection() {
       },
     })
   }, [])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('Sending...');
+    const formData = new FormData(e.target);
+    formData.append("access_key", "dd36d479-f98a-4f9b-8ad3-2fd4184c54f7"); 
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", { method: "POST", body: formData });
+      const data = await response.json();
+      if (data.success) {
+        setStatus('Message sent successfully!');
+        e.target.reset();
+      } else {
+        setStatus('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      setStatus('An error occurred. Please try again later.');
+    }
+  };
+
   return (
     <section id="contact" className="pad" style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
       <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(3rem, 6vw, 6rem)', alignItems: 'center', position: 'relative', zIndex: 1 }}>
@@ -1266,10 +1158,10 @@ function ContactSection() {
             <span className="g">LET'S</span><br /><span className="c">BUILD.</span>
           </h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
             {[ 
               { label: 'Email', value: 'info@colourparrot.com', link: 'mailto:info@colourparrot.com' }, 
-              { label: 'Phone', value: '+91 94008 90105', link: 'tel:+919400890105' },
+              { label: 'Phone', value: '+91 96338 65774', link: 'tel:+919633865774' },
               { label: 'Location', value: "Kozhikode, Kerala", link: 'https://www.google.com/maps/search/Colour+Parrot+Branding+%26+Advertising/@11.2256954,75.7985431,17z/data=!3m1!4b1?entry=ttu' }, 
               { 
                 label: 'Social', 
@@ -1295,9 +1187,25 @@ function ContactSection() {
             ))}
           </div>
           
-          <Magnet padding={80} disabled={false}>
-            <StarBorderBtn href="/contact" size="lg">Start a Project →</StarBorderBtn>
-          </Magnet>
+          <div style={{ marginTop: '1rem' }}>
+            {status && (
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: '8px', background: status.includes('success') ? 'rgba(10,228,105,0.1)' : 'rgba(255,255,255,0.05)', color: status.includes('success') ? 'var(--green)' : 'white', fontSize: '0.9rem' }}>
+                {status}
+              </div>
+            )}
+            <form style={{ display: 'grid', gap: '1.2rem' }} onSubmit={handleSubmit}>
+              <input name="name" required type="text" placeholder="Full Name" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s', fontFamily: 'inherit' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'} />
+              <input name="email" required type="email" placeholder="Email Address" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s', fontFamily: 'inherit' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'} />
+              <textarea name="message" required rows="3" placeholder="How can we help?" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'white', outline: 'none', transition: 'border-color 0.3s', resize: 'none', fontFamily: 'inherit' }} onFocus={e=>e.target.style.borderColor='var(--green)'} onBlur={e=>e.target.style.borderColor='var(--glass-border)'}></textarea>
+              <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                <Magnet padding={40} disabled={false}>
+                  <StarBorderBtn as="button" type="submit" size="lg" disabled={status === 'Sending...'}>
+                    {status === 'Sending...' ? 'Sending...' : 'Send Message →'}
+                  </StarBorderBtn>
+                </Magnet>
+              </div>
+            </form>
+          </div>
         </div>
 
         {/* Map Integration */}

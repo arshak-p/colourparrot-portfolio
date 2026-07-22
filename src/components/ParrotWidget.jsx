@@ -13,7 +13,7 @@ export default function ParrotWidget() {
       transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => window.open('https://wa.me/919400890105?text=Hello! your parrot sent me here.', '_blank')}
+      onClick={() => window.open('https://wa.me/919633865774?text=Hello! your parrot sent me here.', '_blank')}
     >
       <motion.div
         className={styles.bubble}
