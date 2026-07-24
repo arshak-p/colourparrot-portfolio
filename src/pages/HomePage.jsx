@@ -37,7 +37,7 @@ import FlowingMenu from '../components/FlowingMenu'
 import ScrollFloat from '../components/ScrollFloat';
 import PixelCard from '../components/PixelCard';
 import CurvedLoop from '../components/CurvedLoop'
-import { TestimonialsCard } from '../components/TestimonialsCard';
+import { TestimonialsMarquee } from '../components/TestimonialsMarquee';
 
 import { 
   services, 
@@ -994,14 +994,13 @@ function ProcessSection() {
 
 function TestimonialsSection() {
   const sectionRef = useRef(null)
-  
+
   useGSAP(() => {
     gsap.from('.testimonial-reveal', {
       scrollTrigger: {
         trigger: sectionRef.current,
-        start: 'top 85%',
-        once: true,
-        scrub: 0.5,
+        start: 'top 80%',
+        once: true
       },
       y: 50,
       opacity: 0,
@@ -1036,6 +1035,46 @@ function TestimonialsSection() {
       initial: 'A',
       color: 'var(--purple)'
     },
+    {
+      id: 4,
+      title: 'Abdul Hameed - Mask',
+      description: 'Digital marketing with Colour Parrot is effortless. Creative posters, effective social media management, and stunning graphics make every campaign pop.',
+      image: '',
+      initial: 'A',
+      color: 'var(--blue)'
+    },
+    {
+      id: 5,
+      title: 'Shameema - Brain Boot',
+      description: 'Colour Parrot! Innovative ideas and creative approach make their work truly stand out. I really appreciate their professionalism and positive attitude. They are affordable, friendly, and always maintain a strong focus on quality in everything they do. I’ve already recommended Colour Parrot to my brothers and friends. A perfect choice for anyone looking for reliable and effective digital marketing support!',
+      image: '',
+      initial: 'S',
+      color: 'var(--orange)'
+    },
+    {
+      id: 6,
+      title: 'Muhammed Ashar V - Star Eye Care',
+      description: 'Very good service. The marketing was worth the money. Really good communication. The commissioned posters were all great in quality in terms of graphics, content, and marketability.',
+      image: '',
+      initial: 'M',
+      color: 'var(--pink)'
+    },
+    {
+      id: 7,
+      title: 'Shahdad EK - Frywings',
+      description: 'From content creation to social media campaigns, Colour Parrot knows how to engage audiences. Poster designs are always on point!',
+      image: '',
+      initial: 'S',
+      color: 'var(--yellow)'
+    },
+    {
+      id: 8,
+      title: 'Sahl Mundoli - Jadwa',
+      description: 'Great team and coordination with the client. Willing to listen and improve based on the requirements.',
+      image: '',
+      initial: 'S',
+      color: 'var(--green)'
+    }
   ]
 
   return (
@@ -1046,14 +1085,10 @@ function TestimonialsSection() {
           What They <span className="y">Say</span>
         </ScrollFloat>
         
-        <div className="testimonial-reveal" style={{ marginTop: '3rem', width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <TestimonialsCard 
-            items={testimonials} 
-            width={800} 
-            autoPlay={true}
-            autoPlayInterval={5000}
-          />
+        <div className="testimonial-reveal" style={{ marginTop: '3rem', width: '100%' }}>
+          <TestimonialsMarquee items={testimonials} />
         </div>
+        
       </div>
     </section>
   )
